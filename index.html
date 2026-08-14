@@ -5,6 +5,24 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes,maximum-scale=3.0" />
 <title>WindowCraft Pro</title>
 
+<!-- PWA Manifest & Theme Settings for Android / Play Store -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1a73e8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<!-- Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker Registered!', reg))
+        .catch(err => console.log('Service Worker Error: ', err));
+    });
+  }
+</script>
+
 <!-- Google AdSense / AdMob Web Script -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2598828616326472" crossorigin="anonymous"></script>
 
@@ -397,7 +415,7 @@ function downloadPdfDirect(doc, fileName) {
   try {
     const base64Data = doc.output('datauristring').split(',')[1];
     
-    // 1. Android Native Storage Saver (AIDE / Android Studio App)
+    // 1. Android Native Storage Saver
     if (window.AndroidBridge && window.AndroidBridge.savePdfFile) {
       window.AndroidBridge.savePdfFile(base64Data, fileName);
     }
