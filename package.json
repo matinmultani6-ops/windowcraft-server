@@ -1,0 +1,10 @@
+{
+  "name": "windowcraft-server",
+  "version": "1.0.0",
+  "description": "Calculation Engine for WindowCraft Pro",
+  "main": "api/calculate.js",
+  "scripts": {
+    "start": "node api/calculate.js"
+  },
+  "dependencies": {}
+}
