@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes,maximum-scale=3.0" />
+<title>WindowCraft Pro</title>
+
+<!-- Google AdSense / AdMob Web Script -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2598828616326472" crossorigin="anonymous"></script>
+
+<style>
+:root{
+  --bg:#ffffff; --panel:#f4f7f9; --text:#222222; --muted:#666666;
+  --primary:#1a73e8; --secondary:#5a6d81; --danger:#dc3545; --success:#28a745;
+  --orange:#fd7e14; --action-btn-text: #ffffff; --border:#cccccc;
+  --header-height: 52px; --base-font-size: 0.82rem;
+}
+*{box-sizing:border-box;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+html, body { margin: 0; padding: 0; min-height: 100%; width: 100%; background: var(--bg); overflow-x: hidden !important; }
+body{ color:var(--text); line-height:1.45; padding-top: var(--header-height); padding-bottom: 60px; font-size: var(--base-font-size); }
+
+.offline-banner {
+  position: fixed; top: 0; left: 0; right: 0; background: #dc3545; color: #ffffff;
+  text-align: center; padding: 8px 12px; font-size: 0.82rem; font-weight: bold; z-index: 10000;
+  display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+header.top{
+  position:fixed;top:0;left:0;right:0;height:var(--header-height);z-index:50;padding:4px 8px;text-align:center;
+  font-weight:700;color:var(--action-btn-text);font-size: 0.88rem;
+  background:var(--primary); border-bottom: 1px solid var(--border); box-shadow:0 2px 4px rgba(0,0,0, .1);
+  display: flex; align-items: center; justify-content: center; width: 100%; box-sizing: border-box;
+}
+.header-container { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.logo-icon { width: 32px; height: 32px; flex-shrink: 0; }
+.pill, .status{display:inline-block;padding:2px 7px;border-radius:999px;background:var(--secondary);color:#fff;font-weight:600;font-size:.70rem;margin-left:4px;}
+.status { background: #6c757d; }
+
+.wrap{ max-width: 1200px; width: 100%; margin: 0 auto; padding: 10px 6px; display: grid; grid-template-columns: 1fr; gap: 10px; box-sizing: border-box; }
+@media (min-width: 850px) { .wrap { grid-template-columns: 360px 1fr; align-items: start; gap: 12px; } }
+
+.left-col, .right-col { min-width: 0 !important; width: 100%; box-sizing: border-box; }
+.card{ background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 8px; box-shadow:0 1px 3px rgba(0,0,0, .06); margin-bottom: 10px; position: relative; width: 100%; min-width: 0; box-sizing: border-box; }
+h2{margin:0 0 8px;font-size:1.0rem;font-weight:700;color:var(--primary);border-bottom: 1px solid var(--border);padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center;}
+h3{margin:0 0 6px;font-size:0.85rem;font-weight:600;color:var(--text);border-bottom:1px dashed var(--border);padding-bottom:3px; display: flex; justify-content: space-between; align-items: center;}
+.muted{color:var(--muted);font-size:0.72rem}
+
+.row{display:grid;grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; width: 100%; box-sizing: border-box;}
+.lbl { display: block; margin-bottom: 2px; font-size: 0.75rem; font-weight: 600; color: var(--text); }
+.input, textarea, select{ width:100%;border:1px solid var(--border);background:var(--bg);color:var(--text); border-radius:4px;padding:5px 7px;font-size:0.80rem; transition:border-color .2s, box-shadow .2s; -webkit-appearance:none; box-sizing: border-box; }
+.input:focus, textarea:focus, select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(26, 115, 232, .18);}
+textarea.input[rows="4"] { min-height: 75px; padding: 5px; font-size: 0.80rem; resize: vertical; }
+
+.group.compact { display: flex; justify-content: space-between; align-items: center; width: 100%; min-width: 0; }
+.group.compact .lbl { flex-shrink: 1; margin-bottom: 0; margin-right: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.75rem; }
+.group.compact .input { width: 100%; max-width: 80px; padding: 4px 6px; font-size: 0.80rem; flex-shrink: 0; }
+.group[data-span="2"] { grid-column: span 2; }
+
+.gear-btn { background: none; border: none; font-size: 1.15rem; cursor: pointer; color: var(--primary); padding: 1px 3px; border-radius: 4px; }
+.toolbar { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.toolbar .btn-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+.btn{ border:0;color:var(--action-btn-text);cursor:pointer;font-weight:600;padding:7px 8px; border-radius:5px; box-shadow:0 1px 2px rgba(0,0,0, .15); font-size:0.80rem; white-space:nowrap; width: 100%; text-align: center; transition: all 0.15s ease; background-color: var(--primary); display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.btn:active { transform: scale(0.97); }
+.b-action-2 { background-color: var(--secondary); } .b-danger { background-color: var(--danger); } .b-success { background-color: var(--success); }
+
+.mode-selector { position: relative; width: 100%; }
+.mode-dropdown { position: absolute; top: 100%; left: 0; right: 0; z-index: 100; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0, .15); display: none; padding: 5px; margin-top: 4px; max-height: 220px; overflow-y: auto; }
+.mode-dropdown.open { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+.mode-dropdown .btn { padding: 5px 3px; font-size: 0.75rem; background-color: var(--secondary); }
+
+.toggle-pill { background: var(--secondary); color: #fff; border: none; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 600; cursor: pointer; }
+.toggle-pill.active-orange { background: var(--orange); }
+.toggle-pill.active-green { background: var(--success); }
+
+.table-wrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow-x: auto !important; overflow-y: hidden !important; margin-bottom: 8px; display: block; box-sizing: border-box; }
+table{ width: 100%; min-width: 440px; border-collapse: collapse; border-spacing: 0; border-radius: 4px; }
+th,td{ border:1px solid var(--border); padding:4px 5px; text-align:center; background:var(--bg); white-space:nowrap; font-size:0.72rem; }
+th{ background:var(--panel); font-weight:700; color:var(--text); }
+td{ font-weight:500; color:#333; }
+tr:nth-child(even) td{ background:#f9fbfd }
+
+.modal{ position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:1000; display:none; justify-content:center; align-items:flex-start; padding:12px 6px; overflow-y:auto; overflow-x: hidden; box-sizing: border-box; }
+.modal.open{ display:flex; }
+.box{ background:var(--bg); border-radius:8px; padding:12px 10px; width:100%; max-width:460px; box-shadow:0 10px 30px rgba(0,0,0,0.3); box-sizing: border-box; margin: 0 auto; }
+.modal h4{ font-size:0.98rem; color:var(--primary); margin:0 0 8px; padding-bottom:4px; border-bottom:2px solid var(--border); display:flex; justify-content:space-between; align-items:center;}
+
+.wc-card { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 7px; margin-bottom: 6px; }
+.wc-card h4 { font-size: 0.80rem; border-bottom: 1px dashed var(--border); padding-bottom: 3px; margin-bottom: 5px; color: var(--text); }
+.wc-tab-row { display:flex; gap: 4px; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 5px; flex-wrap: wrap; }
+.wc-tab-row .tab { background-color: var(--secondary); padding: 3px 7px; font-size: 0.72rem; font-weight: 600; border-radius: 4px; color: #fff; border: none; cursor: pointer;}
+.wc-tab-row .tab.active { background-color: var(--primary) !important; }
+.chk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px; }
+.chk-item { font-size: 0.75rem; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; }
+
+.native-ad-box { background: #eef4fc; border: 1.5px dashed #1a73e8; border-radius: 6px; padding: 10px; text-align: center; margin: 10px 0; font-size: 0.75rem; color: #1a73e8; font-weight: bold; }
+#bottomBannerContainer { position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: #222; z-index: 1000; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #fff; border-top: 2px solid #1a73e8; font-weight: bold; }
+.toast-ad { position: fixed; top: 60px; right: 10px; background: #28a745; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; z-index: 9999; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+<!-- NO INTERNET ALERT BANNER -->
+<div id="offlineBanner" class="offline-banner">
+  ⚠️ No Internet Connection / इंटरनेट कनेक्शन उपलब्ध नहीं है
+</div>
+
+<div id="adToast" class="toast-ad">📢 [AdMob Triggered] Ad Unit Active</div>
+
+<header class="top">
+  <div class="header-container">
+    <svg class="logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="512" height="512" rx="110" fill="#1565C0"/>
+      <rect x="96" y="96" width="320" height="320" rx="20" fill="none" stroke="#FFFFFF" stroke-width="28"/>
+      <line x1="256" y1="96" x2="256" y2="416" stroke="#FFFFFF" stroke-width="20"/>
+      <circle cx="120" cy="120" r="32" fill="#FFB300"/>
+      <text x="120" y="132" font-family="sans-serif" font-weight="900" font-size="34" fill="#FFFFFF" text-anchor="middle">W</text>
+    </svg>
+    <span id="companyHeaderDisplay" style="margin-left:5px; font-weight:bold;">WindowCraft Pro</span>
+    <span id="modePill" class="pill">Mode: D3</span>
+    <span id="statusPill" class="status">Status: Ready</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="left-col">
+    <section class="card">
+      <h2>
+        <span>1. 📏 Project Sizes & Inputs</span>
+        <button id="settingsBtn" class="gear-btn" title="Settings & Advanced">⚙️</button>
+      </h2>
+      
+      <div class="row">
+        <div class="group compact"><label class="lbl" id="lcLabel" for="lcInput">Window Stock (in)</label><input id="lcInput" class="input" type="number" step="0.25" value="192.5" /></div>
+        <div class="group compact"><label class="lbl" id="pipeLcLabel" for="pipeLcInput">Pipe Stock (in)</label><input id="pipeLcInput" class="input" type="number" step="0.25" value="192.5" /></div>
+      </div>
+      
+      <div class="row">
+        <div class="group" data-span="2">
+          <label class="lbl" id="sizesLabel" for="sizesInput">Window Sizes (W"xH") - **Half Sut e.g. 48.5.5*48(4d2)**</label>
+          <textarea id="sizesInput" class="input" rows="4" placeholder="48.5.5*48(4d2)&#10;36*36(2d3)">48.5.5*48(4d2)&#10;36*36(2d3)</textarea>
+        </div>
+        <div class="group" data-span="2">
+          <label class="lbl" id="pipeSizesLabel" for="pipeSizesInput">Custom Pipe Sizes (Length") - **Short Cutouts**</label>
+          <textarea id="pipeSizesInput" class="input" rows="3" placeholder="20&#10;30 (2)">20&#10;30 (2)</textarea>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button id="calculateBtn" class="btn b-success" type="button" style="margin-bottom: 4px; font-size: 0.88rem; padding: 8px; font-weight: 700;">🧮 Calculate / गणना करें</button>
+        <button id="unitModeBtn" class="btn b-action-2" type="button" style="margin-bottom: 4px;">📏 Unit: Inches (sut)</button>
+
+        <div class="btn-row-2">
+          <div class="mode-selector">
+            <button id="modeBtn" class="btn" type="button">D3 Mode</button>
+            <div id="modeDropdown" class="mode-dropdown"></div>
+          </div>
+          <button id="clearAllBtn" class="btn b-danger" type="button">🗑️ Clear All</button>
+        </div>
+        
+        <div class="btn-row-2" style="margin-top: 4px;">
+          <button id="pdfCutBtn" class="btn b-action-2" type="button" title="Window Sizes, Glass & Cut Plan">📐 Fabrication & Cut Report</button>
+          <button id="pdfBillBtn" class="btn b-success" type="button" title="Cost Summary & Bill">💰 Quotation & Bill Summary</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="right-col">
+    <section class="card">
+      <h2>2. 📊 Project Report</h2>
+      <div class="tables">
+        <div>
+          <h3>1. Totals and Cost (₹)</h3>
+          <div id="totalsWrap" class="table-wrap muted">—</div>
+        </div>
+
+        <div class="native-ad-box" id="nativeAdContainer">
+          📢 Ad Space Active | Publisher: ca-pub-2598828616326472
+        </div>
+
+        <div>
+          <h3>2. Profile Bars & Weight Summary</h3>
+          <div id="barSummaryWrap" class="table-wrap muted">—</div>
+        </div>
+
+        <div>
+          <h3>
+            <span>3. Window Sizes & Glass</span>
+            <button id="sqftModeBtn" class="toggle-pill">Sq.Ft: 6" Step</button>
+          </h3>
+          <div id="windowSizeGlassDetails" class="table-wrap muted">Enter sizes and select mode.</div>
+        </div>
+
+        <div>
+          <h3>4. Profile Cut Lengths</h3>
+          <div id="windowDetails" class="table-wrap muted">—</div>
+        </div>
+
+        <div>
+          <h3>5. Cutting Plan (Optimized)</h3>
+          <div id="cutPlan" class="table-wrap muted">—</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div id="bottomBannerContainer">
+  <span>📺 AdMob Banner Active | ID: ca-app-pub-2598828616326472/2432455702</span>
+</div>
+
+<!-- IN-APP PDF NAME MODAL -->
+<div id="pdfNameModal" class="modal">
+  <div class="box">
+    <h4>📄 PDF File Name / Customer Name</h4>
+    <div class="wc-card">
+      <label class="lbl" for="pdfCustomNameInput">कस्टमर या प्रोजेक्ट का नाम दर्ज करें:</label>
+      <input id="pdfCustomNameInput" class="input" type="text" value="" placeholder="e.g. Ramesh_Window_Project" style="margin-top:6px; font-size:0.85rem; padding:6px;" />
+    </div>
+    <div class="row" style="margin-top: 10px;">
+      <button id="pdfConfirmBtn" class="btn b-success" type="button">📥 Download PDF</button>
+      <button id="pdfCancelBtn" class="btn b-danger" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- OTHER MODALS -->
+<div id="settingsModal" class="modal">
+  <div class="box">
+    <h4>⚙️ Settings & Advanced</h4>
+    <div class="wc-card">
+      <h4>Company & Header Information</h4>
+      <div class="row">
+        <div class="group" data-span="2">
+          <label class="lbl" for="companyNameInput">Company / Business Name</label>
+          <input id="companyNameInput" class="input" type="text" value="" placeholder="Company Name (Optional)" />
+        </div>
+      </div>
+    </div>
+    <div class="wc-card">
+      <h4>Base Rates</h4>
+      <div class="row">
+        <div class="group"><label class="lbl" for="mrcInput">Mat. Rate (₹/kg)</label><input id="mrcInput" class="input" type="number" value="520" /></div>
+        <div class="group"><label class="lbl" for="grInput">Glass Rate (₹/sq.ft)</label><input id="grInput" class="input" type="number" value="60" /></div>
+      </div>
+    </div>
+    <div class="row" style="grid-template-columns: 1fr 1fr; margin-top: 10px;">
+      <button id="modalStockBtn" class="btn b-action-2" type="button">📦 Stock</button>
+      <button id="modalRulesBtn" class="btn b-action-2" type="button">📐 Rules</button>
+    </div>
+    <div class="row" style="grid-template-columns: 1fr; margin-top: 6px;">
+      <button id="modalWeightBtn" class="btn b-action-2" type="button">⚖️ Weights</button>
+    </div>
+    <div style="margin-top: 10px;">
+      <button id="settingsClose" class="btn b-action-1" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="stockModal" class="modal">
+  <div class="box">
+    <h4>📦 Available Stock</h4>
+    <p class="muted">Enter available cut pieces per line for active profiles.</p>
+    <div id="dynamicStockBody"></div>
+    <div class="row" style="margin-top: 10px;">
+      <button id="stockSave" class="btn b-action-1">Save Stock</button>
+      <button id="stockClose" class="btn b-action-2">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="rulesModal" class="modal">
+  <div class="box">
+    <h4>📐 Cutting Formula & Window Rules</h4>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <div class="wc-tab-row" id="rulesTabContainer" style="margin-bottom:0; border-bottom:none;"></div>
+      <button id="addCustomModeBtn" class="btn b-success" style="width:auto; padding:3px 8px; font-size:0.72rem;">➕ Add Custom Window</button>
+    </div>
+    <div id="rulesBody"></div>
+    <div class="row" style="margin-top: 10px;">
+      <button id="rulesSave" class="btn b-action-1">Save Rules</button>
+      <button id="deleteCustomModeBtn" class="btn b-danger" style="display:none;">Delete Custom Window</button>
+      <button id="rulesClose" class="btn b-action-2">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="addCustomModal" class="modal">
+  <div class="box">
+    <h4>➕ Add Custom Window / Mode</h4>
+    <div class="wc-card">
+      <div class="row">
+        <div class="group" data-span="2">
+          <label class="lbl" for="customModeName">Custom Window Name / Code</label>
+          <input id="customModeName" class="input" type="text" placeholder="e.g. C2, 3TRACK-HEAVY" />
+        </div>
+      </div>
+      <div style="margin-top:6px; margin-bottom:6px;">
+        <label class="chk-item" style="font-weight:bold; color:var(--primary);">
+          <input type="checkbox" id="customIncludeJali"> जाली शामिल करें (Include Jali)
+        </label>
+      </div>
+      <label class="lbl" style="margin-top:6px;">Select Included Profiles/Components:</label>
+      <div class="chk-grid" id="customProfilesChecklist">
+        <label class="chk-item"><input type="checkbox" value="Track" checked> Track</label>
+        <label class="chk-item"><input type="checkbox" value="TopTrack"> Top Track</label>
+        <label class="chk-item"><input type="checkbox" value="BottomTrack"> Bottom Track</label>
+        <label class="chk-item"><input type="checkbox" value="ShutterW" checked> Shutter (W)</label>
+        <label class="chk-item"><input type="checkbox" value="ShutterH" checked> Shutter (H)</label>
+        <label class="chk-item"><input type="checkbox" value="Interlock" checked> Interlock</label>
+        <label class="chk-item"><input type="checkbox" value="BearingBottomW"> Bearing Bottom (W)</label>
+        <label class="chk-item"><input type="checkbox" value="Handle"> Handle (H)</label>
+        <label class="chk-item"><input type="checkbox" value="TrackStrip"> Track Strip (पट्टी)</label>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 10px;">
+      <button id="saveNewCustomMode" class="btn b-success">Create Custom Window</button>
+      <button id="cancelCustomMode" class="btn b-action-2">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="weightModal" class="modal">
+  <div class="box">
+    <h4>⚖️ Bar Weight (Kg per Full Bar)</h4>
+    <div class="wc-tab-row" id="weightTabContainer"></div>
+    <div id="wcBody"></div>
+    <div class="row" style="margin-top: 10px;">
+      <button id="weightSave" class="btn b-action-1">Save Weights</button>
+      <button id="weightClose" class="btn b-action-2">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// PRODUCTION BACKEND URL (WINDOWCRAFT PRO)
+const VERCEL_API_URL = "https://windowcraft-server.vercel.app/api/calculate";
+
+const $ = (s, r=document)=>r.querySelector(s);
+const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+
+function checkNetworkStatus() {
+  const banner = $('#offlineBanner');
+  if (!navigator.onLine) {
+    if (banner) banner.style.display = 'block';
+    setStatus('Offline');
+  } else {
+    if (banner) banner.style.display = 'none';
+    setStatus('Ready');
+  }
+}
+
+window.addEventListener('online', checkNetworkStatus);
+window.addEventListener('offline', checkNetworkStatus);
+
+function showAdToast(msg) {
+  const toast = $('#adToast');
+  if (toast) {
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 3000);
+  }
+}
+
+// ADMOB TRIGGERS
+function triggerAppOpenAd() {
+  showAdToast("📢 [AdMob App Open] Triggered");
+  if (window.AndroidBridge && window.AndroidBridge.showAppOpenAd) window.AndroidBridge.showAppOpenAd();
+}
+function triggerInterstitialAd() {
+  showAdToast("📢 [AdMob Interstitial] ID: ca-app-pub-2598828616326472/7249668118");
+  if (window.AndroidBridge && window.AndroidBridge.showInterstitialAd) window.AndroidBridge.showInterstitialAd();
+}
+function triggerRewardedAd(onSuccess) {
+  showAdToast("🎬 [AdMob Rewarded] ID: ca-app-pub-2598828616326472/6464818023");
+  if (window.AndroidBridge && window.AndroidBridge.showRewardedAd) {
+    window.onRewardedAdSuccess = onSuccess;
+    window.AndroidBridge.showRewardedAd();
+  } else { onSuccess(); }
+}
+
+// UNIQUE FILE NAME GENERATOR
+function getUniquePdfFileName(baseName) {
+  STATE.pdfCount = (STATE.pdfCount || 0) + 1;
+  let clean = baseName.trim().replace(/[/\\?%*:|"<>]/g, '_').replace(/\.pdf$/i, '');
+  if (!clean) clean = "WindowCraft_Report";
+  return `${clean} (${STATE.pdfCount}).pdf`;
+}
+
+// DIRECT WEB & NATIVE PDF DOWNLOADER
+function downloadPdfDirect(doc, fileName) {
+  try {
+    const base64Data = doc.output('datauristring').split(',')[1];
+    
+    // 1. Android Native Storage Saver (AIDE / Android Studio App)
+    if (window.AndroidBridge && window.AndroidBridge.savePdfFile) {
+      window.AndroidBridge.savePdfFile(base64Data, fileName);
+    }
+
+    // 2. Direct Web Blob URL Saver
+    const pdfBlob = doc.output('blob');
+    const blobUrl = URL.createObjectURL(pdfBlob);
+    
+    const downloadLink = document.createElement('a');
+    downloadLink.href = blobUrl;
+    downloadLink.download = fileName;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    setStatus('PDF Generated');
+  } catch(e) {
+    alert("PDF Error: " + e.message);
+  }
+}
+
+function openPdfNameModal(type) {
+  if (!STATE.serverData) { alert("Please click Calculate first!"); return; }
+  STATE.pendingPdfType = type;
+  const company = STATE.companyName || "WindowCraft Pro";
+  const defaultBase = `${company.replace(/\s+/g, '_')}_${STATE.mode}_${type === 'cut' ? 'Report' : 'Bill'}`;
+  
+  $('#pdfCustomNameInput').value = defaultBase;
+  $('#pdfNameModal').classList.add('open');
+}
+
+function processPdfDownload() {
+  const userInput = $('#pdfCustomNameInput').value || "WindowCraft_Project";
+  const finalFileName = getUniquePdfFileName(userInput);
+  $('#pdfNameModal').classList.remove('open');
+
+  triggerRewardedAd(() => {
+    if (STATE.pendingPdfType === 'cut') {
+      generateFabricationPDF(finalFileName);
+    } else {
+      generateBillPDF(finalFileName);
+    }
+  });
+}
+
+function safeNum(v) { const n = Number(v); return isNaN(n) ? 0 : n; }
+function safeFix(v, d=2) { return safeNum(v).toFixed(d); }
+const num = (n,d=3)=>Number(Number(n).toFixed(d));
+function setStatus(msg){ $('#statusPill').textContent = 'Status: ' + msg; }
+
+const DEFAULT_RULES_CONFIG = {
+  D2: { glassQty: 2, glassW_offset: -4.3, glassH_offset: -4.125, ShutterW: { formula: 'W / 2', qty: 4 }, ShutterH: { formula: 'H - 2.75', qty: 4 }, Interlock: { formula: 'H - 2.75', qty: 2 }, arw: 700, lr: 30, rubberWtFt: 0.025, rubberRate: 160 },
+  D3: { glassQty: 3, glassW_offset: -4.3, glassH_offset: -4.125, ShutterW: { formula: 'W / 2', qty: 6 }, ShutterH: { formula: 'H - 2.75', qty: 6 }, Interlock: { formula: 'H - 2.75', qty: 3 }, arw: 700, jaliRate: 30, lr: 120, rubberWtFt: 0.025, rubberRate: 160 },
+  S2: { glassQty: 2, glassW_offset: -3.5, glassH_offset: -2.5, ShutterW: { formula: 'W / 2', qty: 4 }, ShutterH: { formula: 'H - 2.5', qty: 4 }, Interlock: { formula: 'H - 2.5', qty: 2 }, TrackStrip: { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 }, arw: 700, lr: 30, rubberWtFt: 0.025, rubberRate: 160 },
+  S3: { glassQty: 3, glassW_offset: -4.125, glassH_offset: -4.125, ShutterW: { formula: 'W / 2', qty: 6 }, ShutterH: { formula: 'H - 2.75', qty: 3 }, Interlock: { formula: 'H - 2.75', qty: 3 }, TrackStrip: { formula: 'W - 3', qty: 3, stockLen: 192.5, rate: 800 }, arw: 1000, jaliRate: 25, lr: 150, rubberWtFt: 0.025, rubberRate: 160 },
+  N2: { glassQty: 2, glassW_offset: -2.5, glassH_offset: -2.625, BearingBottomW: { formula: '(W - 6.25) / 2', qty: 4 }, Handle: { formula: 'H - 1.875', qty: 2 }, Interlock: { formula: 'H - 1.875', qty: 2 }, arw: 700, lr: 30, rubberWtFt: 0.025, rubberRate: 160 },
+  N3: { glassQty: 3, glassW_offset: -2.5, glassH_offset: -2.625, BearingBottomW: { formula: '(W - 6.25) / 2', qty: 6 }, Handle: { formula: 'H - 1.875', qty: 3 }, Interlock: { formula: 'H - 1.875', qty: 3 }, arw: 700, jaliRate: 25, lr: 30, rubberWtFt: 0.025, rubberRate: 160 }
+};
+
+const DEFAULT_WEIGHTS = {
+  D2: { Track: 6, Shutter: 3.2, Interlock: 1.8 },
+  D3: { Track: 6, Shutter: 3.2, Interlock: 1.8 },
+  S2: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 },
+  S3: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 },
+  N2: { TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, Interlock: 1.5 },
+  N3: { TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, Interlock: 1.5 },
+  Pipes: { Pipes: 2.15 }
+};
+
+const WEIGHT_TYPES = {
+  N2: ["TopTrack", "BottomTrack", "BearingBottom", "Handle", "Interlock"],
+  N3: ["TopTrack", "BottomTrack", "BearingBottom", "Handle", "Interlock"],
+  D2: ["Track", "Shutter", "Interlock"], D3: ["Track", "Shutter", "Interlock"],
+  S2: ["Track", "Shutter", "Interlock", "TrackStrip"], S3: ["Track", "Shutter", "Interlock", "TrackStrip"],
+  Pipes: ["Pipes"]
+};
+
+const LS = {
+  getWeights(){ try{ return JSON.parse(localStorage.getItem('fs_weights')||'{}'); }catch(e){ return {}; } },
+  setWeights(obj){ localStorage.setItem('fs_weights', JSON.stringify(obj)); },
+  getRules(){ try{ return JSON.parse(localStorage.getItem('fs_customRules')||'{}'); }catch(e){ return {}; } },
+  setRules(obj){ localStorage.setItem('fs_customRules', JSON.stringify(obj)); },
+  getStock(){ try{ return JSON.parse(localStorage.getItem('fs_stock_map')||'{}'); }catch(e){ return {}; } },
+  setStock(obj){ localStorage.setItem('fs_stock_map', JSON.stringify(obj)); },
+  getCustomModes(){ try{ return JSON.parse(localStorage.getItem('fs_custom_modes')||'[]'); }catch(e){ return []; } },
+  setCustomModes(arr){ localStorage.setItem('fs_custom_modes', JSON.stringify(arr)); }
+};
+
+const STATE = {
+  companyName: 'WindowCraft Pro', unitMode: 'inch', mode: 'D3', sqftMode: '6step',
+  customRules: LS.getRules(), stockMap: LS.getStock(), customModes: LS.getCustomModes(),
+  currentRulesTab: 'D3', currentWeightTab: 'D3', optStrategy: {}, serverData: null, pdfCount: 0,
+  pendingPdfType: null
+};
+
+function parseSutOffset(val) {
+  if (val === undefined || val === null || val === '') return 0;
+  const s = String(val).trim();
+  const isNeg = s.startsWith('-');
+  const clean = s.replace('-', '');
+  const parts = clean.split('.');
+  if (parts.length === 2) {
+    const inch = parseInt(parts[0], 10) || 0;
+    const dec = parts[1];
+    let sut = 0;
+    if (dec.length === 1) {
+      sut = parseInt(dec, 10);
+      if (sut >= 0 && sut <= 7) return isNeg ? -(inch + (sut / 8)) : (inch + (sut / 8));
+    } else if (dec === '25' || dec === '2') return isNeg ? -(inch + 0.25) : (inch + 0.25);
+    else if (dec === '75' || dec === '6') return isNeg ? -(inch + 0.75) : (inch + 0.75);
+    else if (dec === '125' || dec === '1') return isNeg ? -(inch + 0.125) : (inch + 0.125);
+    else if (dec === '375' || dec === '3') return isNeg ? -(inch + 0.375) : (inch + 0.375);
+    else if (dec === '625' || dec === '5') return isNeg ? -(inch + 0.625) : (inch + 0.625);
+    else if (dec === '875' || dec === '7') return isNeg ? -(inch + 0.875) : (inch + 0.875);
+  }
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
+function fmtSutOffset(n) {
+  if (n == null || isNaN(n)) return '0';
+  const isNeg = n < 0;
+  const absVal = Math.abs(n);
+  const whole = Math.floor(absVal);
+  const dec = absVal - whole;
+  const sut = Math.round(dec * 8);
+  if (sut === 0) return isNeg ? `-${whole}` : String(whole);
+  const sutStr = `${whole}.${sut}`;
+  return isNeg ? `-${sutStr}` : sutStr;
+}
+
+function parseFormulaToParts(formulaStr, defaultDivisor = 1) {
+  if (!formulaStr || typeof formulaStr !== 'string') {
+    return { base: 'W', offset: 0, divisor: defaultDivisor };
+  }
+  const s = formulaStr.trim();
+  const baseMatch = s.match(/(W|H)/i);
+  const base = baseMatch ? baseMatch[1].toUpperCase() : 'W';
+  let divisor = defaultDivisor;
+  const divMatch = s.match(/\/\s*([\d\.]+)/);
+  if (divMatch) divisor = parseFloat(divMatch[1]) || defaultDivisor;
+  let offset = 0;
+  const matches = s.match(/[\+\-]\s*[\d\.]+/g);
+  if (matches) {
+    matches.forEach(m => {
+      const val = parseFloat(m.replace(/\s+/g, ''));
+      if (!isNaN(val)) offset += val;
+    });
+  }
+  return { base, offset: num(offset, 4), divisor };
+}
+
+function buildFormulaFromParts(base, offset, divisor) {
+  let offNum = safeNum(offset);
+  let divNum = safeNum(divisor) || 1;
+  let offStr = '';
+  if (offNum > 0) offStr = ` + ${offNum}`;
+  else if (offNum < 0) offStr = ` - ${Math.abs(offNum)}`;
+  if (offNum !== 0 && divNum > 1) return `(${base}${offStr}) / ${divNum}`;
+  else if (divNum > 1) return `${base} / ${divNum}`;
+  else return `${base}${offStr}`;
+}
+
+function getGlassOffset(ruleVal, defaultVal = -2.5) {
+  if (ruleVal === undefined || ruleVal === null) return defaultVal;
+  if (typeof ruleVal === 'number') return ruleVal;
+  if (typeof ruleVal === 'string') return parseSutOffset(ruleVal);
+  return defaultVal;
+}
+
+function saveInputs(){
+  try {
+    const data = {
+      companyName: $('#companyNameInput').value,
+      unitMode: STATE.unitMode, sizes: $('#sizesInput').value,
+      pipeSizes: $('#pipeSizesInput').value, lc: $('#lcInput').value,
+      pipeLc: $('#pipeLcInput').value, mrc: $('#mrcInput').value,
+      gr: $('#grInput').value, mode: STATE.mode, sqftMode: STATE.sqftMode,
+      optStrategy: STATE.optStrategy
+    };
+    localStorage.setItem('fs_all_inputs', JSON.stringify(data));
+  } catch(e) {}
+}
+
+function loadInputs(){
+  try {
+    const data = JSON.parse(localStorage.getItem('fs_all_inputs') || '{}');
+    if (data.companyName) {
+      if (/R\.?Q\.?|AluFab/i.test(data.companyName)) data.companyName = 'WindowCraft Pro';
+      STATE.companyName = data.companyName; $('#companyNameInput').value = data.companyName;
+    } else { STATE.companyName = 'WindowCraft Pro'; $('#companyNameInput').value = 'WindowCraft Pro'; }
+    if (data.unitMode) STATE.unitMode = data.unitMode;
+    if (data.sizes !== undefined) $('#sizesInput').value = data.sizes;
+    if (data.pipeSizes !== undefined) $('#pipeSizesInput').value = data.pipeSizes;
+    if (data.lc !== undefined) $('#lcInput').value = data.lc;
+    if (data.pipeLc !== undefined) $('#pipeLcInput').value = data.pipeLc;
+    if (data.mrc !== undefined) $('#mrcInput').value = data.mrc;
+    if (data.gr !== undefined) $('#grInput').value = data.gr;
+    if (data.mode) { STATE.mode = data.mode; STATE.currentRulesTab = data.mode; STATE.currentWeightTab = data.mode; }
+    if (data.sqftMode) {
+      STATE.sqftMode = data.sqftMode;
+      $('#sqftModeBtn').textContent = (STATE.sqftMode === '6step') ? 'Sq.Ft: 6" Step' : 'Sq.Ft: Inch-to-Inch';
+    }
+    if (data.optStrategy) STATE.optStrategy = data.optStrategy;
+  } catch(e) {}
+}
+
+function updateHeaderCompany(){
+  const name = $('#companyNameInput').value || 'WindowCraft Pro';
+  STATE.companyName = name;
+  $('#companyHeaderDisplay').textContent = name;
+}
+
+function updateUnitUI(){
+  const isMM = STATE.unitMode === 'mm';
+  $('#unitModeBtn').textContent = isMM ? '📏 Unit: MM (mm)' : '📏 Unit: Inches (sut)';
+  $('#lcLabel').textContent = isMM ? 'Window Stock (mm)' : 'Window Stock (in)';
+  $('#pipeLcLabel').textContent = isMM ? 'Pipe Stock (mm)' : 'Pipe Stock (in)';
+  $('#sizesLabel').textContent = isMM ? 'Window Sizes (W x H mm)' : 'Window Sizes (W"xH") - **Half Sut e.g. 48.5.5*48(4d2)**';
+  $('#pipeSizesLabel').textContent = isMM ? 'Custom Pipe Sizes (Length mm)' : 'Custom Pipe Sizes (Length") - **Short Cutouts**';
+}
+
+function convertUnitModeToggle() {
+  triggerInterstitialAd();
+  const isCurrentlyInch = STATE.unitMode === 'inch';
+  STATE.unitMode = isCurrentlyInch ? 'mm' : 'inch';
+
+  let curLc = parseFloat($('#lcInput').value) || (isCurrentlyInch ? 192.5 : 4889.5);
+  let curPipeLc = parseFloat($('#pipeLcInput').value) || (isCurrentlyInch ? 192.5 : 4889.5);
+
+  if (STATE.unitMode === 'mm') {
+    $('#lcInput').value = safeFix(curLc * 25.4, 1);
+    $('#pipeLcInput').value = safeFix(curPipeLc * 25.4, 1);
+  } else {
+    $('#lcInput').value = safeFix(curLc / 25.4, 2);
+    $('#pipeLcInput').value = safeFix(curPipeLc / 25.4, 2);
+  }
+
+  saveInputs();
+  hydrateView();
+}
+
+function getAllModesList(){
+  const builtIn = ['D2', 'D3', 'S2', 'S3', 'N2', 'N3'];
+  return [...builtIn, ...(STATE.customModes || [])];
+}
+
+function updateModeDropdownsAndTabs(){
+  const modes = getAllModesList();
+  const dropdown = $('#modeDropdown');
+  if (!dropdown) return;
+  dropdown.innerHTML = '';
+  modes.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.textContent = m;
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      triggerInterstitialAd();
+      STATE.mode = m;
+      STATE.currentRulesTab = m;
+      STATE.currentWeightTab = m;
+      $('#modeBtn').textContent = `${m} Mode`;
+      $('#modePill').textContent = `Mode: ${m}`;
+      dropdown.classList.remove('open');
+      hydrateView();
+    };
+    dropdown.appendChild(btn);
+  });
+
+  const rTabs = $('#rulesTabContainer'); if (rTabs) {
+    rTabs.innerHTML = '';
+    modes.forEach(m => {
+      const btn = document.createElement('button');
+      btn.className = 'tab' + (m === STATE.currentRulesTab ? ' active' : '');
+      btn.textContent = m;
+      btn.onclick = () => {
+        $$('#rulesTabContainer .tab').forEach(x=>x.classList.remove('active'));
+        btn.classList.add('active'); STATE.currentRulesTab = m; buildRulesUI(m);
+      };
+      rTabs.appendChild(btn);
+    });
+  }
+
+  const wTabs = $('#weightTabContainer'); if (wTabs) {
+    wTabs.innerHTML = '';
+    [...modes, 'Pipes'].forEach(m => {
+      const btn = document.createElement('button');
+      btn.className = 'tab' + (m === STATE.currentWeightTab ? ' active' : '');
+      btn.textContent = m;
+      btn.onclick = () => {
+        $$('#weightTabContainer .tab').forEach(x=>x.classList.remove('active'));
+        btn.classList.add('active'); STATE.currentWeightTab = m; buildWeightUI(m);
+      };
+      wTabs.appendChild(btn);
+    });
+  }
+}
+
+async function hydrateView() {
+  checkNetworkStatus();
+  saveInputs(); updateHeaderCompany(); updateUnitUI();
+
+  if (!navigator.onLine) {
+    setStatus('Offline');
+    alert("⚠️ No Internet Connection!\nकैलकुलेशन के लिए कृपया इंटरनेट चालू करें।");
+    return;
+  }
+
+  setStatus('Connecting to Server...');
+
+  let lcVal = parseFloat($('#lcInput').value) || 192.5;
+  let pipeLcVal = parseFloat($('#pipeLcInput').value) || 192.5;
+  if (STATE.unitMode === 'mm') { lcVal = lcVal / 25.4; pipeLcVal = pipeLcVal / 25.4; }
+
+  const reqBody = {
+    sizesRaw: $('#sizesInput').value,
+    pipeSizesRaw: $('#pipeSizesInput').value,
+    defaultMode: STATE.mode,
+    stockLen: lcVal,
+    pipeStockLen: pipeLcVal,
+    unitMode: STATE.unitMode,
+    mrc: parseFloat($('#mrcInput').value) || 520,
+    gr: parseFloat($('#grInput').value) || 60,
+    sqftMode: STATE.sqftMode,
+    customRules: STATE.customRules,
+    weights: LS.getWeights(),
+    stockMap: STATE.stockMap,
+    optStrategy: STATE.optStrategy
+  };
+
+  try {
+    const response = await fetch(VERCEL_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reqBody)
+    });
+
+    if (!response.ok) throw new Error("Server Calculation Error");
+    const json = await response.json();
+    STATE.serverData = json.data;
+
+    renderReportTables(json.data);
+    $('#modePill').textContent = `Mode: ${STATE.mode}`;
+    $('#modeBtn').textContent = `${STATE.mode} Mode`;
+    setStatus('Ready');
+  } catch(err) {
+    setStatus('Offline / Error');
+  }
+}
+
+function buildTable(headers, rows) {
+  const t = document.createElement('table');
+  const thead = document.createElement('thead'); const trh = document.createElement('tr');
+  headers.forEach(h => { const th = document.createElement('th'); th.textContent = h; trh.appendChild(th); });
+  thead.appendChild(trh); t.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    r.forEach(c => { const td = document.createElement('td'); td.textContent = c; tr.appendChild(td); });
+    tbody.appendChild(tr);
+  });
+  t.appendChild(tbody);
+  return t;
+}
+
+function renderReportTables(data) {
+  if (!data) return;
+
+  const t = data.totals;
+  const totalsWrap = $('#totalsWrap'); totalsWrap.innerHTML = '';
+  const totalsRows = [
+    ["Total Windows Count", `${t.windowsCount} Nos`], ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft`],
+    ["Total Profile Bars", `${t.totalBars} Bars`], ["Total Profile Weight", `${t.totalWeightKg} Kg`],
+    [`Material Cost (@ Rs. ${t.matsRate}/kg)`, `Rs. ${t.weightCost}`], ["Total Glass Area", `${t.totalGlassSqFt} Sq.Ft`],
+    [`Glass Cost (@ Rs. ${t.glassRate}/sq.ft)`, `Rs. ${t.glassCost}`], ["Rubber Total Cost", `Rs. ${t.totalRubberCost}`],
+    ["Labour Total", `Rs. ${t.laborCost}`], ["Additional Charges", `Rs. ${t.arwCost}`],
+    ["GRAND TOTAL", `Rs. ${t.grandTotal}`], ["Average Rate per Sq.Ft", `Rs. ${t.avgRatePerSqFt} / Sq.Ft`]
+  ];
+  totalsWrap.appendChild(buildTable(["Description", "Details / Amount"], totalsRows));
+
+  const barWrap = $('#barSummaryWrap'); barWrap.innerHTML = '';
+  barWrap.appendChild(buildTable(["Profile / Bar", "Bar Qty", "Weight / Rate", "Total Weight / Cost"], data.barSummary.rows));
+
+  const winWrap = $('#windowSizeGlassDetails'); winWrap.innerHTML = '';
+  const winRows = data.sizes.map(g => [
+    `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq
+  ]);
+  winWrap.appendChild(buildTable(["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"], winRows));
+
+  const cutDetailWrap = $('#windowDetails'); cutDetailWrap.innerHTML = '';
+  if (data.windowCutDetails && data.windowCutDetails.length) {
+    const cdRows = data.windowCutDetails.map(cd => {
+      const orig = cd.origFmt || {};
+      return [
+        cd.id, orig.Track || orig.TopTrack || '-', orig.ShutterW || orig.BearingBottomW || '-',
+        orig.ShutterH || orig.Handle || '-', orig.Interlock || '-', orig.TrackStrip || '-'
+      ];
+    });
+    cutDetailWrap.appendChild(buildTable(["Win #", "Track", "Shutter (W)", "Shutter (H)", "Interlock", "Track Strip"], cdRows));
+  } else { cutDetailWrap.textContent = '—'; }
+
+  const cutWrap = $('#cutPlan'); cutWrap.innerHTML = '';
+  Object.entries(data.cutPlans).forEach(([type, plan]) => {
+    if (!plan.bins || !plan.bins.length) return;
+    const sec = document.createElement('div'); sec.style.marginBottom = '10px';
+    const h = document.createElement('h3');
+
+    const strategy = STATE.optStrategy[type] || 'minWaste';
+    const toggleBtnText = strategy === 'minWaste' ? 'Min Waste' : 'Min Bars';
+    const btnClass = strategy === 'minWaste' ? 'toggle-pill active-orange' : 'toggle-pill active-green';
+
+    h.innerHTML = `<span>${type} — Cutting Plan <small>(Stock: ${plan.stockLenFmt})</small></span>
+                   <button class="${btnClass}" data-type="${type}">${toggleBtnText}</button>`;
+    sec.appendChild(h);
+
+    h.querySelector('button').onclick = () => {
+      STATE.optStrategy[type] = (STATE.optStrategy[type] === 'minBars') ? 'minWaste' : 'minBars';
+      saveInputs(); hydrateView();
+    };
+
+    if (plan.usedFromStock && plan.usedFromStock.length) {
+      const usedHead = ["Stock Piece", "Pieces (ID)", "Leftover"];
+      const groupedRows = plan.usedFromStock.map(u => [u.origFmt, u.cutsStr, u.leftFmt]);
+      const title = document.createElement("div"); title.style.margin = "4px 0";
+      title.innerHTML = `<small style="color:var(--primary);font-weight:bold;">✓ Satisfied from Available Stock</small>`;
+      sec.appendChild(title); sec.appendChild(buildTable(usedHead, groupedRows));
+    }
+
+    const rows = plan.bins.map((b, i) => [ `Bar ${i+1}`, b.cutsStr, b.usedFmt, b.wasteFmt ]);
+    sec.appendChild(buildTable(["Stock #", "Pieces (ID)", "Used", "Leftover"], rows));
+    cutWrap.appendChild(sec);
+  });
+}
+
+function buildRulesUI(tabMode){
+  const defaults = DEFAULT_RULES_CONFIG[tabMode] || DEFAULT_RULES_CONFIG.D3;
+  const custom = STATE.customRules[tabMode] || {};
+  const body = $("#rulesBody"); body.innerHTML = "";
+
+  const isBuiltIn = ['D2','D3','S2','S3','N2','N3'].includes(tabMode);
+  $('#deleteCustomModeBtn').style.display = isBuiltIn ? 'none' : 'inline-block';
+
+  const showJali = tabMode.endsWith('3') || custom.hasJali;
+
+  const rateCard = document.createElement('div'); rateCard.className='wc-card';
+  rateCard.innerHTML = `<h4>Cost Rules & Settings</h4>
+    <div class="row">
+      <div class="group"><label class="lbl">Add ₹/Window (ARW)</label><input class="input wc-field" data-type="arw" type="number" value="${custom.arw ?? defaults.arw ?? 700}" /></div>
+      <div class="group"><label class="lbl">Labour Rate (₹/Sq.Ft)</label><input class="input wc-field" data-type="lr" type="number" value="${custom.lr ?? defaults.lr ?? 30}" /></div>
+    </div>
+    <div class="row">
+      <div class="group"><label class="lbl">Rubber Wt (Kg/Ft)</label><input class="input wc-field" data-type="rubberWtFt" type="number" step="0.001" value="${custom.rubberWtFt ?? defaults.rubberWtFt ?? 0.025}" /></div>
+      <div class="group"><label class="lbl">Rubber Rate (₹/Kg)</label><input class="input wc-field" data-type="rubberRate" type="number" value="${custom.rubberRate ?? defaults.rubberRate ?? 160}" /></div>
+    </div>
+    <div class="row">
+      <div class="group"><label class="lbl">Glass Qty per Window</label><input class="input wc-field" data-type="glassQty" type="number" value="${custom.glassQty ?? defaults.glassQty ?? 2}" /></div>
+      ${showJali ? `<div class="group"><label class="lbl">Jali Rate (₹/Sq.Ft)</label><input class="input wc-field" data-type="jaliRate" type="number" value="${custom.jaliRate ?? defaults.jaliRate ?? 25}" /></div>` : ''}
+    </div>`;
+  body.appendChild(rateCard);
+
+  const glassWOff = getGlassOffset(custom.glassW_offset ?? custom.glassW ?? defaults.glassW_offset ?? defaults.glassW, -2.5);
+  const glassHOff = getGlassOffset(custom.glassH_offset ?? custom.glassH ?? defaults.glassH_offset ?? defaults.glassH, -2.625);
+
+  const isMM = STATE.unitMode === 'mm';
+  const glassWDisp = isMM ? safeFix(glassWOff * 25.4, 1) : fmtSutOffset(glassWOff);
+  const glassHDisp = isMM ? safeFix(glassHOff * 25.4, 1) : fmtSutOffset(glassHOff);
+
+  const glassCard = document.createElement('div'); glassCard.className = 'wc-card';
+  glassCard.innerHTML = `<h4>Glass Size Rules (Shutter / Profile Cut Size से +/-)</h4>
+    <div class="row">
+      <div class="group"><label class="lbl">Glass Width Offset (${isMM?'mm':'+/- Sut'})</label><input class="input wc-field" data-type="glassW_offset" type="text" value="${glassWDisp}" placeholder="e.g. -2.4" /></div>
+      <div class="group"><label class="lbl">Glass Height Offset (${isMM?'mm':'+/- Sut'})</label><input class="input wc-field" data-type="glassH_offset" type="text" value="${glassHDisp}" placeholder="e.g. -2.5" /></div>
+    </div>`;
+  body.appendChild(glassCard);
+
+  let keys = custom.includedProfiles ? custom.includedProfiles.slice() : [];
+  if (!custom.includedProfiles) {
+    keys = tabMode.startsWith('D') || tabMode.startsWith('S')
+      ? ['ShutterW', 'ShutterH', 'Interlock']
+      : ['BearingBottomW', 'Handle', 'Interlock'];
+    if (tabMode === 'S2' || tabMode === 'S3') keys.push('TrackStrip');
+  }
+
+  keys = keys.filter(k => k !== 'Track' && k !== 'TopTrack' && k !== 'BottomTrack');
+
+  keys.forEach(key => {
+    const def = defaults[key] || { formula: 'W / 2', qty: 2 };
+    const cur = custom[key] || def;
+    const isW = key.toLowerCase().includes('w') || key === 'BearingBottomW' || key === 'TrackStrip';
+    const parts = parseFormulaToParts(cur.formula, isW ? 2 : 1);
+
+    const offDisp = isMM ? safeFix(parts.offset * 25.4, 1) : fmtSutOffset(parts.offset);
+
+    const card = document.createElement('div'); card.className='wc-card';
+    card.innerHTML = `<h4>${key} Rules</h4>
+      <div class="grid-4">
+        <div class="group"><label class="lbl">Axis</label>
+          <select class="input wc-prof-part" data-type="${key}" data-prop="base">
+            <option value="W" ${parts.base==='W'?'selected':''}>Width (W)</option>
+            <option value="H" ${parts.base==='H'?'selected':''}>Height (H)</option>
+          </select>
+        </div>
+        <div class="group"><label class="lbl">Offset (${isMM?'mm':'Sut'})</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" placeholder="0" /></div>
+        <div class="group"><label class="lbl">Divide By</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="0.1" value="${parts.divisor}" /></div>
+        <div class="group"><label class="lbl">Quantity</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
+      </div>`;
+
+    if (key === 'TrackStrip') {
+      const stockDisp = isMM ? safeFix((cur.stockLen ?? 192.5) * 25.4, 1) : (cur.stockLen ?? 192.5);
+      card.innerHTML += `
+        <div class="row" style="margin-top:4px;">
+          <div class="group"><label class="lbl">Stock Length (${isMM?'mm':'in'})</label><input class="input wc-prof-part" data-type="TrackStrip" data-prop="stockLen" type="number" step="0.25" value="${stockDisp}" /></div>
+          <div class="group"><label class="lbl">Rate per Bar (₹)</label><input class="input wc-prof-part" data-type="TrackStrip" data-prop="rate" type="number" value="${cur.rate ?? 800}" /></div>
+        </div>`;
+    }
+    body.appendChild(card);
+  });
+}
+
+function buildWeightUI(tabMode){
+  const weightsAll = LS.getWeights();
+  const stored = weightsAll[tabMode] || {};
+  const defaults = DEFAULT_WEIGHTS[tabMode] || {};
+  const body = $("#wcBody"); body.innerHTML = "";
+  const types = WEIGHT_TYPES[tabMode] || ["Track", "Shutter", "Interlock"];
+
+  types.forEach(tp => {
+    const card = document.createElement('div'); card.className = 'wc-card';
+    const val = stored[tp] !== undefined ? stored[tp] : (defaults[tp] ?? '');
+    card.innerHTML = `<h4>${tp}</h4>
+      <div class="row">
+        <div class="group" data-span="2">
+          <label class="lbl">Kg per bar (LC)</label>
+          <input class="input wc-field" data-type="${tp}" type="number" step="0.001" value="${val}" placeholder="e.g. 2.150">
+        </div>
+      </div>`;
+    body.appendChild(card);
+  });
+}
+
+function loadDynamicStockModal(){
+  const body = $('#dynamicStockBody'); body.innerHTML = '';
+  const allStock = LS.getStock();
+
+  let activeTypes = STATE.serverData && STATE.serverData.cutPlans ? Object.keys(STATE.serverData.cutPlans) : ["Track", "Shutter", "Interlock", "Pipes"];
+  activeTypes = activeTypes.filter(t => t !== 'Pipes');
+  if (!activeTypes.includes('Pipes')) activeTypes.push('Pipes');
+
+  activeTypes.forEach(tp => {
+    const card = document.createElement('div'); card.className = 'wc-card';
+    const val = (allStock[tp] || []).map(v => v.toString()).join('\n');
+    card.innerHTML = `<label class="lbl">${tp}</label><textarea id="st_${tp}" class="input" rows="2" placeholder="e.g. 150.4">${val}</textarea>`;
+    body.appendChild(card);
+  });
+}
+
+function saveStockModal(){
+  const newStockMap = LS.getStock();
+  $$('#dynamicStockBody textarea').forEach(textarea => {
+    const tp = textarea.id.replace('st_', '');
+    newStockMap[tp] = textarea.value.split(/\n|,/g).map(x => x.trim()).filter(Boolean).map(val => parseFloat(val)).filter(v => !isNaN(v) && v > 0);
+  });
+  STATE.stockMap = newStockMap;
+  LS.setStock(newStockMap);
+  $('#stockModal').classList.remove('open');
+  hydrateView();
+}
+
+// PURE BLACK & WHITE PDF GENERATOR - FABRICATION REPORT
+function generateFabricationPDF(fileName){
+  try {
+    if (!STATE.serverData) { alert("Please click Calculate first!"); return; }
+    const company = STATE.companyName || "WindowCraft Pro";
+    const jsPDFConstructor = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+    const doc = new jsPDFConstructor({unit:'pt', format:'a4'});
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const dateStr = new Date().toLocaleDateString('en-GB');
+
+    // Header - Pure B&W
+    doc.setFont('helvetica', 'bold');
+    if (company) {
+      doc.setFontSize(12); doc.text(company.toUpperCase(), 297, 26, { align: 'center' });
+      doc.setFontSize(9); doc.text('FABRICATION & CUTTING REPORT', 297, 38, { align: 'center' });
+      doc.setLineWidth(0.8); doc.line(40, 44, 555, 44);
+    } else {
+      doc.setFontSize(10); doc.text('FABRICATION & CUTTING REPORT', 297, 30, { align: 'center' });
+      doc.setLineWidth(0.8); doc.line(40, 36, 555, 36);
+    }
+
+    doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
+    doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()})`, 40, 56);
+    doc.text(`Date: ${dateStr}`, 555, 56, { align: 'right' });
+
+    let currentY = 66;
+
+    // 1. Window Sizes & Glass Table
+    const wsRows = (STATE.serverData.sizes || []).map(g => [
+      `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq
+    ]);
+
+    doc.autoTable({
+      head: [[{ content: '1. Window Sizes & Glass', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold' } }],
+             ["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]],
+      body: wsRows, startY: currentY, theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 3.5, halign: 'center', textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
+      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
+      margin: { left: 40, right: 40 }
+    });
+
+    currentY = doc.lastAutoTable.finalY + 12;
+
+    // 2. Profile Cut Lengths Table
+    if (STATE.serverData.windowCutDetails && STATE.serverData.windowCutDetails.length) {
+      const cdRows = STATE.serverData.windowCutDetails.map(cd => {
+        const orig = cd.origFmt || {};
+        return [
+          cd.id, orig.Track || orig.TopTrack || '-', orig.ShutterW || orig.BearingBottomW || '-',
+          orig.ShutterH || orig.Handle || '-', orig.Interlock || '-', orig.TrackStrip || '-'
+        ];
+      });
+
+      doc.autoTable({
+        head: [[{ content: '2. Profile Cut Lengths', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold' } }],
+               ["Win #", "Track", "Shutter (W)", "Shutter (H)", "Interlock", "Track Strip"]],
+        body: cdRows, startY: currentY, theme: 'grid',
+        styles: { fontSize: 8, cellPadding: 3.5, halign: 'center', textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
+        headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
+        margin: { left: 40, right: 40 }
+      });
+
+      currentY = doc.lastAutoTable.finalY + 12;
+    }
+
+    // 3. Cutting Plans
+    let planIndex = 3;
+    Object.entries(STATE.serverData.cutPlans || {}).forEach(([type, plan]) => {
+      if(!plan.bins || !plan.bins.length) return;
+      const binRows = plan.bins.map((b, i) => [`Bar ${i+1}`, b.cutsStr, b.usedFmt, b.wasteFmt]);
+      if (currentY + 70 > pageHeight - 35) { doc.addPage(); currentY = 40; }
+
+      doc.autoTable({
+        head: [[{ content: `${planIndex++}. Cutting Plan - ${type} (Stock: ${plan.stockLenFmt})`, colSpan: 4, styles: { halign: 'left', fontStyle: 'bold' } }],
+               ["Bar #", "Pieces (ID)", "Used", "Leftover"]],
+        body: binRows, startY: currentY, theme: 'grid',
+        styles: { fontSize: 8, cellPadding: 3.5, halign: 'center', textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
+        headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
+        columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' } },
+        margin: { left: 40, right: 40 }
+      });
+      currentY = doc.lastAutoTable.finalY + 10;
+    });
+
+    downloadPdfDirect(doc, fileName);
+  } catch(e) { alert("PDF Error: " + e.message); }
+}
+
+// PURE BLACK & WHITE PDF GENERATOR - QUOTATION & BILL
+function generateBillPDF(fileName){
+  try {
+    if (!STATE.serverData) { alert("Please click Calculate first!"); return; }
+    const company = STATE.companyName || "WindowCraft Pro";
+    const jsPDFConstructor = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+    const doc = new jsPDFConstructor({unit:'pt', format:'a4'});
+    const dateStr = new Date().toLocaleDateString('en-GB');
+
+    // Header - Pure B&W
+    doc.setFont('helvetica', 'bold');
+    if (company) {
+      doc.setFontSize(12); doc.text(company.toUpperCase(), 297, 26, { align: 'center' });
+      doc.setFontSize(9); doc.text('DETAILED COST ESTIMATION (QUOTATION)', 297, 38, { align: 'center' });
+      doc.setLineWidth(0.8); doc.line(40, 44, 555, 44);
+    } else {
+      doc.setFontSize(10); doc.text('DETAILED COST ESTIMATION (QUOTATION)', 297, 30, { align: 'center' });
+      doc.setLineWidth(0.8); doc.line(40, 36, 555, 36);
+    }
+
+    doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
+    doc.text(`Project Mode: ${STATE.mode}`, 40, 56);
+    doc.text(`Date: ${dateStr}`, 555, 56, { align: 'right' });
+
+    let currentY = 66;
+
+    // 1. Totals Table
+    const t = STATE.serverData.totals || {};
+    const qRows = [
+      ["Total Windows Count", `${safeNum(t.windowsCount)} Nos`],
+      ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft`],
+      ["Total Profile Bars", `${t.totalBars} Bars`],
+      ["Total Profile Weight", `${t.totalWeightKg} Kg`],
+      [`Material Cost (@ Rs. ${t.matsRate}/kg)`, `Rs. ${t.weightCost}`],
+      ["Total Glass Area", `${t.totalGlassSqFt} Sq.Ft`],
+      [`Glass Cost (@ Rs. ${t.glassRate}/sq.ft)`, `Rs. ${t.glassCost}`],
+      ["Labour Total", `Rs. ${t.laborCost}`],
+      ["Additional Charges", `Rs. ${t.arwCost}`]
+    ];
+
+    if (parseFloat(t.jaliCost) > 0) qRows.push(["Jali Cost", `Rs. ${t.jaliCost}`]);
+    if (parseFloat(t.trackStripTotalCost) > 0) qRows.push(["Track Strip Cost", `Rs. ${t.trackStripTotalCost}`]);
+    if (parseFloat(t.totalRubberCost) > 0) qRows.push(["Rubber Total Cost", `Rs. ${t.totalRubberCost}`]);
+
+    qRows.push(["GRAND TOTAL", `Rs. ${t.grandTotal}`]);
+    qRows.push(["Average Rate per Sq.Ft", `Rs. ${t.avgRatePerSqFt} / Sq.Ft`]);
+
+    doc.autoTable({
+      head: [["Description", "Details / Amount"]],
+      body: qRows, startY: currentY, theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 3.5, textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
+      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
+      columnStyles: { 0: { halign: 'left' }, 1: { halign: 'right' } },
+      didParseCell: (data) => {
+        if(data.section === 'body' && (data.row.index >= qRows.length - 2)) {
+          data.cell.styles.fontStyle = 'bold';
+        }
+      },
+      margin: { left: 40, right: 40 }
+    });
+
+    currentY = doc.lastAutoTable.finalY + 12;
+
+    // 2. Profile Bars & Weight Summary Table
+    const pdfBarRows = (STATE.serverData.barSummary?.rows || []).map(r => [r[0], r[1], r[2], r[3]]);
+    pdfBarRows.push(["TOTAL SUMMARY", `${STATE.serverData.barSummary?.grandBars} Bars`, "—", `${STATE.serverData.barSummary?.grandWeight} kg`]);
+
+    doc.autoTable({
+      head: [[{ content: '1. Profile Bars & Weight Summary', colSpan: 4, styles: { halign: 'left', fontStyle: 'bold' } }],
+             ["Profile / Bar", "Bar Quantity", "Weight / Bar (kg) / Rate", "Total Weight (kg) / Cost"]],
+      body: pdfBarRows, startY: currentY, theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 3.5, halign: 'center', textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
+      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
+      margin: { left: 40, right: 40 }
+    });
+
+    currentY = doc.lastAutoTable.finalY + 12;
+
+    // 3. Window Sizes & Glass Table
+    const wsRows = (STATE.serverData.sizes || []).map(g => [
+      `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq
+    ]);
+
+    doc.autoTable({
+      head: [[{ content: '2. Window Sizes & Glass', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold' } }],
+             ["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]],
+      body: wsRows, startY: currentY, theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 3.5, halign: 'center', textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
+      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
+      margin: { left: 40, right: 40 }
+    });
+
+    downloadPdfDirect(doc, fileName);
+  } catch(e) { alert("PDF Error: " + e.message); }
+}
+
+function bindEvents(){
+  $('#calculateBtn').onclick = () => { triggerInterstitialAd(); hydrateView(); };
+  $('#clearAllBtn').onclick = () => { triggerInterstitialAd(); $('#sizesInput').value = ''; $('#pipeSizesInput').value = ''; hydrateView(); };
+  $('#unitModeBtn').onclick = () => { convertUnitModeToggle(); };
+
+  // WINDOW MODE BUTTON TOGGLE
+  const modeBtn = $('#modeBtn');
+  if (modeBtn) {
+    modeBtn.onclick = (e) => {
+      e.stopPropagation();
+      $('#modeDropdown').classList.toggle('open');
+    };
+  }
+
+  // CLOSE DROPDOWN WHEN CLICKING OUTSIDE
+  document.addEventListener('click', (e) => {
+    const dropdown = $('#modeDropdown');
+    const mBtn = $('#modeBtn');
+    if (dropdown && dropdown.classList.contains('open')) {
+      if (!dropdown.contains(e.target) && e.target !== mBtn) {
+        dropdown.classList.remove('open');
+      }
+    }
+  });
+  
+  $('#sqftModeBtn').onclick = () => {
+    triggerInterstitialAd();
+    STATE.sqftMode = STATE.sqftMode === '6step' ? 'inch' : '6step';
+    $('#sqftModeBtn').textContent = STATE.sqftMode === '6step' ? 'Sq.Ft: 6" Step' : 'Sq.Ft: Inch-to-Inch';
+    hydrateView();
+  };
+
+  $('#settingsBtn').onclick = () => $('#settingsModal').classList.add('open');
+  $('#settingsClose').onclick = () => { triggerInterstitialAd(); $('#settingsModal').classList.remove('open'); hydrateView(); };
+
+  $('#modalStockBtn').onclick = () => { loadDynamicStockModal(); $('#stockModal').classList.add('open'); };
+  $('#modalRulesBtn').onclick = () => { updateModeDropdownsAndTabs(); buildRulesUI(STATE.mode); $('#rulesModal').classList.add('open'); };
+  $('#modalWeightBtn').onclick = () => { updateModeDropdownsAndTabs(); buildWeightUI(STATE.mode); $('#weightModal').classList.add('open'); };
+
+  $('#stockClose').onclick = () => $('#stockModal').classList.remove('open');
+  $('#stockSave').onclick = saveStockModal;
+  $('#rulesClose').onclick = () => $('#rulesModal').classList.remove('open');
+  $('#weightClose').onclick = () => $('#weightModal').classList.remove('open');
+
+  $('#addCustomModeBtn').onclick = () => $('#addCustomModal').classList.add('open');
+  $('#cancelCustomMode').onclick = () => $('#addCustomModal').classList.remove('open');
+
+  $('#saveNewCustomMode').onclick = () => {
+    const name = $('#customModeName').value.trim().toUpperCase().replace(/[^A-Z0-9_\-]/g, '');
+    if (!name) { alert("Please enter Custom Window Name!"); return; }
+    const selectedProfiles = $$('#customProfilesChecklist input:checked').map(c => c.value);
+    const hasJali = $('#customIncludeJali').checked;
+
+    if (!STATE.customModes.includes(name)) {
+      STATE.customModes.push(name);
+      LS.setCustomModes(STATE.customModes);
+    }
+
+    const newRules = {
+      includedProfiles: selectedProfiles,
+      hasJali: hasJali, glassQty: 2, glassW_offset: -2.5, glassH_offset: -2.625,
+      arw: 700, lr: 30, jaliRate: hasJali ? 25 : 0, rubberWtFt: 0.025, rubberRate: 160
+    };
+
+    selectedProfiles.forEach(prof => {
+      if (prof === 'ShutterW') newRules.ShutterW = { formula: 'W / 2', qty: 4 };
+      else if (prof === 'ShutterH') newRules.ShutterH = { formula: 'H - 2.75', qty: 4 };
+      else if (prof === 'Interlock') newRules.Interlock = { formula: 'H - 2.75', qty: 2 };
+      else if (prof === 'BearingBottomW') newRules.BearingBottomW = { formula: '(W - 6.25) / 2', qty: 4 };
+      else if (prof === 'Handle') newRules.Handle = { formula: 'H - 1.875', qty: 2 };
+      else if (prof === 'TrackStrip') newRules.TrackStrip = { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 };
+    });
+
+    STATE.customRules[name] = newRules;
+    LS.setRules(STATE.customRules);
+
+    const weightsAll = LS.getWeights();
+    weightsAll[name] = weightsAll[name] || {
+      Track: 6, Shutter: 3.2, Interlock: 1.8, TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, TrackStrip: 1.5
+    };
+    LS.setWeights(weightsAll);
+
+    $('#addCustomModal').classList.remove('open');
+    STATE.mode = name; STATE.currentRulesTab = name; STATE.currentWeightTab = name;
+    updateModeDropdownsAndTabs();
+    saveInputs(); hydrateView();
+  };
+
+  $('#deleteCustomModeBtn').onclick = () => {
+    const active = STATE.currentRulesTab;
+    if (confirm(`Delete custom window "${active}"?`)) {
+      STATE.customModes = STATE.customModes.filter(m => m !== active);
+      LS.setCustomModes(STATE.customModes);
+      delete STATE.customRules[active];
+      LS.setRules(STATE.customRules);
+      STATE.mode = 'D3'; STATE.currentRulesTab = 'D3';
+      updateModeDropdownsAndTabs(); buildRulesUI('D3');
+      saveInputs(); hydrateView();
+    }
+  };
+
+  $('#rulesSave').onclick = () => {
+    const active = STATE.currentRulesTab || STATE.mode;
+    STATE.customRules[active] = STATE.customRules[active] || {};
+
+    $$('#rulesBody .wc-field').forEach(inp => {
+      const type = inp.dataset.type;
+      if (type === 'glassW_offset' || type === 'glassH_offset') {
+        let val = inp.value;
+        if (STATE.unitMode === 'mm') {
+          STATE.customRules[active][type] = (parseFloat(val) || 0) / 25.4;
+        } else {
+          STATE.customRules[active][type] = parseSutOffset(val);
+        }
+      } else {
+        STATE.customRules[active][type] = inp.value;
+      }
+    });
+
+    const profs = {};
+    $$('#rulesBody .wc-prof-part').forEach(inp => {
+      const type = inp.dataset.type, prop = inp.dataset.prop;
+      profs[type] = profs[type] || {};
+      profs[type][prop] = inp.value;
+    });
+
+    for (const type in profs) {
+      const p = profs[type];
+      const base = p.base || 'W';
+      let parsedOffset = 0;
+      if (STATE.unitMode === 'mm') {
+        parsedOffset = (parseFloat(p.offset) || 0) / 25.4;
+      } else {
+        parsedOffset = parseSutOffset(p.offset);
+      }
+
+      let stockLenInches = p.stockLen ? (STATE.unitMode === 'mm' ? (parseFloat(p.stockLen)||0)/25.4 : parseFloat(p.stockLen)||192.5) : undefined;
+
+      const formula = buildFormulaFromParts(base, parsedOffset, safeNum(p.divisor)||1);
+      STATE.customRules[active][type] = {
+        formula, qty: safeNum(p.qty) || 2, stockLen: stockLenInches, rate: p.rate ? safeNum(p.rate) : undefined
+      };
+    }
+
+    LS.setRules(STATE.customRules);
+    $('#rulesModal').classList.remove('open');
+    hydrateView();
+    setStatus('Rules saved for ' + active);
+  };
+
+  $('#weightSave').onclick = () => {
+    const active = STATE.currentWeightTab || STATE.mode;
+    const all = LS.getWeights();
+    all[active] = all[active] || {};
+    $$('#wcBody .wc-field').forEach(inp => {
+      const type = inp.dataset.type;
+      const val = inp.value.trim();
+      all[active][type] = (val === '') ? 0 : safeNum(val);
+    });
+    LS.setWeights(all);
+    $('#weightModal').classList.remove('open');
+    hydrateView();
+    setStatus('Weights saved for ' + active);
+  };
+
+  // IN-APP PDF NAMING HANDLERS
+  $('#pdfCutBtn').onclick = () => { openPdfNameModal('cut'); };
+  $('#pdfBillBtn').onclick = () => { openPdfNameModal('bill'); };
+  $('#pdfConfirmBtn').onclick = () => { processPdfDownload(); };
+  $('#pdfCancelBtn').onclick = () => { $('#pdfNameModal').classList.remove('open'); };
+}
+
+window.onload = () => {
+  checkNetworkStatus();
+  loadInputs();
+  updateModeDropdownsAndTabs();
+  bindEvents();
+  triggerAppOpenAd();
+  hydrateView();
+};
+</script>
+</body>
+</html>
