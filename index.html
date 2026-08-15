@@ -5,15 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes,maximum-scale=3.0" />
 <title>WindowCraft Pro</title>
 
-<!-- Monetag Website Verification Meta -->
-<meta name="monetag" content="f558012d24c7f967c882a3e713ca5620">
-
-<!-- Monetag Zone 1: Vignette Banner (Safe Clean Ad) -->
-<script>(function(s){s.dataset.zone='11579739',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-
-<!-- Monetag Zone 2: In-Page Tag (Safe Clean Ad) -->
-<script>(function(s){s.dataset.zone='11579738',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-
 <!-- PWA Manifest & Theme Settings -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#1a73e8">
@@ -21,22 +12,19 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<!-- SERVICE WORKER CACHE KILLER & FORCE REFRESH (Play Store Cache Fix) -->
+<!-- SERVICE WORKER CACHE KILLER & FORCE REFRESH -->
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
       for (let registration of registrations) {
         registration.unregister();
-        console.log('Old Service Worker Removed');
       }
     });
   }
-
   if ('caches' in window) {
     caches.keys().then(function(names) {
       for (let name of names) {
         caches.delete(name);
-        console.log('Cache Deleted: ', name);
       }
     });
   }
@@ -51,7 +39,7 @@
 }
 *{box-sizing:border-box;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif}
 html, body { margin: 0; padding: 0; min-height: 100%; width: 100%; background: var(--bg); overflow-x: hidden !important; }
-body{ color:var(--text); line-height:1.45; padding-top: var(--header-height); padding-bottom: 60px; font-size: var(--base-font-size); }
+body{ color:var(--text); line-height:1.45; padding-top: var(--header-height); padding-bottom: 70px; font-size: var(--base-font-size); }
 
 .offline-banner {
   position: fixed; top: 0; left: 0; right: 0; background: #dc3545; color: #ffffff;
@@ -127,9 +115,6 @@ tr:nth-child(even) td{ background:#f9fbfd }
 .chk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px; }
 .chk-item { font-size: 0.75rem; display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; }
-
-.native-ad-box { background: #eef4fc; border: 1.5px dashed #1a73e8; border-radius: 6px; padding: 10px; text-align: center; margin: 10px 0; font-size: 0.75rem; color: #1a73e8; font-weight: bold; }
-#bottomBannerContainer { position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: #222; z-index: 1000; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #fff; border-top: 2px solid #1a73e8; font-weight: bold; }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -210,10 +195,6 @@ tr:nth-child(even) td{ background:#f9fbfd }
           <div id="totalsWrap" class="table-wrap muted">—</div>
         </div>
 
-        <div class="native-ad-box" id="nativeAdContainer">
-          📢 WindowCraft Pro Engine
-        </div>
-
         <div>
           <h3>2. Profile Bars & Weight Summary</h3>
           <div id="barSummaryWrap" class="table-wrap muted">—</div>
@@ -240,10 +221,6 @@ tr:nth-child(even) td{ background:#f9fbfd }
     </section>
   </div>
 </main>
-
-<div id="bottomBannerContainer">
-  <span>⚡ WindowCraft Pro Fast Calculator</span>
-</div>
 
 <!-- IN-APP PDF NAME MODAL -->
 <div id="pdfNameModal" class="modal">
@@ -376,9 +353,6 @@ tr:nth-child(even) td{ background:#f9fbfd }
 // PRODUCTION BACKEND URL
 const VERCEL_API_URL = "https://windowcraft-server.vercel.app/api/calculate";
 
-// MONETAG DIRECT LINK (REWARDED / HIGH EARNING ADS)
-const MONETAG_DIRECT_LINK = "https://omg10.com/4/11579873";
-
 const $ = (s, r=document)=>r.querySelector(s);
 const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
 
@@ -396,23 +370,21 @@ function checkNetworkStatus() {
 window.addEventListener('online', checkNetworkStatus);
 window.addEventListener('offline', checkNetworkStatus);
 
-// REWARDED AD TRIGGER (DIRECT LINK POPUP)
+// OFFICIAL ADMOB REWARDED TRIGGER (NATIVE ANDROID BRIDGE)
 function triggerRewardedAd(onSuccess) {
-  try {
-    if (MONETAG_DIRECT_LINK) {
-      window.open(MONETAG_DIRECT_LINK, '_blank');
-    }
-  } catch(e) {
-    console.log("Ad popup trigger error:", e);
-  }
-  if (typeof onSuccess === 'function') {
-    onSuccess();
+  if (window.AndroidBridge && window.AndroidBridge.showRewardedAd) {
+    window.onRewardedAdSuccess = onSuccess;
+    window.AndroidBridge.showRewardedAd();
+  } else {
+    if (typeof onSuccess === 'function') onSuccess();
   }
 }
 
-// INTERSTITIAL AD TRIGGER
+// OFFICIAL ADMOB INTERSTITIAL TRIGGER (NATIVE ANDROID BRIDGE)
 function triggerInterstitialAd() {
-  console.log("Vignette / Interstitial Action");
+  if (window.AndroidBridge && window.AndroidBridge.showInterstitialAd) {
+    window.AndroidBridge.showInterstitialAd();
+  }
 }
 
 // UNIQUE FILE NAME GENERATOR
@@ -464,7 +436,7 @@ function processPdfDownload() {
   const finalFileName = getUniquePdfFileName(userInput);
   $('#pdfNameModal').classList.remove('open');
 
-  // REWARDED AD ON PDF DOWNLOAD
+  // ADMOB REWARDED AD ON PDF DOWNLOAD
   triggerRewardedAd(() => {
     if (STATE.pendingPdfType === 'cut') {
       generateFabricationPDF(finalFileName);
@@ -717,7 +689,6 @@ function updateModeDropdownsAndTabs(){
     [...modes, 'Pipes'].forEach(m => {
       const btn = document.createElement('button');
       btn.className = 'tab' + (m === STATE.currentWeightTab ? ' active' : '');
-      btn.textContent = m;
       btn.onclick = () => {
         $$('#weightTabContainer .tab').forEach(x=>x.classList.remove('active'));
         btn.classList.add('active'); STATE.currentWeightTab = m; buildWeightUI(m);
@@ -1183,12 +1154,12 @@ function generateBillPDF(fileName){
 }
 
 function bindEvents(){
-  // 1. CALCULATE BUTTON -> REWARDED AD
+  // 1. CALCULATE BUTTON -> ADMOB REWARDED AD
   $('#calculateBtn').onclick = () => {
     triggerRewardedAd(() => hydrateView());
   };
 
-  // 2. CLEAR ALL -> INTERSTITIAL AD
+  // 2. CLEAR ALL -> ADMOB INTERSTITIAL AD
   $('#clearAllBtn').onclick = () => {
     triggerInterstitialAd();
     $('#sizesInput').value = '';
@@ -1196,7 +1167,7 @@ function bindEvents(){
     hydrateView();
   };
 
-  // 3. UNIT TOGGLE -> INTERSTITIAL AD
+  // 3. UNIT TOGGLE -> ADMOB INTERSTITIAL AD
   $('#unitModeBtn').onclick = () => {
     triggerInterstitialAd();
     convertUnitModeToggle();
@@ -1222,7 +1193,7 @@ function bindEvents(){
     }
   });
   
-  // 4. SQ.FT TOGGLE -> INTERSTITIAL AD
+  // 4. SQ.FT TOGGLE -> ADMOB INTERSTITIAL AD
   $('#sqftModeBtn').onclick = () => {
     triggerInterstitialAd();
     STATE.sqftMode = STATE.sqftMode === '6step' ? 'inch' : '6step';
@@ -1249,7 +1220,7 @@ function bindEvents(){
   $('#addCustomModeBtn').onclick = () => $('#addCustomModal').classList.add('open');
   $('#cancelCustomMode').onclick = () => $('#addCustomModal').classList.remove('open');
 
-  // 5. CREATE CUSTOM WINDOW -> REWARDED AD
+  // 5. CREATE CUSTOM WINDOW -> ADMOB REWARDED AD
   $('#saveNewCustomMode').onclick = () => {
     const name = $('#customModeName').value.trim().toUpperCase().replace(/[^A-Z0-9_\-]/g, '');
     if (!name) { alert("Please enter Custom Window Name!"); return; }
@@ -1306,7 +1277,7 @@ function bindEvents(){
     }
   };
 
-  // 6. RULES SAVE -> INTERSTITIAL AD
+  // 6. RULES SAVE -> ADMOB INTERSTITIAL AD
   $('#rulesSave').onclick = () => {
     triggerInterstitialAd();
     const active = STATE.currentRulesTab || STATE.mode;
@@ -1357,7 +1328,7 @@ function bindEvents(){
     setStatus('Rules saved for ' + active);
   };
 
-  // 7. WEIGHT SAVE -> INTERSTITIAL AD
+  // 7. WEIGHT SAVE -> ADMOB INTERSTITIAL AD
   $('#weightSave').onclick = () => {
     triggerInterstitialAd();
     const active = STATE.currentWeightTab || STATE.mode;
