@@ -21,14 +21,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<!-- Service Worker Auto Cache Refresh (Play Store App Cache Fix) -->
+<!-- Service Worker Auto Cache Refresh -->
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
         .then(reg => {
           console.log('Service Worker Registered!', reg);
-          // नया अपडेट तुरंत चेक करें ताकि Play Store ऐप में नया कोड दिखे
           reg.update();
         })
         .catch(err => console.log('Service Worker Error: ', err));
@@ -370,6 +369,9 @@ tr:nth-child(even) td{ background:#f9fbfd }
 // PRODUCTION BACKEND URL
 const VERCEL_API_URL = "https://windowcraft-server.vercel.app/api/calculate";
 
+// MONETAG DIRECT LINK (REWARDED / HIGH EARNING ADS)
+const MONETAG_DIRECT_LINK = "https://omg10.com/4/11579873";
+
 const $ = (s, r=document)=>r.querySelector(s);
 const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
 
@@ -386,6 +388,25 @@ function checkNetworkStatus() {
 
 window.addEventListener('online', checkNetworkStatus);
 window.addEventListener('offline', checkNetworkStatus);
+
+// REWARDED AD TRIGGER (HIGH EARNING VIA DIRECT LINK)
+function triggerRewardedAd(onSuccess) {
+  try {
+    if (MONETAG_DIRECT_LINK) {
+      window.open(MONETAG_DIRECT_LINK, '_blank');
+    }
+  } catch(e) {
+    console.log("Ad popup error:", e);
+  }
+  if (typeof onSuccess === 'function') {
+    onSuccess();
+  }
+}
+
+// INTERSTITIAL AD TRIGGER (VIGNETTE FULLSCREEN)
+function triggerInterstitialAd() {
+  console.log("Interstitial Triggered");
+}
 
 // UNIQUE FILE NAME GENERATOR
 function getUniquePdfFileName(baseName) {
@@ -436,11 +457,14 @@ function processPdfDownload() {
   const finalFileName = getUniquePdfFileName(userInput);
   $('#pdfNameModal').classList.remove('open');
 
-  if (STATE.pendingPdfType === 'cut') {
-    generateFabricationPDF(finalFileName);
-  } else {
-    generateBillPDF(finalFileName);
-  }
+  // REWARDED AD TRIGGER ON PDF DOWNLOAD
+  triggerRewardedAd(() => {
+    if (STATE.pendingPdfType === 'cut') {
+      generateFabricationPDF(finalFileName);
+    } else {
+      generateBillPDF(finalFileName);
+    }
+  });
 }
 
 function safeNum(v) { const n = Number(v); return isNaN(n) ? 0 : n; }
@@ -620,6 +644,7 @@ function updateUnitUI(){
 }
 
 function convertUnitModeToggle() {
+  triggerInterstitialAd();
   const isCurrentlyInch = STATE.unitMode === 'inch';
   STATE.unitMode = isCurrentlyInch ? 'mm' : 'inch';
 
@@ -654,6 +679,7 @@ function updateModeDropdownsAndTabs(){
     btn.textContent = m;
     btn.onclick = (e) => {
       e.stopPropagation();
+      triggerInterstitialAd();
       STATE.mode = m;
       STATE.currentRulesTab = m;
       STATE.currentWeightTab = m;
@@ -953,6 +979,7 @@ function loadDynamicStockModal(){
 }
 
 function saveStockModal(){
+  triggerInterstitialAd();
   const newStockMap = LS.getStock();
   $$('#dynamicStockBody textarea').forEach(textarea => {
     const tp = textarea.id.replace('st_', '');
@@ -1149,9 +1176,24 @@ function generateBillPDF(fileName){
 }
 
 function bindEvents(){
-  $('#calculateBtn').onclick = () => { hydrateView(); };
-  $('#clearAllBtn').onclick = () => { $('#sizesInput').value = ''; $('#pipeSizesInput').value = ''; hydrateView(); };
-  $('#unitModeBtn').onclick = () => { convertUnitModeToggle(); };
+  // 1. CALCULATE BUTTON -> REWARDED AD
+  $('#calculateBtn').onclick = () => {
+    triggerRewardedAd(() => hydrateView());
+  };
+
+  // 2. CLEAR ALL -> INTERSTITIAL AD
+  $('#clearAllBtn').onclick = () => {
+    triggerInterstitialAd();
+    $('#sizesInput').value = '';
+    $('#pipeSizesInput').value = '';
+    hydrateView();
+  };
+
+  // 3. UNIT TOGGLE -> INTERSTITIAL AD
+  $('#unitModeBtn').onclick = () => {
+    triggerInterstitialAd();
+    convertUnitModeToggle();
+  };
 
   // WINDOW MODE BUTTON TOGGLE
   const modeBtn = $('#modeBtn');
@@ -1173,14 +1215,20 @@ function bindEvents(){
     }
   });
   
+  // 4. SQ.FT TOGGLE -> INTERSTITIAL AD
   $('#sqftModeBtn').onclick = () => {
+    triggerInterstitialAd();
     STATE.sqftMode = STATE.sqftMode === '6step' ? 'inch' : '6step';
     $('#sqftModeBtn').textContent = STATE.sqftMode === '6step' ? 'Sq.Ft: 6" Step' : 'Sq.Ft: Inch-to-Inch';
     hydrateView();
   };
 
   $('#settingsBtn').onclick = () => $('#settingsModal').classList.add('open');
-  $('#settingsClose').onclick = () => { $('#settingsModal').classList.remove('open'); hydrateView(); };
+  $('#settingsClose').onclick = () => {
+    triggerInterstitialAd();
+    $('#settingsModal').classList.remove('open');
+    hydrateView();
+  };
 
   $('#modalStockBtn').onclick = () => { loadDynamicStockModal(); $('#stockModal').classList.add('open'); };
   $('#modalRulesBtn').onclick = () => { updateModeDropdownsAndTabs(); buildRulesUI(STATE.mode); $('#rulesModal').classList.add('open'); };
@@ -1194,45 +1242,48 @@ function bindEvents(){
   $('#addCustomModeBtn').onclick = () => $('#addCustomModal').classList.add('open');
   $('#cancelCustomMode').onclick = () => $('#addCustomModal').classList.remove('open');
 
+  // 5. CREATE CUSTOM WINDOW -> REWARDED AD
   $('#saveNewCustomMode').onclick = () => {
     const name = $('#customModeName').value.trim().toUpperCase().replace(/[^A-Z0-9_\-]/g, '');
     if (!name) { alert("Please enter Custom Window Name!"); return; }
     const selectedProfiles = $$('#customProfilesChecklist input:checked').map(c => c.value);
     const hasJali = $('#customIncludeJali').checked;
 
-    if (!STATE.customModes.includes(name)) {
-      STATE.customModes.push(name);
-      LS.setCustomModes(STATE.customModes);
-    }
+    triggerRewardedAd(() => {
+      if (!STATE.customModes.includes(name)) {
+        STATE.customModes.push(name);
+        LS.setCustomModes(STATE.customModes);
+      }
 
-    const newRules = {
-      includedProfiles: selectedProfiles,
-      hasJali: hasJali, glassQty: 2, glassW_offset: -2.5, glassH_offset: -2.625,
-      arw: 700, lr: 30, jaliRate: hasJali ? 25 : 0, rubberWtFt: 0.025, rubberRate: 160
-    };
+      const newRules = {
+        includedProfiles: selectedProfiles,
+        hasJali: hasJali, glassQty: 2, glassW_offset: -2.5, glassH_offset: -2.625,
+        arw: 700, lr: 30, jaliRate: hasJali ? 25 : 0, rubberWtFt: 0.025, rubberRate: 160
+      };
 
-    selectedProfiles.forEach(prof => {
-      if (prof === 'ShutterW') newRules.ShutterW = { formula: 'W / 2', qty: 4 };
-      else if (prof === 'ShutterH') newRules.ShutterH = { formula: 'H - 2.75', qty: 4 };
-      else if (prof === 'Interlock') newRules.Interlock = { formula: 'H - 2.75', qty: 2 };
-      else if (prof === 'BearingBottomW') newRules.BearingBottomW = { formula: '(W - 6.25) / 2', qty: 4 };
-      else if (prof === 'Handle') newRules.Handle = { formula: 'H - 1.875', qty: 2 };
-      else if (prof === 'TrackStrip') newRules.TrackStrip = { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 };
+      selectedProfiles.forEach(prof => {
+        if (prof === 'ShutterW') newRules.ShutterW = { formula: 'W / 2', qty: 4 };
+        else if (prof === 'ShutterH') newRules.ShutterH = { formula: 'H - 2.75', qty: 4 };
+        else if (prof === 'Interlock') newRules.Interlock = { formula: 'H - 2.75', qty: 2 };
+        else if (prof === 'BearingBottomW') newRules.BearingBottomW = { formula: '(W - 6.25) / 2', qty: 4 };
+        else if (prof === 'Handle') newRules.Handle = { formula: 'H - 1.875', qty: 2 };
+        else if (prof === 'TrackStrip') newRules.TrackStrip = { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 };
+      });
+
+      STATE.customRules[name] = newRules;
+      LS.setRules(STATE.customRules);
+
+      const weightsAll = LS.getWeights();
+      weightsAll[name] = weightsAll[name] || {
+        Track: 6, Shutter: 3.2, Interlock: 1.8, TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, TrackStrip: 1.5
+      };
+      LS.setWeights(weightsAll);
+
+      $('#addCustomModal').classList.remove('open');
+      STATE.mode = name; STATE.currentRulesTab = name; STATE.currentWeightTab = name;
+      updateModeDropdownsAndTabs();
+      saveInputs(); hydrateView();
     });
-
-    STATE.customRules[name] = newRules;
-    LS.setRules(STATE.customRules);
-
-    const weightsAll = LS.getWeights();
-    weightsAll[name] = weightsAll[name] || {
-      Track: 6, Shutter: 3.2, Interlock: 1.8, TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, TrackStrip: 1.5
-    };
-    LS.setWeights(weightsAll);
-
-    $('#addCustomModal').classList.remove('open');
-    STATE.mode = name; STATE.currentRulesTab = name; STATE.currentWeightTab = name;
-    updateModeDropdownsAndTabs();
-    saveInputs(); hydrateView();
   };
 
   $('#deleteCustomModeBtn').onclick = () => {
@@ -1248,7 +1299,9 @@ function bindEvents(){
     }
   };
 
+  // 6. RULES SAVE -> INTERSTITIAL AD
   $('#rulesSave').onclick = () => {
+    triggerInterstitialAd();
     const active = STATE.currentRulesTab || STATE.mode;
     STATE.customRules[active] = STATE.customRules[active] || {};
 
@@ -1297,7 +1350,9 @@ function bindEvents(){
     setStatus('Rules saved for ' + active);
   };
 
+  // 7. WEIGHT SAVE -> INTERSTITIAL AD
   $('#weightSave').onclick = () => {
+    triggerInterstitialAd();
     const active = STATE.currentWeightTab || STATE.mode;
     const all = LS.getWeights();
     all[active] = all[active] || {};
