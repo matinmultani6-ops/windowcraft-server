@@ -1,4 +1,4 @@
-const CACHE_NAME = 'windowcraft-v3';
+const CACHE_NAME = 'windowcraft-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
