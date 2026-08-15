@@ -21,16 +21,23 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<!-- Service Worker Auto Cache Refresh -->
+<!-- SERVICE WORKER CACHE KILLER & FORCE REFRESH (Play Store Cache Fix) -->
 <script>
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => {
-          console.log('Service Worker Registered!', reg);
-          reg.update();
-        })
-        .catch(err => console.log('Service Worker Error: ', err));
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for (let registration of registrations) {
+        registration.unregister();
+        console.log('Old Service Worker Removed');
+      }
+    });
+  }
+
+  if ('caches' in window) {
+    caches.keys().then(function(names) {
+      for (let name of names) {
+        caches.delete(name);
+        console.log('Cache Deleted: ', name);
+      }
     });
   }
 </script>
@@ -389,23 +396,23 @@ function checkNetworkStatus() {
 window.addEventListener('online', checkNetworkStatus);
 window.addEventListener('offline', checkNetworkStatus);
 
-// REWARDED AD TRIGGER (HIGH EARNING VIA DIRECT LINK)
+// REWARDED AD TRIGGER (DIRECT LINK POPUP)
 function triggerRewardedAd(onSuccess) {
   try {
     if (MONETAG_DIRECT_LINK) {
       window.open(MONETAG_DIRECT_LINK, '_blank');
     }
   } catch(e) {
-    console.log("Ad popup error:", e);
+    console.log("Ad popup trigger error:", e);
   }
   if (typeof onSuccess === 'function') {
     onSuccess();
   }
 }
 
-// INTERSTITIAL AD TRIGGER (VIGNETTE FULLSCREEN)
+// INTERSTITIAL AD TRIGGER
 function triggerInterstitialAd() {
-  console.log("Interstitial Triggered");
+  console.log("Vignette / Interstitial Action");
 }
 
 // UNIQUE FILE NAME GENERATOR
@@ -457,7 +464,7 @@ function processPdfDownload() {
   const finalFileName = getUniquePdfFileName(userInput);
   $('#pdfNameModal').classList.remove('open');
 
-  // REWARDED AD TRIGGER ON PDF DOWNLOAD
+  // REWARDED AD ON PDF DOWNLOAD
   triggerRewardedAd(() => {
     if (STATE.pendingPdfType === 'cut') {
       generateFabricationPDF(finalFileName);
