@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes,maximum-scale=3.0" />
 <title>WindowCraft Pro</title>
 
-<!-- PWA Manifest & Theme Settings for Android / Play Store -->
+<!-- Monetag Website Verification Tag -->
+<meta name="monetag" content="f558012d24c7f967c882a3e713ca5620">
+
+<!-- PWA Manifest & Theme Settings -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#1a73e8">
 <meta name="mobile-web-app-capable" content="yes">
@@ -22,9 +25,6 @@
     });
   }
 </script>
-
-<!-- Google AdSense / AdMob Web Script -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2598828616326472" crossorigin="anonymous"></script>
 
 <style>
 :root{
@@ -127,7 +127,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   ⚠️ No Internet Connection / इंटरनेट कनेक्शन उपलब्ध नहीं है
 </div>
 
-<div id="adToast" class="toast-ad">📢 [AdMob Triggered] Ad Unit Active</div>
+<div id="adToast" class="toast-ad">📢 [Ad Triggered] Active</div>
 
 <header class="top">
   <div class="header-container">
@@ -198,7 +198,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
         </div>
 
         <div class="native-ad-box" id="nativeAdContainer">
-          📢 Ad Space Active | Publisher: ca-pub-2598828616326472
+          📢 WindowCraft Pro Verified Calculation Engine
         </div>
 
         <div>
@@ -229,7 +229,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
 </main>
 
 <div id="bottomBannerContainer">
-  <span>📺 AdMob Banner Active | ID: ca-app-pub-2598828616326472/2432455702</span>
+  <span>📺 WindowCraft Monetization Active</span>
 </div>
 
 <!-- IN-APP PDF NAME MODAL -->
@@ -247,7 +247,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
-<!-- OTHER MODALS -->
+<!-- SETTINGS MODAL -->
 <div id="settingsModal" class="modal">
   <div class="box">
     <h4>⚙️ Settings & Advanced</h4>
@@ -280,6 +280,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
+<!-- STOCK MODAL -->
 <div id="stockModal" class="modal">
   <div class="box">
     <h4>📦 Available Stock</h4>
@@ -292,6 +293,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
+<!-- RULES MODAL -->
 <div id="rulesModal" class="modal">
   <div class="box">
     <h4>📐 Cutting Formula & Window Rules</h4>
@@ -308,6 +310,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
+<!-- ADD CUSTOM MODAL -->
 <div id="addCustomModal" class="modal">
   <div class="box">
     <h4>➕ Add Custom Window / Mode</h4>
@@ -343,6 +346,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
+<!-- WEIGHT MODAL -->
 <div id="weightModal" class="modal">
   <div class="box">
     <h4>⚖️ Bar Weight (Kg per Full Bar)</h4>
@@ -356,7 +360,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
 </div>
 
 <script>
-// PRODUCTION BACKEND URL (WINDOWCRAFT PRO)
+// PRODUCTION BACKEND URL
 const VERCEL_API_URL = "https://windowcraft-server.vercel.app/api/calculate";
 
 const $ = (s, r=document)=>r.querySelector(s);
@@ -385,21 +389,20 @@ function showAdToast(msg) {
   }
 }
 
-// ADMOB TRIGGERS
-function triggerAppOpenAd() {
-  showAdToast("📢 [AdMob App Open] Triggered");
-  if (window.AndroidBridge && window.AndroidBridge.showAppOpenAd) window.AndroidBridge.showAppOpenAd();
-}
+// AD TRIGGERS
 function triggerInterstitialAd() {
-  showAdToast("📢 [AdMob Interstitial] ID: ca-app-pub-2598828616326472/7249668118");
+  showAdToast("📢 Ad Active");
   if (window.AndroidBridge && window.AndroidBridge.showInterstitialAd) window.AndroidBridge.showInterstitialAd();
 }
+
 function triggerRewardedAd(onSuccess) {
-  showAdToast("🎬 [AdMob Rewarded] ID: ca-app-pub-2598828616326472/6464818023");
+  showAdToast("🎬 Ad Active");
   if (window.AndroidBridge && window.AndroidBridge.showRewardedAd) {
     window.onRewardedAdSuccess = onSuccess;
     window.AndroidBridge.showRewardedAd();
-  } else { onSuccess(); }
+  } else {
+    if (onSuccess) onSuccess();
+  }
 }
 
 // UNIQUE FILE NAME GENERATOR
@@ -415,12 +418,10 @@ function downloadPdfDirect(doc, fileName) {
   try {
     const base64Data = doc.output('datauristring').split(',')[1];
     
-    // 1. Android Native Storage Saver
     if (window.AndroidBridge && window.AndroidBridge.savePdfFile) {
       window.AndroidBridge.savePdfFile(base64Data, fileName);
     }
 
-    // 2. Direct Web Blob URL Saver
     const pdfBlob = doc.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);
     
@@ -975,6 +976,7 @@ function loadDynamicStockModal(){
 }
 
 function saveStockModal(){
+  triggerInterstitialAd();
   const newStockMap = LS.getStock();
   $$('#dynamicStockBody textarea').forEach(textarea => {
     const tp = textarea.id.replace('st_', '');
@@ -996,7 +998,7 @@ function generateFabricationPDF(fileName){
     const pageHeight = doc.internal.pageSize.getHeight();
     const dateStr = new Date().toLocaleDateString('en-GB');
 
-    // Header - Pure B&W
+    // Header
     doc.setFont('helvetica', 'bold');
     if (company) {
       doc.setFontSize(12); doc.text(company.toUpperCase(), 297, 26, { align: 'center' });
@@ -1083,7 +1085,7 @@ function generateBillPDF(fileName){
     const doc = new jsPDFConstructor({unit:'pt', format:'a4'});
     const dateStr = new Date().toLocaleDateString('en-GB');
 
-    // Header - Pure B&W
+    // Header
     doc.setFont('helvetica', 'bold');
     if (company) {
       doc.setFontSize(12); doc.text(company.toUpperCase(), 297, 26, { align: 'center' });
@@ -1171,7 +1173,7 @@ function generateBillPDF(fileName){
 }
 
 function bindEvents(){
-  $('#calculateBtn').onclick = () => { triggerInterstitialAd(); hydrateView(); };
+  $('#calculateBtn').onclick = () => { triggerRewardedAd(() => hydrateView()); };
   $('#clearAllBtn').onclick = () => { triggerInterstitialAd(); $('#sizesInput').value = ''; $('#pipeSizesInput').value = ''; hydrateView(); };
   $('#unitModeBtn').onclick = () => { convertUnitModeToggle(); };
 
@@ -1223,39 +1225,41 @@ function bindEvents(){
     const selectedProfiles = $$('#customProfilesChecklist input:checked').map(c => c.value);
     const hasJali = $('#customIncludeJali').checked;
 
-    if (!STATE.customModes.includes(name)) {
-      STATE.customModes.push(name);
-      LS.setCustomModes(STATE.customModes);
-    }
+    triggerRewardedAd(() => {
+      if (!STATE.customModes.includes(name)) {
+        STATE.customModes.push(name);
+        LS.setCustomModes(STATE.customModes);
+      }
 
-    const newRules = {
-      includedProfiles: selectedProfiles,
-      hasJali: hasJali, glassQty: 2, glassW_offset: -2.5, glassH_offset: -2.625,
-      arw: 700, lr: 30, jaliRate: hasJali ? 25 : 0, rubberWtFt: 0.025, rubberRate: 160
-    };
+      const newRules = {
+        includedProfiles: selectedProfiles,
+        hasJali: hasJali, glassQty: 2, glassW_offset: -2.5, glassH_offset: -2.625,
+        arw: 700, lr: 30, jaliRate: hasJali ? 25 : 0, rubberWtFt: 0.025, rubberRate: 160
+      };
 
-    selectedProfiles.forEach(prof => {
-      if (prof === 'ShutterW') newRules.ShutterW = { formula: 'W / 2', qty: 4 };
-      else if (prof === 'ShutterH') newRules.ShutterH = { formula: 'H - 2.75', qty: 4 };
-      else if (prof === 'Interlock') newRules.Interlock = { formula: 'H - 2.75', qty: 2 };
-      else if (prof === 'BearingBottomW') newRules.BearingBottomW = { formula: '(W - 6.25) / 2', qty: 4 };
-      else if (prof === 'Handle') newRules.Handle = { formula: 'H - 1.875', qty: 2 };
-      else if (prof === 'TrackStrip') newRules.TrackStrip = { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 };
+      selectedProfiles.forEach(prof => {
+        if (prof === 'ShutterW') newRules.ShutterW = { formula: 'W / 2', qty: 4 };
+        else if (prof === 'ShutterH') newRules.ShutterH = { formula: 'H - 2.75', qty: 4 };
+        else if (prof === 'Interlock') newRules.Interlock = { formula: 'H - 2.75', qty: 2 };
+        else if (prof === 'BearingBottomW') newRules.BearingBottomW = { formula: '(W - 6.25) / 2', qty: 4 };
+        else if (prof === 'Handle') newRules.Handle = { formula: 'H - 1.875', qty: 2 };
+        else if (prof === 'TrackStrip') newRules.TrackStrip = { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 };
+      });
+
+      STATE.customRules[name] = newRules;
+      LS.setRules(STATE.customRules);
+
+      const weightsAll = LS.getWeights();
+      weightsAll[name] = weightsAll[name] || {
+        Track: 6, Shutter: 3.2, Interlock: 1.8, TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, TrackStrip: 1.5
+      };
+      LS.setWeights(weightsAll);
+
+      $('#addCustomModal').classList.remove('open');
+      STATE.mode = name; STATE.currentRulesTab = name; STATE.currentWeightTab = name;
+      updateModeDropdownsAndTabs();
+      saveInputs(); hydrateView();
     });
-
-    STATE.customRules[name] = newRules;
-    LS.setRules(STATE.customRules);
-
-    const weightsAll = LS.getWeights();
-    weightsAll[name] = weightsAll[name] || {
-      Track: 6, Shutter: 3.2, Interlock: 1.8, TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, TrackStrip: 1.5
-    };
-    LS.setWeights(weightsAll);
-
-    $('#addCustomModal').classList.remove('open');
-    STATE.mode = name; STATE.currentRulesTab = name; STATE.currentWeightTab = name;
-    updateModeDropdownsAndTabs();
-    saveInputs(); hydrateView();
   };
 
   $('#deleteCustomModeBtn').onclick = () => {
@@ -1272,6 +1276,7 @@ function bindEvents(){
   };
 
   $('#rulesSave').onclick = () => {
+    triggerInterstitialAd();
     const active = STATE.currentRulesTab || STATE.mode;
     STATE.customRules[active] = STATE.customRules[active] || {};
 
@@ -1321,6 +1326,7 @@ function bindEvents(){
   };
 
   $('#weightSave').onclick = () => {
+    triggerInterstitialAd();
     const active = STATE.currentWeightTab || STATE.mode;
     const all = LS.getWeights();
     all[active] = all[active] || {};
@@ -1347,7 +1353,6 @@ window.onload = () => {
   loadInputs();
   updateModeDropdownsAndTabs();
   bindEvents();
-  triggerAppOpenAd();
   hydrateView();
 };
 </script>
