@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes,maximum-scale=3.0" />
 <title>WindowCraft Pro</title>
 
-<!-- Monetag Website Verification Tag -->
+<!-- Monetag Website Verification & MultiTag Ad Script -->
 <meta name="monetag" content="f558012d24c7f967c882a3e713ca5620">
+<script src="https://quge5.com/88/tag.min.js" data-zone="270215" async data-cfasync="false"></script>
 
 <!-- PWA Manifest & Theme Settings -->
 <link rel="manifest" href="/manifest.json">
@@ -127,7 +128,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   ⚠️ No Internet Connection / इंटरनेट कनेक्शन उपलब्ध नहीं है
 </div>
 
-<div id="adToast" class="toast-ad">📢 [Ad Triggered] Active</div>
+<div id="adToast" class="toast-ad">📢 [Monetag Ad Unit Active]</div>
 
 <header class="top">
   <div class="header-container">
@@ -385,18 +386,20 @@ function showAdToast(msg) {
   if (toast) {
     toast.textContent = msg;
     toast.style.display = 'block';
-    setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    setTimeout(() => { toast.style.display = 'none'; }, 2000);
   }
 }
 
-// AD TRIGGERS
+// AD TRIGGERS (INTEGRATED WITH MONETAG & WEB BRIDGE)
 function triggerInterstitialAd() {
-  showAdToast("📢 Ad Active");
-  if (window.AndroidBridge && window.AndroidBridge.showInterstitialAd) window.AndroidBridge.showInterstitialAd();
+  showAdToast("📢 Ad Triggered");
+  if (window.AndroidBridge && window.AndroidBridge.showInterstitialAd) {
+    window.AndroidBridge.showInterstitialAd();
+  }
 }
 
 function triggerRewardedAd(onSuccess) {
-  showAdToast("🎬 Ad Active");
+  showAdToast("🎬 Ad Triggered");
   if (window.AndroidBridge && window.AndroidBridge.showRewardedAd) {
     window.onRewardedAdSuccess = onSuccess;
     window.AndroidBridge.showRewardedAd();
@@ -454,6 +457,7 @@ function processPdfDownload() {
   const finalFileName = getUniquePdfFileName(userInput);
   $('#pdfNameModal').classList.remove('open');
 
+  // REWARDED AD ON BOTH PDFS
   triggerRewardedAd(() => {
     if (STATE.pendingPdfType === 'cut') {
       generateFabricationPDF(finalFileName);
