@@ -110,7 +110,6 @@ tr:nth-child(even) td{ background:#f9fbfd }
 .wc-card { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 7px; margin-bottom: 6px; }
 .wc-card h4 { font-size: 0.80rem; border-bottom: 1px dashed var(--border); padding-bottom: 3px; margin-bottom: 5px; color: var(--text); }
 
-/* VISIBLE TAB LABELS */
 .wc-tab-row { display:flex; gap: 4px; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 5px; flex-wrap: wrap; }
 .wc-tab-row .tab { background-color: var(--secondary); padding: 4px 8px; font-size: 0.75rem; font-weight: 700; border-radius: 4px; color: #ffffff !important; border: none; cursor: pointer; min-width: 40px; text-align: center; display: inline-block; }
 .wc-tab-row .tab.active { background-color: var(--primary) !important; color: #ffffff !important; }
@@ -118,6 +117,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
 .chk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px; }
 .chk-item { font-size: 0.75rem; display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 4px; }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -480,7 +480,6 @@ const WEIGHT_TYPES = {
   Pipes: ["Pipes"]
 };
 
-// BULLETPROOF LOCAL STORAGE HANDLER
 const LS = {
   getWeights(){ try{ return JSON.parse(localStorage.getItem('fs_weights')||'{}'); }catch(e){ return {}; } },
   setWeights(obj){ localStorage.setItem('fs_weights', JSON.stringify(obj)); },
@@ -848,6 +847,7 @@ function renderReportTables(data) {
   });
 }
 
+// BULLETPROOF RULES UI WITH NO "DIVIDE BY" ON HEIGHT PROFILES & TRACK STRIP
 function buildRulesUI(tabMode){
   const defaults = DEFAULT_RULES_CONFIG[tabMode] || DEFAULT_RULES_CONFIG.D3;
   const custom = STATE.customRules[tabMode] || {};
@@ -902,26 +902,46 @@ function buildRulesUI(tabMode){
   keys.forEach(key => {
     const def = defaults[key] || { formula: 'W / 2', qty: 2 };
     const cur = custom[key] || def;
-    const isW = key.toLowerCase().includes('w') || key === 'BearingBottomW' || key === 'TrackStrip';
-    const parts = parseFormulaToParts(cur.formula, isW ? 2 : 1);
-
+    const isW = key.toLowerCase().includes('w') || key === 'BearingBottomW';
+    const isTrackStrip = key === 'TrackStrip';
+    
+    // ONLY ShutterW and BearingBottomW have Divide By!
+    const hasDivide = isW && !isTrackStrip;
+    const parts = parseFormulaToParts(cur.formula, hasDivide ? 2 : 1);
     const offDisp = isMM ? safeFix(parts.offset * 25.4, 1) : fmtSutOffset(parts.offset);
 
     const card = document.createElement('div'); card.className='wc-card';
-    card.innerHTML = `<h4>${key} Rules</h4>
-      <div class="grid-4">
-        <div class="group"><label class="lbl">Axis</label>
-          <select class="input wc-prof-part" data-type="${key}" data-prop="base">
-            <option value="W" ${parts.base==='W'?'selected':''}>Width (W)</option>
-            <option value="H" ${parts.base==='H'?'selected':''}>Height (H)</option>
-          </select>
-        </div>
-        <div class="group"><label class="lbl">Offset (${isMM?'mm':'Sut'})</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" placeholder="0" /></div>
-        <div class="group"><label class="lbl">Divide By</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="0.1" value="${parts.divisor}" /></div>
-        <div class="group"><label class="lbl">Quantity</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
-      </div>`;
+    
+    if (hasDivide) {
+      // 4 COLUMNS (WITH DIVIDE BY)
+      card.innerHTML = `<h4>${key} Rules</h4>
+        <div class="grid-4">
+          <div class="group"><label class="lbl">Axis</label>
+            <select class="input wc-prof-part" data-type="${key}" data-prop="base">
+              <option value="W" ${parts.base==='W'?'selected':''}>Width (W)</option>
+              <option value="H" ${parts.base==='H'?'selected':''}>Height (H)</option>
+            </select>
+          </div>
+          <div class="group"><label class="lbl">Offset (${isMM?'mm':'Sut'})</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" placeholder="0" /></div>
+          <div class="group"><label class="lbl">Divide By</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="0.1" value="${parts.divisor}" /></div>
+          <div class="group"><label class="lbl">Quantity</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
+        </div>`;
+    } else {
+      // 3 COLUMNS (NO DIVIDE BY FOR HEIGHT SHUTTER, INTERLOCK, HANDLE, TRACK STRIP)
+      card.innerHTML = `<h4>${key} Rules</h4>
+        <div class="grid-3">
+          <div class="group"><label class="lbl">Axis</label>
+            <select class="input wc-prof-part" data-type="${key}" data-prop="base">
+              <option value="W" ${parts.base==='W'?'selected':''}>Width (W)</option>
+              <option value="H" ${parts.base==='H'?'selected':''}>Height (H)</option>
+            </select>
+          </div>
+          <div class="group"><label class="lbl">Offset (${isMM?'mm':'Sut'})</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" placeholder="0" /></div>
+          <div class="group"><label class="lbl">Quantity</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
+        </div>`;
+    }
 
-    if (key === 'TrackStrip') {
+    if (isTrackStrip) {
       const stockDisp = isMM ? safeFix((cur.stockLen ?? 192.5) * 25.4, 1) : (cur.stockLen ?? 192.5);
       card.innerHTML += `
         <div class="row" style="margin-top:4px;">
@@ -1180,7 +1200,7 @@ function bindEvents(){
     }
   });
   
-  // 3-WAY SQ.FT MODE TOGGLE (6" STEP ➔ 3" STEP ➔ INCH-TO-INCH)
+  // 3-WAY SQ.FT MODE TOGGLE
   $('#sqftModeBtn').onclick = () => {
     triggerInterstitialAd();
     if (STATE.sqftMode === '6step') {
@@ -1273,7 +1293,7 @@ function bindEvents(){
     }
   };
 
-  // 100% PERSISTENT RULES SAVE HANDLER (DEEP MERGE)
+  // 100% PERSISTENT & CLEAN RULES SAVE
   $('#rulesSave').onclick = () => {
     triggerInterstitialAd();
     const active = STATE.currentRulesTab || STATE.mode;
@@ -1301,7 +1321,10 @@ function bindEvents(){
       const base = p.base || 'W';
       let parsedOffset = (STATE.unitMode === 'mm') ? (parseFloat(p.offset) || 0) / 25.4 : parseSutOffset(p.offset);
       let stockLenInches = p.stockLen ? (STATE.unitMode === 'mm' ? (parseFloat(p.stockLen)||0)/25.4 : parseFloat(p.stockLen)||192.5) : undefined;
-      const formula = buildFormulaFromParts(base, parsedOffset, safeNum(p.divisor)||1);
+      
+      // If no divisor field (height profiles / trackstrip), force divisor = 1!
+      const divisorToUse = p.divisor ? safeNum(p.divisor) : 1;
+      const formula = buildFormulaFromParts(base, parsedOffset, divisorToUse);
       
       currentRules[type] = {
         formula, qty: safeNum(p.qty) || 2, stockLen: stockLenInches, rate: p.rate ? safeNum(p.rate) : undefined
@@ -1312,7 +1335,7 @@ function bindEvents(){
     LS.setRules(STATE.customRules);
     $('#rulesModal').classList.remove('open');
     hydrateView();
-    setStatus('Rules saved permanently for ' + active);
+    setStatus('Rules saved for ' + active);
   };
 
   $('#weightSave').onclick = () => {
