@@ -74,6 +74,8 @@ function mapToProfileType(key) {
   if (key.startsWith('Shutter')) return 'Shutter';
   if (key.startsWith('BearingBottom')) return 'BearingBottom';
   if (key.startsWith('TrackStrip')) return 'TrackStrip';
+  if (key.startsWith('TopBottomTrack')) return 'TopBottomTrack';
+  if (key.startsWith('SideTrack')) return 'SideTrack';
   return key;
 }
 
@@ -81,7 +83,7 @@ function isTrackProfile(key) {
   if (!key) return false;
   const t = String(key).replace(/\s*\([^\)]+\)$/, '').trim();
   const mapped = mapToProfileType(t);
-  return mapped === 'Track' || mapped === 'TopTrack' || mapped === 'BottomTrack';
+  return mapped === 'Track' || mapped === 'TopTrack' || mapped === 'BottomTrack' || mapped === 'TopBottomTrack' || mapped === 'SideTrack';
 }
 
 function roundToEighth(v){
@@ -112,26 +114,69 @@ function evaluateFormula(formula, W, H) {
   } catch (e) { return NaN; }
 }
 
+// DEFAULT RULES CONFIGURATION WITH D3 & N3 GLASS QTY = 2 AND D2 LABOUR = 100
 const DEFAULT_RULES_CONFIG = {
-  D2: { glassQty: 2, glassW_offset: -4.3, glassH_offset: -4.125, ShutterW: { formula: 'W / 2', qty: 4 }, ShutterH: { formula: 'H - 2.75', qty: 4 }, Interlock: { formula: 'H - 2.75', qty: 2 }, arw: 700, lr: 30, rubberWtFt: 0.025, rubberRate: 160 },
-  D3: { glassQty: 3, glassW_offset: -4.3, glassH_offset: -4.125, ShutterW: { formula: 'W / 2', qty: 6 }, ShutterH: { formula: 'H - 2.75', qty: 6 }, Interlock: { formula: 'H - 2.75', qty: 3 }, arw: 700, jaliRate: 30, lr: 120, rubberWtFt: 0.025, rubberRate: 160 },
-  S2: { glassQty: 2, glassW_offset: -3.5, glassH_offset: -2.5, ShutterW: { formula: 'W / 2', qty: 4 }, ShutterH: { formula: 'H - 2.5', qty: 4 }, Interlock: { formula: 'H - 2.5', qty: 2 }, TrackStrip: { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 }, arw: 700, lr: 30, rubberWtFt: 0.025, rubberRate: 160 },
-  S3: { glassQty: 3, glassW_offset: -4.125, glassH_offset: -4.125, ShutterW: { formula: 'W / 2', qty: 6 }, ShutterH: { formula: 'H - 2.75', qty: 3 }, Interlock: { formula: 'H - 2.75', qty: 3 }, TrackStrip: { formula: 'W - 3', qty: 3, stockLen: 192.5, rate: 800 }, arw: 1000, jaliRate: 25, lr: 150, rubberWtFt: 0.025, rubberRate: 160 },
-  N2: { glassQty: 2, glassW_offset: -2.5, glassH_offset: -2.625, BearingBottomW: { formula: '(W - 6.25) / 2', qty: 4 }, Handle: { formula: 'H - 1.875', qty: 2 }, Interlock: { formula: 'H - 1.875', qty: 2 }, arw: 700, lr: 30, rubberWtFt: 0.025, rubberRate: 160 },
-  N3: { glassQty: 3, glassW_offset: -2.5, glassH_offset: -2.625, BearingBottomW: { formula: '(W - 6.25) / 2', qty: 6 }, Handle: { formula: 'H - 1.875', qty: 3 }, Interlock: { formula: 'H - 1.875', qty: 3 }, arw: 700, jaliRate: 25, lr: 30, rubberWtFt: 0.025, rubberRate: 160 }
+  D2: {
+    arw: 500, lr: 100, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2,
+    glassW_offset: -4.1, glassH_offset: -4.1,
+    ShutterW: { formula: 'W / 2', qty: 4 },
+    ShutterH: { formula: 'H - 2.6', qty: 4 },
+    Interlock: { formula: 'H - 2.6', qty: 2 }
+  },
+  D3: {
+    arw: 700, lr: 120, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2,
+    glassW_offset: -4.1, glassH_offset: -4.1,
+    ShutterW: { formula: 'W / 2', qty: 6 },
+    ShutterH: { formula: 'H - 2.6', qty: 6 },
+    Interlock: { formula: 'H - 2.6', qty: 2 }
+  },
+  S2: {
+    arw: 1000, lr: 130, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2,
+    glassW_offset: -1.6, glassH_offset: -4.1,
+    ShutterW: { formula: '(W - 4) / 2', qty: 4 },
+    ShutterH: { formula: 'H - 2.6', qty: 2 },
+    Interlock: { formula: 'H - 2.6', qty: 2 },
+    TrackStrip: { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 }
+  },
+  S3: {
+    arw: 1500, lr: 150, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2,
+    glassW_offset: -1.6, glassH_offset: -4.1,
+    ShutterW: { formula: '(W - 4) / 2', qty: 6 },
+    ShutterH: { formula: 'H - 2.6', qty: 3 },
+    Interlock: { formula: 'H - 2.6', qty: 3 },
+    TrackStrip: { formula: 'W - 3', qty: 3, stockLen: 192.5, rate: 800 }
+  },
+  N2: {
+    arw: 200, lr: 90, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2,
+    glassW_offset: 0.5, glassH_offset: -2.5,
+    BearingBottomW: { formula: '(W - 6.2) / 2', qty: 4 },
+    Handle: { formula: 'H - 1.7', qty: 2 },
+    Interlock: { formula: 'H - 1.7', qty: 2 }
+  },
+  N3: {
+    arw: 300, lr: 100, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2,
+    glassW_offset: 0.5, glassH_offset: -2.5,
+    BearingBottomW: { formula: '(W - 6.2) / 2', qty: 6 },
+    Handle: { formula: 'H - 1.7', qty: 3 },
+    Interlock: { formula: 'H - 1.7', qty: 3 }
+  }
 };
 
 const DEFAULT_WEIGHTS = {
-  D2: { Track: 6, Shutter: 3.2, Interlock: 1.8 }, D3: { Track: 6, Shutter: 3.2, Interlock: 1.8 },
-  S2: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 }, S3: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 },
+  D2: { Track: 6, Shutter: 3.2, Interlock: 1.8 },
+  D3: { Track: 6, Shutter: 3.2, Interlock: 1.8 },
+  S2: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 },
+  S3: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 },
   N2: { TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, Interlock: 1.5 },
   N3: { TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, Interlock: 1.5 },
   Pipes: { Pipes: 2.15 }
 };
 
 const FIXED_TRACK_RULES = {
-  D2: { Track: ['W', 'W', 'H', 'H'] }, D3: { Track: ['W', 'W', 'H', 'H'] },
-  S2: { Track: ['W', 'W', 'H', 'H'] }, S3: { Track: ['W', 'W', 'H', 'H'] },
+  D2: { Track: ['W', 'W', 'H', 'H'] },
+  D3: { Track: ['W', 'W', 'H', 'H'] },
+  S2: { Track: ['W', 'W', 'H', 'H'] },
+  S3: { Track: ['W', 'W', 'H', 'H'] },
   N2: { TopTrack: ['W', 'H', 'H'], BottomTrack: ['W'] },
   N3: { TopTrack: ['W', 'H', 'H'], BottomTrack: ['W'] }
 };
@@ -142,11 +187,12 @@ function getCurrentRulesConfig(mode, customRules = {}) {
   const custom = customRules[mode] || {};
   let res = { ...defaults, ...custom };
 
-  res.arw = safeNum(res.arw); res.lr = safeNum(res.lr);
-  res.jaliRate = safeNum(res.jaliRate);
-  res.rubberWtFt = safeNum(res.rubberWtFt) || 0.025;
-  res.rubberRate = safeNum(res.rubberRate) || 160;
-  res.glassQty = safeNum(res.glassQty) || defaults.glassQty || 2;
+  res.arw = safeNum(res.arw ?? defaults.arw);
+  res.lr = safeNum(res.lr ?? defaults.lr);
+  res.jaliRate = safeNum(res.jaliRate ?? defaults.jaliRate);
+  res.rubberWtFt = safeNum(res.rubberWtFt ?? defaults.rubberWtFt) || 0.025;
+  res.rubberRate = safeNum(res.rubberRate ?? defaults.rubberRate) || 160;
+  res.glassQty = safeNum(res.glassQty ?? defaults.glassQty) || 2;
   return res;
 }
 
@@ -164,7 +210,7 @@ function getProfileCutCategory(key, windowMode, allWindowModes) {
   const familiesInProject = new Set(allWindowModes.map(getModeFamily));
   const isMultiFamily = familiesInProject.size > 1;
 
-  if (type === 'Track' || type === 'TopTrack' || type === 'BottomTrack') {
+  if (type === 'Track' || type === 'TopTrack' || type === 'BottomTrack' || type === 'TopBottomTrack' || type === 'SideTrack') {
     const hasMultipleModesInFamily = allWindowModes.some(m => getModeFamily(m) === family && m !== windowMode);
     if (hasMultipleModesInFamily || isMultiFamily) return `${type} (${windowMode})`;
     return type;
@@ -201,8 +247,15 @@ function getWindowPiecesAndGlass(W, H, mode, customRules = {}) {
   const W_shutter = applySutRounding(W, 'non-track', true);
   const H_shutter = applySutRounding(H, 'non-track', false);
 
+  const isBuiltIn = ['D2','D3','S2','S3','N2','N3'].includes(mode);
+  const included = rules.includedProfiles;
+
   for (const key in rules) {
-    if (['glassQty','glassW_offset','glassH_offset','glassW','glassH','arw','lr','jaliRate','rubberWtFt','rubberRate','hasJali','includedProfiles'].includes(key)) continue;
+    if (['glassQty','glassW_offset','glassH_offset','glassW','glassH','arw','lr','jaliRate','rubberWtFt','rubberRate','hasJali','includedProfiles','trackType'].includes(key)) continue;
+    
+    // STRICT FILTER: If Custom Mode, evaluate ONLY checked profiles!
+    if (!isBuiltIn && Array.isArray(included) && !included.includes(key)) continue;
+
     const rule = rules[key];
     if (typeof rule === 'object' && rule.formula && rule.qty > 0) {
       let length = evaluateFormula(rule.formula, W_shutter, H_shutter);
@@ -216,12 +269,24 @@ function getWindowPiecesAndGlass(W, H, mode, customRules = {}) {
     }
   }
 
-  const isBuiltIn = ['D2','D3','S2','S3','N2','N3'].includes(mode);
-  let trackRulesToUse = isBuiltIn ? (FIXED_TRACK_RULES[mode] || {}) : {};
+  // 3 TRACK ARCHITECTURE OPTIONS (BUILT-IN & CUSTOM WINDOWS)
+  let trackRulesToUse = {};
+  if (isBuiltIn) {
+    trackRulesToUse = FIXED_TRACK_RULES[mode] || {};
+  } else {
+    const trackOption = rules.trackType || 'sameOuter';
+    if (trackOption === 'sameOuter') {
+      trackRulesToUse = { Track: ['W', 'W', 'H', 'H'] };
+    } else if (trackOption === 'topSidesBottom') {
+      trackRulesToUse = { TopTrack: ['W', 'H', 'H'], BottomTrack: ['W'] };
+    } else if (trackOption === 'topBottomSides') {
+      trackRulesToUse = { TopBottomTrack: ['W', 'W'], SideTrack: ['H', 'H'] };
+    }
+  }
 
   for (const key in trackRulesToUse) {
     pieces[key] = trackRulesToUse[key].map(formula => {
-      let length = evaluateFormula(formula, W, H);
+      let length = (formula === 'W') ? W : H;
       originalLengths[key] = originalLengths[key] || [];
       originalLengths[key].push(num(length));
       if (!isNaN(length) && length > 0) length += CUTTING_MARGIN;
@@ -232,8 +297,8 @@ function getWindowPiecesAndGlass(W, H, mode, customRules = {}) {
   let shutterW_val = evaluateFormula(rules.ShutterW?.formula || rules.BearingBottomW?.formula || 'W / 2', W_shutter, H_shutter);
   let shutterH_val = evaluateFormula(rules.ShutterH?.formula || rules.Handle?.formula || 'H', W_shutter, H_shutter);
 
-  const rawGlassW = safeNum(shutterW_val) + parseSutOffset(rules.glassW_offset ?? -2.5);
-  const rawGlassH = safeNum(shutterH_val) + parseSutOffset(rules.glassH_offset ?? -2.625);
+  const rawGlassW = safeNum(shutterW_val) + parseSutOffset(rules.glassW_offset ?? -4.1);
+  const rawGlassH = safeNum(shutterH_val) + parseSutOffset(rules.glassH_offset ?? -4.1);
 
   const g = {
     w: applySutRounding(rawGlassW, 'Glass', true),
@@ -266,6 +331,7 @@ function assignFromStock(required, stockPieces){
   return { usedFromStockGrouped, remainingReq: remaining.sort((a,b)=>b.len-a.len), updatedStock };
 }
 
+// 1. MIN WASTE ALGORITHM (Best-Fit Decreasing)
 function optimizeMinWaste(cuts, stockLen){
   const items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
   const bins = [];
@@ -285,20 +351,77 @@ function optimizeMinWaste(cuts, stockLen){
   return bins;
 }
 
+// 2. MIN BARS ALGORITHM (Maximal Density Pack - Knapsack First-Fit)
+function optimizeMinBars(cuts, stockLen){
+  let items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
+  const bins = [];
+  while (items.length > 0) {
+    let bestCombination = [];
+    let maxUsed = 0;
+    
+    // Find best combination of cuts that fills the bar most completely
+    function findBest(startIndex, currentCombo, currentSum) {
+      if (currentSum > maxUsed && currentSum <= stockLen) {
+        maxUsed = currentSum;
+        bestCombination = currentCombo.slice();
+      }
+      for (let i = startIndex; i < items.length; i++) {
+        if (currentSum + items[i].len <= stockLen) {
+          currentCombo.push(i);
+          findBest(i + 1, currentCombo, currentSum + items[i].len);
+          currentCombo.pop();
+          if (maxUsed >= stockLen - 0.25) break; // Early exit if bar is 99% full
+        }
+      }
+    }
+    findBest(0, [], 0);
+
+    if (bestCombination.length === 0) {
+      // Fallback
+      bestCombination = [0];
+      maxUsed = items[0].len;
+    }
+
+    const packedCuts = bestCombination.map(idx => items[idx]);
+    bins.push({
+      cuts: packedCuts,
+      used: num(maxUsed),
+      waste: num(stockLen - maxUsed)
+    });
+
+    const usedIndices = new Set(bestCombination);
+    items = items.filter((_, idx) => !usedIndices.has(idx));
+  }
+  return bins;
+}
+
+// EXACT 3" STEP, 6" STEP & INCH CALCULATION LOGIC
 function roundWindowStep6(val){
   const base = Math.floor(val/6)*6;
   return (val <= base + 0.875)? base : base + 6;
 }
+
+function roundWindowStep3(val){
+  const n = Number(val) || 0;
+  return Math.ceil(n / 3) * 3;
+}
+
 function windowSqFtSingle(w, h, mode='6step'){
   if (mode === 'inch') return (w * h) / 144;
+  if (mode === '3step') {
+    const rw = roundWindowStep3(w), rh = roundWindowStep3(h);
+    return (rw * rh) / 144;
+  }
   const rw = roundWindowStep6(w), rh = roundWindowStep6(h);
   return (rw * rh) / 144;
 }
+
 function roundGlassStep(val){
   const base = Math.floor(val/6)*6;
   return (val % 6 === 0)? base : base + 6;
 }
 function glassSqFt(w,h){ return (roundGlassStep(w) * roundGlassStep(h)) / 144; }
+function glassRunningFeet(w, h, qty=2){ return ((w + h) * 2 / 12) * qty; }
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -345,18 +468,19 @@ module.exports = async (req, res) => {
     const allWindowModes = sizes.map(s => s.mode || defaultMode);
     const windowCutDetails = [];
 
+    // 1. PROCESS WINDOWS
     sizes.forEach(sz => {
       const W = num(sz.w), H = num(sz.h);
       const winMode = sz.mode || defaultMode;
       const { pieces: pc, glass: g, originalLengths } = getWindowPiecesAndGlass(W, H, winMode, customRules);
       
       const glassSq = safeFix(glassSqFt(g.w, g.h) * g.qty);
-      const winSq = safeFix(windowSqFtSingle(applySutRounding(W, 'non-track', true), applySutRounding(H, 'non-track', false), sqftMode));
+      const winSq = safeFix(windowSqFtSingle(W, H, sqftMode));
 
       glasses.push({
         window: sz.id, widthFmt: fmtLength(g.w, unitMode), heightFmt: fmtLength(g.h, unitMode),
         qty: g.qty, rawW: W, rawH: H, mode: winMode, totalGlassSq: glassSq, winSqFt: winSq,
-        sizeFmt: `${fmtLength(applySutRounding(W, 'non-track', true), unitMode)} x ${fmtLength(applySutRounding(H, 'non-track', false), unitMode)}`
+        sizeFmt: `${fmtLength(W, unitMode)} x ${fmtLength(H, unitMode)}`
       });
 
       const formattedOrig = {};
@@ -379,6 +503,36 @@ module.exports = async (req, res) => {
       }
     });
 
+    // 2. PROCESS CUSTOM PIPES (ROBUST PARSER)
+    if (pipeSizesRaw) {
+      pipeSizesRaw.split(/\n+/g).map(s => s.trim()).filter(Boolean).forEach((line, pIdx) => {
+        const m = line.match(/^([\d\.]+)(?:\s*(?:[\*\(\(xX×,\-])\s*(\d+)\)?)?$/);
+        let len = 0, qty = 1;
+        if (m) {
+          len = parseSutToken(m[1], unitMode);
+          qty = m[2] ? parseInt(m[2], 10) || 1 : 1;
+        } else {
+          const parts = line.split(/[\s\*\(\)xX×,\-]+/);
+          len = parseSutToken(parts[0], unitMode);
+          qty = parts[1] ? parseInt(parts[1], 10) || 1 : 1;
+        }
+        if (isNaN(len) || len <= 0) return;
+
+        piecesByType['Pipes'] = piecesByType['Pipes'] || [];
+        for (let q = 0; q < qty; q++) {
+          let cutLen = len;
+          if (cutLen > 0) cutLen += CUTTING_MARGIN;
+          piecesByType['Pipes'].push({
+            len: cutLen,
+            id: `P${pIdx + 1}`,
+            winMode: 'Pipes',
+            originalLen: len,
+            origFmt: fmtLength(len, unitMode)
+          });
+        }
+      });
+    }
+
     const cutPlans = {};
     let grandBars = 0; let grandWeight = 0; let trackStripTotalCost = 0;
     const barSummaryRows = [];
@@ -387,7 +541,11 @@ module.exports = async (req, res) => {
       if (!cuts || cuts.length === 0) return;
       const stockLengthToUse = (type === 'Pipes') ? pipeStockLen : stockLen;
       const af = assignFromStock(cuts, (stockMap[type] || []).slice().sort((a,b)=>b-a));
-      const bins = optimizeMinWaste(af.remainingReq, stockLengthToUse);
+      
+      const strategy = optStrategy[type] || 'minWaste';
+      const bins = (strategy === 'minBars')
+        ? optimizeMinBars(af.remainingReq, stockLengthToUse)
+        : optimizeMinWaste(af.remainingReq, stockLengthToUse);
       
       const formattedBins = bins.map(b => ({
         usedFmt: fmtLength(b.used, unitMode),
@@ -421,6 +579,7 @@ module.exports = async (req, res) => {
       const { glass: g } = getWindowPiecesAndGlass(sz.w, sz.h, winMode, customRules);
       totalRubberCost += (glassRunningFeet(g.w || 0, g.h || 0, g.qty || 2) * (rules.rubberWtFt || 0.025)) * (rules.rubberRate || 160);
       arwCost += safeNum(rules.arw); laborCost += safeNum(rules.lr) * winSq;
+      if (rules.jaliRate) jaliCost += safeNum(rules.jaliRate) * winSq;
     });
 
     const glassCost = safeNum(totalGlassSqFt * gr);
@@ -450,4 +609,3 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'Calculation Engine Error: ' + err.message });
   }
 };
-function glassRunningFeet(w, h, qty=2){ return ((w + h) * 2 / 12) * qty; }
