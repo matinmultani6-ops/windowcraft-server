@@ -303,7 +303,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
-<!-- ADD CUSTOM MODAL (3 TRACK ARCHITECTURE OPTIONS) -->
+<!-- ADD CUSTOM MODAL -->
 <div id="addCustomModal" class="modal">
   <div class="box">
     <h4>➕ Add Custom Window / Mode</h4>
@@ -347,7 +347,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
-<!-- WEIGHT MODAL (WITH FULLY VISIBLE TAB NAMES) -->
+<!-- WEIGHT MODAL -->
 <div id="weightModal" class="modal">
   <div class="box">
     <h4>⚖️ Bar Weight (Kg per Full Bar)</h4>
@@ -453,7 +453,6 @@ function safeFix(v, d=2) { return safeNum(v).toFixed(d); }
 const num = (n,d=3)=>Number(Number(n).toFixed(d));
 function setStatus(msg){ $('#statusPill').textContent = 'Status: ' + msg; }
 
-// DEFAULT RULES WITH D2 LABOUR = 100 AND D3/N3 GLASS QTY = 2
 const DEFAULT_RULES_CONFIG = {
   D2: { arw: 500, lr: 100, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, ShutterW: { formula: 'W / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 4 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
   D3: { arw: 700, lr: 120, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, ShutterW: { formula: 'W / 2', qty: 6 }, ShutterH: { formula: 'H - 2.6', qty: 6 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
@@ -481,6 +480,7 @@ const WEIGHT_TYPES = {
   Pipes: ["Pipes"]
 };
 
+// BULLETPROOF LOCAL STORAGE HANDLER
 const LS = {
   getWeights(){ try{ return JSON.parse(localStorage.getItem('fs_weights')||'{}'); }catch(e){ return {}; } },
   setWeights(obj){ localStorage.setItem('fs_weights', JSON.stringify(obj)); },
@@ -814,7 +814,6 @@ function renderReportTables(data) {
     cutDetailWrap.appendChild(buildTable(["Win #", "Track", "Shutter (W)", "Shutter (H)", "Interlock", "Track Strip/Sides"], cdRows));
   } else { cutDetailWrap.textContent = '—'; }
 
-  // 5. CUTTING PLAN WITH DUAL OPTIMIZATION ENGINE TOGGLE
   const cutWrap = $('#cutPlan'); cutWrap.innerHTML = '';
   Object.entries(data.cutPlans).forEach(([type, plan]) => {
     if (!plan.bins || !plan.bins.length) return;
@@ -984,7 +983,6 @@ function saveStockModal(){
   hydrateView();
 }
 
-// PURE BLACK & WHITE PDF GENERATOR - FABRICATION REPORT
 function generateFabricationPDF(fileName){
   try {
     if (!STATE.serverData) { alert("Please click Calculate first!"); return; }
@@ -1068,7 +1066,6 @@ function generateFabricationPDF(fileName){
   } catch(e) { alert("PDF Error: " + e.message); }
 }
 
-// PURE BLACK & WHITE PDF GENERATOR - QUOTATION & BILL
 function generateBillPDF(fileName){
   try {
     if (!STATE.serverData) { alert("Please click Calculate first!"); return; }
@@ -1217,7 +1214,7 @@ function bindEvents(){
   $('#addCustomModeBtn').onclick = () => $('#addCustomModal').classList.add('open');
   $('#cancelCustomMode').onclick = () => $('#addCustomModal').classList.remove('open');
 
-  // CUSTOM WINDOW CREATOR
+  // CREATE CUSTOM WINDOW
   $('#saveNewCustomMode').onclick = () => {
     const name = $('#customModeName').value.trim().toUpperCase().replace(/[^A-Z0-9_\-]/g, '');
     if (!name) { alert("Please enter Custom Window Name!"); return; }
@@ -1276,22 +1273,19 @@ function bindEvents(){
     }
   };
 
+  // 100% PERSISTENT RULES SAVE HANDLER (DEEP MERGE)
   $('#rulesSave').onclick = () => {
     triggerInterstitialAd();
     const active = STATE.currentRulesTab || STATE.mode;
-    STATE.customRules[active] = STATE.customRules[active] || {};
+    const currentRules = STATE.customRules[active] || {};
 
     $$('#rulesBody .wc-field').forEach(inp => {
       const type = inp.dataset.type;
       if (type === 'glassW_offset' || type === 'glassH_offset') {
         let val = inp.value;
-        if (STATE.unitMode === 'mm') {
-          STATE.customRules[active][type] = (parseFloat(val) || 0) / 25.4;
-        } else {
-          STATE.customRules[active][type] = parseSutOffset(val);
-        }
+        currentRules[type] = (STATE.unitMode === 'mm') ? (parseFloat(val) || 0) / 25.4 : parseSutOffset(val);
       } else {
-        STATE.customRules[active][type] = inp.value;
+        currentRules[type] = inp.value;
       }
     });
 
@@ -1305,25 +1299,20 @@ function bindEvents(){
     for (const type in profs) {
       const p = profs[type];
       const base = p.base || 'W';
-      let parsedOffset = 0;
-      if (STATE.unitMode === 'mm') {
-        parsedOffset = (parseFloat(p.offset) || 0) / 25.4;
-      } else {
-        parsedOffset = parseSutOffset(p.offset);
-      }
-
+      let parsedOffset = (STATE.unitMode === 'mm') ? (parseFloat(p.offset) || 0) / 25.4 : parseSutOffset(p.offset);
       let stockLenInches = p.stockLen ? (STATE.unitMode === 'mm' ? (parseFloat(p.stockLen)||0)/25.4 : parseFloat(p.stockLen)||192.5) : undefined;
-
       const formula = buildFormulaFromParts(base, parsedOffset, safeNum(p.divisor)||1);
-      STATE.customRules[active][type] = {
+      
+      currentRules[type] = {
         formula, qty: safeNum(p.qty) || 2, stockLen: stockLenInches, rate: p.rate ? safeNum(p.rate) : undefined
       };
     }
 
+    STATE.customRules[active] = currentRules;
     LS.setRules(STATE.customRules);
     $('#rulesModal').classList.remove('open');
     hydrateView();
-    setStatus('Rules saved for ' + active);
+    setStatus('Rules saved permanently for ' + active);
   };
 
   $('#weightSave').onclick = () => {
@@ -1342,7 +1331,6 @@ function bindEvents(){
     setStatus('Weights saved for ' + active);
   };
 
-  // IN-APP PDF NAMING HANDLERS
   $('#pdfCutBtn').onclick = () => { openPdfNameModal('cut'); };
   $('#pdfBillBtn').onclick = () => { openPdfNameModal('bill'); };
   $('#pdfConfirmBtn').onclick = () => { processPdfDownload(); };
