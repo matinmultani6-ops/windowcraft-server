@@ -232,7 +232,7 @@ function getWindowPiecesAndGlass(W, H, mode, customRules = {}) {
     }
   }
 
-  // 3 TRACK OPTIONS
+  // 3 TRACK ARCHITECTURE OPTIONS
   let trackRulesToUse = {};
   if (isBuiltIn) {
     trackRulesToUse = FIXED_TRACK_RULES[mode] || {};
@@ -294,7 +294,7 @@ function assignFromStock(required, stockPieces){
   return { usedFromStockGrouped, remainingReq: remaining.sort((a,b)=>b.len-a.len), updatedStock };
 }
 
-// 1. FAST MIN WASTE ALGORITHM (Best-Fit Decreasing - O(N log N))
+// 1. FAST MIN WASTE ALGORITHM (Best-Fit Decreasing)
 function optimizeMinWaste(cuts, stockLen){
   const items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
   const bins = [];
@@ -314,7 +314,7 @@ function optimizeMinWaste(cuts, stockLen){
   return bins;
 }
 
-// 2. FAST MIN BARS ALGORITHM (First-Fit Decreasing - O(N log N))
+// 2. FAST MIN BARS ALGORITHM (First-Fit Decreasing)
 function optimizeMinBars(cuts, stockLen){
   const items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
   const bins = [];
@@ -440,7 +440,7 @@ module.exports = async (req, res) => {
       }
     });
 
-    // 2. PROCESS PIPES (FAST PARSER)
+    // 2. PROCESS PIPES
     if (pipeSizesRaw) {
       pipeSizesRaw.split(/\n+/g).map(s => s.trim()).filter(Boolean).forEach((line, pIdx) => {
         const m = line.match(/^([\d\.]+)(?:\s*(?:[\*\(\(xX×,\-])\s*(\d+)\)?)?$/);
