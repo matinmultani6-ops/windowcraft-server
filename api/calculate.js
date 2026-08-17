@@ -232,7 +232,7 @@ function getWindowPiecesAndGlass(W, H, mode, customRules = {}) {
     }
   }
 
-  // 3 TRACK ARCHITECTURE LOGIC
+  // 3 TRACK ARCHITECTURE OPTIONS
   let trackRulesToUse = {};
   if (isBuiltIn) {
     trackRulesToUse = FIXED_TRACK_RULES[mode] || {};
@@ -294,7 +294,7 @@ function assignFromStock(required, stockPieces){
   return { usedFromStockGrouped, remainingReq: remaining.sort((a,b)=>b.len-a.len), updatedStock };
 }
 
-// 1. FAST MIN WASTE ALGORITHM (Best-Fit Decreasing)
+// 1. MIN WASTE ALGORITHM (Group Largest Cuts First - Best-Fit Decreasing)
 function optimizeMinWaste(cuts, stockLen){
   const items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
   const bins = [];
@@ -314,24 +314,37 @@ function optimizeMinWaste(cuts, stockLen){
   return bins;
 }
 
-// 2. FAST MIN BARS ALGORITHM (First-Fit Decreasing)
+// 2. MIN BARS ALGORITHM (Greedy Pairing - Fills Bars with Matching Small Pieces)
 function optimizeMinBars(cuts, stockLen){
-  const items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
+  let items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
   const bins = [];
-  for (const item of items) {
-    let placed = false;
-    for (const bin of bins) {
-      if (num(stockLen - bin.used) >= item.len) {
-        bin.cuts.push(item);
-        bin.used = num(bin.used + item.len);
-        bin.waste = num(stockLen - bin.used);
-        placed = true;
-        break;
+  
+  while (items.length > 0) {
+    const currentCuts = [];
+    let currentUsed = 0;
+    
+    // Pick the largest remaining piece
+    const first = items.shift();
+    currentCuts.push(first);
+    currentUsed = num(first.len);
+    
+    // Greedily search from largest down to smallest to fill this bar as close to 100% as possible
+    let i = 0;
+    while (i < items.length) {
+      if (num(currentUsed + items[i].len) <= stockLen) {
+        currentUsed = num(currentUsed + items[i].len);
+        currentCuts.push(items[i]);
+        items.splice(i, 1);
+      } else {
+        i++;
       }
     }
-    if (!placed) {
-      bins.push({ cuts: [item], used: num(item.len), waste: num(stockLen - item.len) });
-    }
+
+    bins.push({
+      cuts: currentCuts,
+      used: currentUsed,
+      waste: num(stockLen - currentUsed)
+    });
   }
   return bins;
 }
