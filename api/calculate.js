@@ -232,7 +232,7 @@ function getWindowPiecesAndGlass(W, H, mode, customRules = {}) {
     }
   }
 
-  // 3 TRACK ARCHITECTURE OPTIONS
+  // 3 TRACK ARCHITECTURE LOGIC
   let trackRulesToUse = {};
   if (isBuiltIn) {
     trackRulesToUse = FIXED_TRACK_RULES[mode] || {};
@@ -336,21 +336,25 @@ function optimizeMinBars(cuts, stockLen){
   return bins;
 }
 
+// 6" STEP, 3" STEP (WITH 7 SUT / 0.875" TOLERANCE) & INCH LOGIC
 function roundWindowStep6(val){
   const base = Math.floor(val/6)*6;
   return (val <= base + 0.875)? base : base + 6;
 }
 
 function roundWindowStep3(val){
-  return Math.ceil((Number(val)||0) / 3) * 3;
+  const base = Math.floor(val/3)*3;
+  return (val <= base + 0.875)? base : base + 3;
 }
 
 function windowSqFtSingle(w, h, mode='6step'){
   if (mode === 'inch') return (w * h) / 144;
   if (mode === '3step') {
-    return (roundWindowStep3(w) * roundWindowStep3(h)) / 144;
+    const rw = roundWindowStep3(w), rh = roundWindowStep3(h);
+    return (rw * rh) / 144;
   }
-  return (roundWindowStep6(w) * roundWindowStep6(h)) / 144;
+  const rw = roundWindowStep6(w), rh = roundWindowStep6(h);
+  return (rw * rh) / 144;
 }
 
 function roundGlassStep(val){
