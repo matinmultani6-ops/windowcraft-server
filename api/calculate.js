@@ -294,18 +294,23 @@ function assignFromStock(required, stockPieces){
   return { usedFromStockGrouped, remainingReq: remaining.sort((a,b)=>b.len-a.len), updatedStock };
 }
 
-// 1. MIN WASTE ALGORITHM (Group Largest Cuts First - Best-Fit Decreasing)
+// 1. ORIGINAL MIN WASTE ALGORITHM (Best-Fit Decreasing)
 function optimizeMinWaste(cuts, stockLen){
-  const items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
+  const items = cuts.map(v => ({...v})).sort((a,b) => b.len - a.len);
   const bins = [];
   for (const item of items) {
-    let bestBin = null; let minRemainder = Infinity;
+    let bestBin = null;
+    let minRemainder = Infinity;
     for (const bin of bins) {
       const rem = num(stockLen - bin.used - item.len);
-      if (rem >= 0 && rem < minRemainder) { minRemainder = rem; bestBin = bin; }
+      if (rem >= 0 && rem < minRemainder) {
+        minRemainder = rem;
+        bestBin = bin;
+      }
     }
     if (bestBin) {
-      bestBin.cuts.push(item); bestBin.used = num(bestBin.used + item.len);
+      bestBin.cuts.push(item);
+      bestBin.used = num(bestBin.used + item.len);
       bestBin.waste = num(stockLen - bestBin.used);
     } else {
       bins.push({ cuts: [item], used: num(item.len), waste: num(stockLen - item.len) });
@@ -314,37 +319,59 @@ function optimizeMinWaste(cuts, stockLen){
   return bins;
 }
 
-// 2. MIN BARS ALGORITHM (Greedy Pairing - Fills Bars with Matching Small Pieces)
-function optimizeMinBars(cuts, stockLen){
-  let items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
-  const bins = [];
-  
-  while (items.length > 0) {
-    const currentCuts = [];
-    let currentUsed = 0;
-    
-    // Pick the largest remaining piece
-    const first = items.shift();
-    currentCuts.push(first);
-    currentUsed = num(first.len);
-    
-    // Greedily search from largest down to smallest to fill this bar as close to 100% as possible
-    let i = 0;
-    while (i < items.length) {
-      if (num(currentUsed + items[i].len) <= stockLen) {
-        currentUsed = num(currentUsed + items[i].len);
-        currentCuts.push(items[i]);
-        items.splice(i, 1);
-      } else {
-        i++;
-      }
+// 2. ORIGINAL DYNAMIC PROGRAMMING SUBSET-SUM ALGORITHM (MIN BARS)
+function bestFitSubsetIndices(items, stockLen, scale=1000){
+  const ints = items.map(it => Math.round(it.len * scale));
+  const target = Math.round(stockLen * scale);
+  const dp = new Int32Array(target + 1).fill(-1);
+  dp[0] = -2;
+  for (let i = 0; i < ints.length; i++){
+    const val = ints[i];
+    if (val > target) continue;
+    for (let s = target; s >= val; s--){
+      if (dp[s] === -1 && dp[s - val] !== -1) dp[s] = i;
     }
+  }
+  let best = -1;
+  for (let s = target; s >= 0; s--){
+    if (dp[s] !== -1) { best = s; break; }
+  }
+  if (best <= 0) {
+    let ix = -1, mx = -1;
+    for (let i = 0; i < ints.length; i++){
+      if (ints[i] <= target && ints[i] > mx){ mx = ints[i]; ix = i; }
+    }
+    return ix === -1 ? [] : [ix];
+  }
+  const chosen = []; let cur = best;
+  while (cur > 0) {
+    const i = dp[cur];
+    if (i < 0) break;
+    chosen.push(i);
+    cur -= ints[i];
+  }
+  return chosen;
+}
 
-    bins.push({
-      cuts: currentCuts,
-      used: currentUsed,
-      waste: num(stockLen - currentUsed)
-    });
+function optimizeMinBars(cuts, stockLen){
+  const items = cuts.map(v => ({...v}));
+  const bins = [];
+  while (items.length) {
+    const idxs = bestFitSubsetIndices(items, stockLen);
+    if (!idxs.length) {
+      const one = items.shift();
+      bins.push({ cuts: [one], used: num(one.len), waste: num(stockLen - one.len) });
+      continue;
+    }
+    const pick = Array.from(new Set(idxs)).sort((a,b) => b - a);
+    const pack = []; let used = 0;
+    for (const p of pick) {
+      const it = items.splice(p, 1)[0];
+      pack.push(it);
+      used += it.len;
+    }
+    used = num(used);
+    bins.push({ cuts: pack, used, waste: num(stockLen - used) });
   }
   return bins;
 }
