@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<!-- SERVICE WORKER CACHE KILLER & FORCE REFRESH -->
+<!-- SERVICE WORKER CACHE REFRESH (NO USER DATA LOSS) -->
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -59,7 +59,7 @@ header.top{
 .status { background: #6c757d; }
 
 .wrap{ max-width: 1200px; width: 100%; margin: 0 auto; padding: 10px 6px; display: grid; grid-template-columns: 1fr; gap: 10px; box-sizing: border-box; }
-@media (min-width: 850px) { .wrap { grid-template-columns: 360px 1fr; align-items: start; gap: 12px; } }
+@media (min-width: 850px) { .wrap { grid-template-columns: 420px 1fr; align-items: start; gap: 12px; } }
 
 .left-col, .right-col { min-width: 0 !important; width: 100%; box-sizing: border-box; }
 .card{ background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 8px; box-shadow:0 1px 3px rgba(0,0,0, .06); margin-bottom: 10px; position: relative; width: 100%; min-width: 0; box-sizing: border-box; }
@@ -69,16 +69,92 @@ h3{margin:0 0 6px;font-size:0.85rem;font-weight:600;color:var(--text);border-bot
 
 .row{display:grid;grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; width: 100%; box-sizing: border-box;}
 .lbl { display: block; margin-bottom: 2px; font-size: 0.75rem; font-weight: 600; color: var(--text); }
-.input, textarea, select{ width:100%;border:1px solid var(--border);background:var(--bg);color:var(--text); border-radius:4px;padding:5px 7px;font-size:0.80rem; transition:border-color .2s, box-shadow .2s; -webkit-appearance:none; box-sizing: border-box; }
+.input, select{ width:100%;border:1px solid var(--border);background:var(--bg);color:var(--text); border-radius:4px;padding:5px 7px;font-size:0.80rem; transition:border-color .2s, box-shadow .2s; -webkit-appearance:none; box-sizing: border-box; }
 .input:focus, textarea:focus, select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(26, 115, 232, .18);}
-textarea.input[rows="4"] { min-height: 75px; padding: 5px; font-size: 0.80rem; resize: vertical; }
 
-.group.compact { display: flex; justify-content: space-between; align-items: center; width: 100%; min-width: 0; }
-.group.compact .lbl { flex-shrink: 1; margin-bottom: 0; margin-right: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.75rem; }
-.group.compact .input { width: 100%; max-width: 80px; padding: 4px 6px; font-size: 0.80rem; flex-shrink: 0; }
-.group[data-span="2"] { grid-column: span 2; }
+/* SIDE-BY-SIDE EQUAL HEIGHT CONTAINER */
+.side-split-container {
+  display: grid;
+  grid-template-columns: 195px 1fr;
+  gap: 8px;
+  align-items: stretch;
+  margin-bottom: 8px;
+}
+@media (max-width: 480px) {
+  .side-split-container {
+    grid-template-columns: 160px 1fr;
+    gap: 6px;
+  }
+}
 
-.gear-btn { background: none; border: none; font-size: 1.15rem; cursor: pointer; color: var(--primary); padding: 1px 3px; border-radius: 4px; }
+textarea.compact-input {
+  width: 100%;
+  border: 1.5px solid #a4b9d6;
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  line-height: 1.40;
+  box-sizing: border-box;
+  resize: none;
+}
+textarea#sizesInput, .guide-window-matched {
+  height: 200px !important;
+  min-height: 200px !important;
+  max-height: 200px !important;
+}
+textarea#pipeSizesInput, .guide-pipe-matched {
+  height: 160px !important;
+  min-height: 160px !important;
+  max-height: 160px !important;
+}
+
+.side-guide-box {
+  background: #eef4fc;
+  border: 1px solid #c8dbf2;
+  border-left: 4px solid var(--primary);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.70rem;
+  color: #1a4f8b;
+  line-height: 1.35;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+.side-guide-box b { color: #0d3c75; }
+.guide-line { margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tag-badge {
+  display: inline-block;
+  background: #fff;
+  border: 1px solid #b3d1ff;
+  color: #155724;
+  padding: 0px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 0.70rem;
+}
+.sub-hint {
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-weight: normal;
+  display: block;
+  margin-top: 1px;
+}
+
+.input-fixed {
+  background: #e9f0f8 !important;
+  color: #155724 !important;
+  font-weight: 700 !important;
+  border-color: #b8d4f7 !important;
+  cursor: not-allowed;
+}
+
 .toolbar { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
 .toolbar .btn-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
@@ -104,7 +180,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
 
 .modal{ position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:1000; display:none; justify-content:center; align-items:flex-start; padding:12px 6px; overflow-y:auto; overflow-x: hidden; box-sizing: border-box; }
 .modal.open{ display:flex; }
-.box{ background:var(--bg); border-radius:8px; padding:12px 10px; width:100%; max-width:480px; box-shadow:0 10px 30px rgba(0,0,0,0.3); box-sizing: border-box; margin: 0 auto; }
+.box{ background:var(--bg); border-radius:8px; padding:12px 10px; width:100%; max-width:520px; box-shadow:0 10px 30px rgba(0,0,0,0.3); box-sizing: border-box; margin: 0 auto; }
 .modal h4{ font-size:0.98rem; color:var(--primary); margin:0 0 8px; padding-bottom:4px; border-bottom:2px solid var(--border); display:flex; justify-content:space-between; align-items:center;}
 
 .wc-card { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 7px; margin-bottom: 6px; }
@@ -116,8 +192,8 @@ tr:nth-child(even) td{ background:#f9fbfd }
 
 .chk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px; }
 .chk-item { font-size: 0.75rem; display: flex; align-items: center; gap: 4px; cursor: pointer; }
-.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; }
-.grid-3 { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 4px; }
+.grid-4 { display: grid; grid-template-columns: 1.4fr 1fr 0.8fr 0.8fr; gap: 5px; }
+.grid-3 { display: grid; grid-template-columns: 1.5fr 1.1fr 0.9fr; gap: 5px; }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -125,7 +201,6 @@ tr:nth-child(even) td{ background:#f9fbfd }
 </head>
 <body>
 
-<!-- NO INTERNET ALERT BANNER -->
 <div id="offlineBanner" class="offline-banner">
   ⚠️ No Internet Connection / इंटरनेट कनेक्शन उपलब्ध नहीं है
 </div>
@@ -149,41 +224,76 @@ tr:nth-child(even) td{ background:#f9fbfd }
   <div class="left-col">
     <section class="card">
       <h2>
-        <span>1. 📏 Project Sizes & Inputs</span>
-        <button id="settingsBtn" class="gear-btn" title="Settings & Advanced">⚙️</button>
+        <span>1. 📏 प्रोजेक्ट नाप (Project Inputs)</span>
+        <button id="settingsBtn" class="btn" style="width:auto; padding:3px 9px; font-size:0.75rem;">⚙️ रेट्स & रूल्स (Rates & Rules)</button>
       </h2>
       
+      <!-- STOCK LENGTHS -->
       <div class="row">
-        <div class="group compact"><label class="lbl" id="lcLabel" for="lcInput">Window Stock (in)</label><input id="lcInput" class="input" type="number" step="0.25" value="192.5" /></div>
-        <div class="group compact"><label class="lbl" id="pipeLcLabel" for="pipeLcInput">Pipe Stock (in)</label><input id="pipeLcInput" class="input" type="number" step="0.25" value="192.5" /></div>
+        <div>
+          <label class="lbl" for="lcInput">🏢 विंडो बार लंबाई (Window Stock)
+            <span class="sub-hint">16 फीट फुल बार = 192.5" (16 Ft Bar)</span>
+          </label>
+          <input id="lcInput" class="input" type="number" step="0.25" value="192.5" />
+        </div>
+        <div>
+          <label class="lbl" for="pipeLcInput">🔩 पाइप बार लंबाई (Pipe Stock)
+            <span class="sub-hint">16 फीट फुल पाइप = 192.5" (16 Ft Pipe)</span>
+          </label>
+          <input id="pipeLcInput" class="input" type="number" step="0.25" value="192.5" />
+        </div>
       </div>
       
-      <div class="row">
-        <div class="group" data-span="2">
-          <label class="lbl" id="sizesLabel" for="sizesInput">Window Sizes (W"xH") - **Half Sut e.g. 48.5.5*48(4d2)**</label>
-          <textarea id="sizesInput" class="input" rows="4" placeholder="48.5.5*48(4d2)&#10;36*36(2d3)">48.5.5*48(4d2)&#10;36*36(2d3)</textarea>
+      <!-- 1. WINDOW SIZES (SIDE-BY-SIDE EQUAL HEIGHT) -->
+      <label class="lbl" for="sizesInput">🪟 विंडो साइज़ (चौड़ाई × ऊंचाई)
+        <span class="sub-hint">हर लाइन में 1 खिड़की का नाप (1 Size per line)</span>
+      </label>
+      
+      <div class="side-split-container">
+        <textarea id="sizesInput" class="compact-input" placeholder="48.5.5*48 (4)&#10;36*36 (2)&#10;43*50">48.5.5*48 (4)&#10;36*36 (2)&#10;43*50</textarea>
+        
+        <div class="side-guide-box guide-window-matched">
+          <div class="guide-line">👉 <b>फ़ॉर्मेट:</b> <b>चौड़ाई × ऊंचाई (W × H)</b></div>
+          <div class="guide-line" style="color:#d9534f; font-weight:bold;">↵ अगली विंडो: <b>Enter दबाएं</b></div>
+          <div class="guide-line">📌 <b>सूत:</b> <span class="tag-badge">48.4</span> = 48" 4 सूत</div>
+          <div class="guide-line">📌 <b>आधा सूत:</b> <span class="tag-badge">48.5.5</span> = 48" 5½ सूत</div>
+          <div class="guide-line">🔢 <b>संख्या:</b> <span class="tag-badge">48.5.5*48 (4)</span></div>
+          <div class="guide-line" style="font-size:0.68rem; color:#555;">➔ <i>4 खिड़कियाँ (4 Windows)</i></div>
         </div>
-        <div class="group" data-span="2">
-          <label class="lbl" id="pipeSizesLabel" for="pipeSizesInput">Custom Pipe Sizes (Length") - **e.g. 20, 30 (2)**</label>
-          <textarea id="pipeSizesInput" class="input" rows="2" placeholder="20&#10;30 (2)">20&#10;30 (2)</textarea>
+      </div>
+
+      <!-- 2. CUSTOM PIPE SIZES (SIDE-BY-SIDE EQUAL HEIGHT) -->
+      <label class="lbl" for="pipeSizesInput">✂️ कस्टम पाइप कटआउट (Custom Pipe Sizes)
+        <span class="sub-hint">पाइप के छोटे टुकड़े (Short Cutouts)</span>
+      </label>
+      
+      <div class="side-split-container">
+        <textarea id="pipeSizesInput" class="compact-input" placeholder="20&#10;30 (2)&#10;15.4 (5)">20&#10;30 (2)&#10;15.4 (5)</textarea>
+        
+        <div class="side-guide-box guide-pipe-matched" style="border-left-color: var(--orange);">
+          <div class="guide-line">💡 <b>पाइप नियम:</b> लंबाई (संख्या) लिखें</div>
+          <div class="guide-line" style="color:#d9534f; font-weight:bold;">↵ अगला पाइप: <b>Enter दबाएं</b></div>
+          <div class="guide-line">📌 <b>1 पीस:</b> <span class="tag-badge">20</span> (1x 20")</div>
+          <div class="guide-line">📌 <b>2 पीस:</b> <span class="tag-badge">30 (2)</span> (2x 30")</div>
+          <div class="guide-line">📌 <b>सूत नाप:</b> <span class="tag-badge">15.4 (5)</span> (5x 15" 4s)</div>
         </div>
       </div>
 
       <div class="toolbar">
-        <button id="calculateBtn" class="btn b-success" type="button" style="margin-bottom: 4px; font-size: 0.88rem; padding: 8px; font-weight: 700;">🧮 Calculate / गणना करें</button>
-        <button id="unitModeBtn" class="btn b-action-2" type="button" style="margin-bottom: 4px;">📏 Unit: Inches (sut)</button>
+        <button id="calculateBtn" class="btn b-success" type="button" style="margin-bottom: 4px; font-size: 0.88rem; padding: 8px; font-weight: 700;">🧮 हिसाब लगाएं (Calculate Project)</button>
+        <button id="unitModeBtn" class="btn b-action-2" type="button" style="margin-bottom: 4px;">📏 यूनिट बदलें (Unit: Inches / Sut)</button>
 
         <div class="btn-row-2">
           <div class="mode-selector">
-            <button id="modeBtn" class="btn" type="button">D3 Mode</button>
+            <button id="modeBtn" class="btn" type="button">D3 Mode (मोड बदलें / Switch Mode)</button>
             <div id="modeDropdown" class="mode-dropdown"></div>
           </div>
-          <button id="clearAllBtn" class="btn b-danger" type="button">🗑️ Clear All</button>
+          <button id="clearAllBtn" class="btn b-danger" type="button">🗑️ साफ़ करें (Clear All)</button>
         </div>
         
         <div class="btn-row-2" style="margin-top: 4px;">
-          <button id="pdfCutBtn" class="btn b-action-2" type="button" title="Window Sizes, Glass & Cut Plan">📐 Fabrication & Cut Report</button>
-          <button id="pdfBillBtn" class="btn b-success" type="button" title="Cost Summary & Bill">💰 Quotation & Bill Summary</button>
+          <button id="pdfCutBtn" class="btn b-action-2" type="button" title="Window Sizes, Glass & Cut Plan">📐 फैब्रिकेशन रिपोर्ट (Fabrication Report)</button>
+          <button id="pdfBillBtn" class="btn b-success" type="button" title="Cost Summary & Bill">💰 बिल सारांश (Quotation Bill Summary)</button>
         </div>
       </div>
     </section>
@@ -191,33 +301,33 @@ tr:nth-child(even) td{ background:#f9fbfd }
 
   <div class="right-col">
     <section class="card">
-      <h2>2. 📊 Project Report</h2>
+      <h2>2. 📊 प्रोजेक्ट रिपोर्ट (Project Report)</h2>
       <div class="tables">
         <div>
-          <h3>1. Totals and Cost (₹)</h3>
+          <h3>1. कुल खर्च और सारांश (Totals & Cost Summary)</h3>
           <div id="totalsWrap" class="table-wrap muted">—</div>
         </div>
 
         <div>
-          <h3>2. Profile Bars & Weight Summary</h3>
+          <h3>2. प्रोफाइल बार और कुल वजन (Profile Bars & Weight Summary)</h3>
           <div id="barSummaryWrap" class="table-wrap muted">—</div>
         </div>
 
         <div>
           <h3>
-            <span>3. Window Sizes & Glass</span>
-            <button id="sqftModeBtn" class="toggle-pill">Sq.Ft: 6" Step</button>
+            <span>3. खिड़की साइज़ & ग्लास एरिया (Window & Glass Sizes)</span>
+            <button id="sqftModeBtn" class="toggle-pill">Sq.Ft: 3" Step</button>
           </h3>
           <div id="windowSizeGlassDetails" class="table-wrap muted">Enter sizes and select mode.</div>
         </div>
 
         <div>
-          <h3>4. Profile Cut Lengths</h3>
+          <h3>4. प्रोफाइल कटिंग साइज़ (Profile Cut Lengths)</h3>
           <div id="windowDetails" class="table-wrap muted">—</div>
         </div>
 
         <div>
-          <h3>5. Cutting Plan (Optimized)</h3>
+          <h3>5. 100% ऑप्टिमाइज़्ड कटिंग प्लान (Optimized Cutting Plan)</h3>
           <div id="cutPlan" class="table-wrap muted">—</div>
         </div>
       </div>
@@ -228,14 +338,14 @@ tr:nth-child(even) td{ background:#f9fbfd }
 <!-- IN-APP PDF NAME MODAL -->
 <div id="pdfNameModal" class="modal">
   <div class="box">
-    <h4>📄 PDF File Name / Customer Name</h4>
+    <h4>📄 PDF फाइल नाम / कस्टमर नाम (Customer Name)</h4>
     <div class="wc-card">
       <label class="lbl" for="pdfCustomNameInput">कस्टमर या प्रोजेक्ट का नाम दर्ज करें:</label>
       <input id="pdfCustomNameInput" class="input" type="text" value="" placeholder="e.g. Ramesh_Window_Project" style="margin-top:6px; font-size:0.85rem; padding:6px;" />
     </div>
     <div class="row" style="margin-top: 10px;">
-      <button id="pdfConfirmBtn" class="btn b-success" type="button">📥 Download PDF</button>
-      <button id="pdfCancelBtn" class="btn b-danger" type="button">Cancel</button>
+      <button id="pdfConfirmBtn" class="btn b-success" type="button">📥 डाउनलोड PDF (Download)</button>
+      <button id="pdfCancelBtn" class="btn b-danger" type="button">रद्द करें (Cancel)</button>
     </div>
   </div>
 </div>
@@ -243,12 +353,12 @@ tr:nth-child(even) td{ background:#f9fbfd }
 <!-- SETTINGS MODAL -->
 <div id="settingsModal" class="modal">
   <div class="box">
-    <h4>⚙️ Settings & Advanced</h4>
+    <h4>⚙️ सेटिंग्स और बेस रेट्स (Settings & Base Rates)</h4>
     <div class="wc-card">
       <h4>Company & Header Information</h4>
       <div class="row">
         <div class="group" data-span="2">
-          <label class="lbl" for="companyNameInput">Company / Business Name</label>
+          <label class="lbl" for="companyNameInput">कंपनी / बिज़नेस का नाम (Company Name)</label>
           <input id="companyNameInput" class="input" type="text" value="" placeholder="Company Name (Optional)" />
         </div>
       </div>
@@ -256,19 +366,19 @@ tr:nth-child(even) td{ background:#f9fbfd }
     <div class="wc-card">
       <h4>Base Rates</h4>
       <div class="row">
-        <div class="group"><label class="lbl" for="mrcInput">Mat. Rate (₹/kg)</label><input id="mrcInput" class="input" type="number" value="520" /></div>
-        <div class="group"><label class="lbl" for="grInput">Glass Rate (₹/sq.ft)</label><input id="grInput" class="input" type="number" value="60" /></div>
+        <div><label class="lbl" for="mrcInput">⚖️ एल्युमिनियम भाव (₹/kg)</label><input id="mrcInput" class="input" type="number" value="520" /></div>
+        <div><label class="lbl" for="grInput">🪟 ग्लास भाव (₹/sq.ft)</label><input id="grInput" class="input" type="number" value="60" /></div>
       </div>
     </div>
     <div class="row" style="grid-template-columns: 1fr 1fr; margin-top: 10px;">
-      <button id="modalStockBtn" class="btn b-action-2" type="button">📦 Stock</button>
-      <button id="modalRulesBtn" class="btn b-action-2" type="button">📐 Rules</button>
+      <button id="modalStockBtn" class="btn b-action-2" type="button">📦 स्टॉक (Stock)</button>
+      <button id="modalRulesBtn" class="btn b-action-2" type="button">📐 कटिंग रूल्स (Rules)</button>
     </div>
     <div class="row" style="grid-template-columns: 1fr; margin-top: 6px;">
-      <button id="modalWeightBtn" class="btn b-action-2" type="button">⚖️ Weights</button>
+      <button id="modalWeightBtn" class="btn b-action-2" type="button">⚖️ बार वजन (Weights)</button>
     </div>
     <div style="margin-top: 10px;">
-      <button id="settingsClose" class="btn b-action-1" type="button">Close</button>
+      <button id="settingsClose" class="btn b-danger" type="button">बंद करें (Close)</button>
     </div>
   </div>
 </div>
@@ -276,12 +386,12 @@ tr:nth-child(even) td{ background:#f9fbfd }
 <!-- STOCK MODAL -->
 <div id="stockModal" class="modal">
   <div class="box">
-    <h4>📦 Available Stock</h4>
-    <p class="muted">Enter available cut pieces per line for active profiles.</p>
+    <h4>📦 उपलब्ध स्टॉक टुकड़े (Available Stock)</h4>
+    <p class="muted">बचे हुए टुकड़ों का साइज़ लिखें (Enter cut pieces per line).</p>
     <div id="dynamicStockBody"></div>
     <div class="row" style="margin-top: 10px;">
-      <button id="stockSave" class="btn b-action-1">Save Stock</button>
-      <button id="stockClose" class="btn b-action-2">Close</button>
+      <button id="stockSave" class="btn b-success">💾 स्टॉक सेव करें (Save Stock)</button>
+      <button id="stockClose" class="btn b-danger">बंद करें (Close)</button>
     </div>
   </div>
 </div>
@@ -289,16 +399,16 @@ tr:nth-child(even) td{ background:#f9fbfd }
 <!-- RULES MODAL -->
 <div id="rulesModal" class="modal">
   <div class="box">
-    <h4>📐 Cutting Formula & Window Rules</h4>
+    <h4>📐 विंडो रूल्स और कटिंग फॉर्मूला (Window Rules & Formulas)</h4>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
       <div class="wc-tab-row" id="rulesTabContainer" style="margin-bottom:0; border-bottom:none;"></div>
-      <button id="addCustomModeBtn" class="btn b-success" style="width:auto; padding:3px 8px; font-size:0.72rem;">➕ Add Custom Window</button>
+      <button id="addCustomModeBtn" class="btn b-success" style="width:auto; padding:3px 8px; font-size:0.72rem;">➕ नई विंडो जोड़ें (Add Custom)</button>
     </div>
     <div id="rulesBody"></div>
     <div class="row" style="margin-top: 10px;">
-      <button id="rulesSave" class="btn b-action-1">Save Rules</button>
-      <button id="deleteCustomModeBtn" class="btn b-danger" style="display:none;">Delete Custom Window</button>
-      <button id="rulesClose" class="btn b-action-2">Close</button>
+      <button id="rulesSave" class="btn b-success">💾 रूल्स सुरक्षित करें (Save Rules)</button>
+      <button id="deleteCustomModeBtn" class="btn b-danger" style="display:none;">हटाएं (Delete)</button>
+      <button id="rulesClose" class="btn b-danger">बंद करें (Close)</button>
     </div>
   </div>
 </div>
@@ -306,43 +416,43 @@ tr:nth-child(even) td{ background:#f9fbfd }
 <!-- ADD CUSTOM MODAL -->
 <div id="addCustomModal" class="modal">
   <div class="box">
-    <h4>➕ Add Custom Window / Mode</h4>
+    <h4>➕ नई कस्टम विंडो बनाएं (Create Custom Window)</h4>
     <div class="wc-card">
       <div class="row">
         <div class="group" data-span="2">
-          <label class="lbl" for="customModeName">Custom Window Name / Code</label>
+          <label class="lbl" for="customModeName">विंडो का नाम दर्ज करें (Window Name / Code)</label>
           <input id="customModeName" class="input" type="text" placeholder="e.g. C2, 3TRACK-HEAVY" />
         </div>
       </div>
       
       <div style="margin-top:6px; margin-bottom:6px;">
-        <label class="lbl" style="font-weight:bold; color:var(--primary);">Track Architecture Option:</label>
+        <label class="lbl" style="font-weight:bold; color:var(--primary);">ट्रैक सिस्टम चुनें (Select Track Architecture):</label>
         <select id="customTrackArchitecture" class="input" style="font-weight:600;">
-          <option value="sameOuter">1. Same Outer Track (Domal / System Style - 1 Track Bin)</option>
-          <option value="topSidesBottom">2. 3 Top/Sides + 1 Bottom Track (N2/N3 Style - 2 Track Bins)</option>
-          <option value="topBottomSides">3. Top/Bottom + Sides Track (2+2 Style - 2 Track Bins)</option>
+          <option value="sameOuter">1. Same Outer Track (Domal/System - चारों साइड एक ट्रैक)</option>
+          <option value="topSidesBottom">2. 3 Top/Sides + 1 Bottom Track (N2/N3 स्टाइल - 3+1 ट्रैक)</option>
+          <option value="topBottomSides">3. Top/Bottom + Sides Track (2+2 स्टाइल - 2-पीस ट्रैक)</option>
         </select>
       </div>
 
       <div style="margin-top:6px; margin-bottom:6px;">
         <label class="chk-item" style="font-weight:bold; color:var(--primary);">
-          <input type="checkbox" id="customIncludeJali"> जाली शामिल करें (Include Jali)
+          <input type="checkbox" id="customIncludeJali"> जाली शामिल करें (Include Mesh / Jali)
         </label>
       </div>
 
-      <label class="lbl" style="margin-top:6px;">Select Included Profiles/Components:</label>
+      <label class="lbl" style="margin-top:6px;">शामिल किए जाने वाले सेक्शंस (Select Included Sections):</label>
       <div class="chk-grid" id="customProfilesChecklist">
-        <label class="chk-item"><input type="checkbox" value="ShutterW" checked> Shutter (W)</label>
-        <label class="chk-item"><input type="checkbox" value="ShutterH" checked> Shutter (H)</label>
-        <label class="chk-item"><input type="checkbox" value="Interlock" checked> Interlock</label>
-        <label class="chk-item"><input type="checkbox" value="BearingBottomW"> Bearing Bottom (W)</label>
-        <label class="chk-item"><input type="checkbox" value="Handle"> Handle (H)</label>
-        <label class="chk-item"><input type="checkbox" value="TrackStrip"> Track Strip (पट्टी)</label>
+        <label class="chk-item"><input type="checkbox" value="ShutterW" checked> Shutter (चौड़ाई / Width)</label>
+        <label class="chk-item"><input type="checkbox" value="ShutterH" checked> Shutter (ऊंचाई / Height)</label>
+        <label class="chk-item"><input type="checkbox" value="Interlock" checked> Interlock (इंटरलोक)</label>
+        <label class="chk-item"><input type="checkbox" value="BearingBottomW"> Bearing Bottom (बियरिंग बॉटम)</label>
+        <label class="chk-item"><input type="checkbox" value="Handle"> Handle (हैंडल H)</label>
+        <label class="chk-item"><input type="checkbox" value="TrackStrip"> Track Strip (ट्रैक पट्टी)</label>
       </div>
     </div>
     <div class="row" style="margin-top: 10px;">
-      <button id="saveNewCustomMode" class="btn b-success">Create Custom Window</button>
-      <button id="cancelCustomMode" class="btn b-action-2">Cancel</button>
+      <button id="saveNewCustomMode" class="btn b-success">विंडो बनाएं (Create Window)</button>
+      <button id="cancelCustomMode" class="btn b-danger">रद्द करें (Cancel)</button>
     </div>
   </div>
 </div>
@@ -350,18 +460,17 @@ tr:nth-child(even) td{ background:#f9fbfd }
 <!-- WEIGHT MODAL -->
 <div id="weightModal" class="modal">
   <div class="box">
-    <h4>⚖️ Bar Weight (Kg per Full Bar)</h4>
+    <h4>⚖️ 1 फुल बार का वजन (Bar Weight in Kg per 16 Ft Bar)</h4>
     <div class="wc-tab-row" id="weightTabContainer"></div>
     <div id="wcBody"></div>
     <div class="row" style="margin-top: 10px;">
-      <button id="weightSave" class="btn b-action-1">Save Weights</button>
-      <button id="weightClose" class="btn b-action-2">Close</button>
+      <button id="weightSave" class="btn b-success">💾 वजन सेव करें (Save Weights)</button>
+      <button id="weightClose" class="btn b-danger">बंद करें (Close)</button>
     </div>
   </div>
 </div>
 
 <script>
-// PRODUCTION BACKEND URL
 const VERCEL_API_URL = "https://windowcraft-server.vercel.app/api/calculate";
 
 const $ = (s, r=document)=>r.querySelector(s);
@@ -480,6 +589,7 @@ const WEIGHT_TYPES = {
   Pipes: ["Pipes"]
 };
 
+// PRESERVE ALL USER DATA
 const LS = {
   getWeights(){ try{ return JSON.parse(localStorage.getItem('fs_weights')||'{}'); }catch(e){ return {}; } },
   setWeights(obj){ localStorage.setItem('fs_weights', JSON.stringify(obj)); },
@@ -492,7 +602,7 @@ const LS = {
 };
 
 const STATE = {
-  companyName: 'WindowCraft Pro', unitMode: 'inch', mode: 'D3', sqftMode: '6step',
+  companyName: 'WindowCraft Pro', unitMode: 'inch', mode: 'D3', sqftMode: '3step',
   customRules: LS.getRules(), stockMap: LS.getStock(), customModes: LS.getCustomModes(),
   currentRulesTab: 'D3', currentWeightTab: 'D3', optStrategy: {}, serverData: null, pdfCount: 0,
   pendingPdfType: null
@@ -623,11 +733,9 @@ function updateHeaderCompany(){
 
 function updateUnitUI(){
   const isMM = STATE.unitMode === 'mm';
-  $('#unitModeBtn').textContent = isMM ? '📏 Unit: MM (mm)' : '📏 Unit: Inches (sut)';
-  $('#lcLabel').textContent = isMM ? 'Window Stock (mm)' : 'Window Stock (in)';
-  $('#pipeLcLabel').textContent = isMM ? 'Pipe Stock (mm)' : 'Pipe Stock (in)';
-  $('#sizesLabel').textContent = isMM ? 'Window Sizes (W x H mm)' : 'Window Sizes (W"xH") - **Half Sut e.g. 48.5.5*48(4d2)**';
-  $('#pipeSizesLabel').textContent = isMM ? 'Custom Pipe Sizes (Length mm)' : 'Custom Pipe Sizes (Length") - **e.g. 20, 30 (2)**';
+  $('#unitModeBtn').textContent = isMM ? '📏 यूनिट बदलें (Unit: MM)' : '📏 यूनिट बदलें (Unit: Inches / Sut)';
+  $('#lcLabel').textContent = isMM ? 'विंडो बार लंबाई (Window Stock mm)' : 'विंडो बार लंबाई (Window Stock in)';
+  $('#pipeLcLabel').textContent = isMM ? 'पाइप बार लंबाई (Pipe Stock mm)' : 'पाइप बार लंबाई (Pipe Stock in)';
 }
 
 function convertUnitModeToggle() {
@@ -670,7 +778,7 @@ function updateModeDropdownsAndTabs(){
       STATE.mode = m;
       STATE.currentRulesTab = m;
       STATE.currentWeightTab = m;
-      $('#modeBtn').textContent = `${m} Mode`;
+      $('#modeBtn').textContent = `${m} Mode (मोड बदलें)`;
       $('#modePill').textContent = `Mode: ${m}`;
       dropdown.classList.remove('open');
       hydrateView();
@@ -752,7 +860,7 @@ async function hydrateView() {
 
     renderReportTables(json.data);
     $('#modePill').textContent = `Mode: ${STATE.mode}`;
-    $('#modeBtn').textContent = `${STATE.mode} Mode`;
+    $('#modeBtn').textContent = `${STATE.mode} Mode (मोड बदलें)`;
     setStatus('Ready');
   } catch(err) {
     setStatus('Offline / Error');
@@ -780,26 +888,31 @@ function renderReportTables(data) {
   const t = data.totals;
   const totalsWrap = $('#totalsWrap'); totalsWrap.innerHTML = '';
   const totalsRows = [
-    ["Total Windows Count", `${t.windowsCount} Nos`], ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft (${STATE.sqftMode})`],
-    ["Total Profile Bars", `${t.totalBars} Bars`], ["Total Profile Weight", `${t.totalWeightKg} Kg`],
-    [`Material Cost (@ Rs. ${t.matsRate}/kg)`, `Rs. ${t.weightCost}`], ["Total Glass Area", `${t.totalGlassSqFt} Sq.Ft`],
-    [`Glass Cost (@ Rs. ${t.glassRate}/sq.ft)`, `Rs. ${t.glassCost}`], ["Rubber Total Cost", `Rs. ${t.totalRubberCost}`],
-    ["Labour Total", `Rs. ${t.laborCost}`], ["Additional Charges", `Rs. ${t.arwCost}`]
+    ["कुल खिड़कियां (Total Windows Count)", `${t.windowsCount} Nos`],
+    ["कुल विंडो एरिया (Total Window Area)", `${t.totalWindowSqFt} Sq.Ft (${STATE.sqftMode})`],
+    ["कुल प्रोफाइल बार (Total Profile Bars)", `${t.totalBars} Bars`],
+    ["कुल प्रोफाइल वजन (Total Profile Weight)", `${t.totalWeightKg} Kg`],
+    [`मटेरियल खर्च (Material Cost @ Rs. ${t.matsRate}/kg)`, `Rs. ${t.weightCost}`],
+    ["कुल ग्लास एरिया (Total Glass Area)", `${t.totalGlassSqFt} Sq.Ft`],
+    [`ग्लास खर्च (Glass Cost @ Rs. ${t.glassRate}/sq.ft)`, `Rs. ${t.glassCost}`],
+    ["रबर कुल खर्च (Rubber Total Cost)", `Rs. ${t.totalRubberCost}`],
+    ["मजदूरी कुल (Labour Total)", `Rs. ${t.laborCost}`],
+    ["अतिरिक्त चार्ज (Additional Charges)", `Rs. ${t.arwCost}`]
   ];
-  if (parseFloat(t.jaliCost) > 0) totalsRows.push(["Jali Total Cost", `Rs. ${t.jaliCost}`]);
-  totalsRows.push(["GRAND TOTAL", `Rs. ${t.grandTotal}`]);
-  totalsRows.push(["Average Rate per Sq.Ft", `Rs. ${t.avgRatePerSqFt} / Sq.Ft`]);
+  if (parseFloat(t.jaliCost) > 0) totalsRows.push(["जाली कुल खर्च (Jali Total Cost)", `Rs. ${t.jaliCost}`]);
+  totalsRows.push(["कुल योग (GRAND TOTAL)", `Rs. ${t.grandTotal}`]);
+  totalsRows.push(["औसत रेट (Average Rate per Sq.Ft)", `Rs. ${t.avgRatePerSqFt} / Sq.Ft`]);
 
-  totalsWrap.appendChild(buildTable(["Description", "Details / Amount"], totalsRows));
+  totalsWrap.appendChild(buildTable(["विवरण (Description)", "रकम / हिसाब (Details / Amount)"], totalsRows));
 
   const barWrap = $('#barSummaryWrap'); barWrap.innerHTML = '';
-  barWrap.appendChild(buildTable(["Profile / Bar", "Bar Qty", "Weight / Rate", "Total Weight / Cost"], data.barSummary.rows));
+  barWrap.appendChild(buildTable(["प्रोफाइल / बार (Profile / Bar)", "बार संख्या (Bar Qty)", "वजन प्रति बार (Weight/Bar)", "कुल वजन (Total Weight)"], data.barSummary.rows));
 
   const winWrap = $('#windowSizeGlassDetails'); winWrap.innerHTML = '';
   const winRows = data.sizes.map(g => [
     `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq
   ]);
-  winWrap.appendChild(buildTable(["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"], winRows));
+  winWrap.appendChild(buildTable(["खिड़की # (Win # / Mode)", "साइज़ (Size)", "Sq.Ft एरिया", "कांच का साइज़ (Glass Size)", "संख्या (Qty)", "कुल कांच Sq.Ft"], winRows));
 
   const cutDetailWrap = $('#windowDetails'); cutDetailWrap.innerHTML = '';
   if (data.windowCutDetails && data.windowCutDetails.length) {
@@ -810,7 +923,7 @@ function renderReportTables(data) {
         orig.ShutterH || orig.Handle || '-', orig.Interlock || '-', orig.TrackStrip || orig.SideTrack || '-'
       ];
     });
-    cutDetailWrap.appendChild(buildTable(["Win #", "Track", "Shutter (W)", "Shutter (H)", "Interlock", "Track Strip/Sides"], cdRows));
+    cutDetailWrap.appendChild(buildTable(["खिड़की (Win #)", "Track (ट्रैक)", "Shutter W (शटर चौड़ाई)", "Shutter H (शटर ऊंचाई)", "Interlock (इंटरलोक)", "Track Strip/Sides"], cdRows));
   } else { cutDetailWrap.textContent = '—'; }
 
   const cutWrap = $('#cutPlan'); cutWrap.innerHTML = '';
@@ -820,10 +933,10 @@ function renderReportTables(data) {
     const h = document.createElement('h3');
 
     const strategy = STATE.optStrategy[type] || 'minWaste';
-    const toggleBtnText = strategy === 'minWaste' ? 'Min Waste' : 'Min Bars';
+    const toggleBtnText = strategy === 'minWaste' ? 'कम बर्बादी (Min Waste)' : 'कम बार (Min Bars)';
     const btnClass = strategy === 'minWaste' ? 'toggle-pill active-orange' : 'toggle-pill active-green';
 
-    h.innerHTML = `<span>${type} — Cutting Plan <small>(Stock: ${plan.stockLenFmt})</small></span>
+    h.innerHTML = `<span>${type} — कटिंग प्लान (Cutting Plan: ${plan.stockLenFmt})</span>
                    <button class="${btnClass}" data-type="${type}">${toggleBtnText}</button>`;
     sec.appendChild(h);
 
@@ -834,20 +947,19 @@ function renderReportTables(data) {
     };
 
     if (plan.usedFromStock && plan.usedFromStock.length) {
-      const usedHead = ["Stock Piece", "Pieces (ID)", "Leftover"];
+      const usedHead = ["स्टॉक टुकड़ा (Stock Piece)", "कटिंग टुकड़े (Cut Pieces - ID)", "बचा टुकड़ा (Leftover)"];
       const groupedRows = plan.usedFromStock.map(u => [u.origFmt, u.cutsStr, u.leftFmt]);
       const title = document.createElement("div"); title.style.margin = "4px 0";
-      title.innerHTML = `<small style="color:var(--primary);font-weight:bold;">✓ Satisfied from Available Stock</small>`;
+      title.innerHTML = `<small style="color:var(--primary);font-weight:bold;">✓ पुराने स्टॉक से उपयोग (Satisfied from Stock)</small>`;
       sec.appendChild(title); sec.appendChild(buildTable(usedHead, groupedRows));
     }
 
     const rows = plan.bins.map((b, i) => [ `Bar ${i+1}`, b.cutsStr, b.usedFmt, b.wasteFmt ]);
-    sec.appendChild(buildTable(["Stock #", "Pieces (ID)", "Used", "Leftover"], rows));
+    sec.appendChild(buildTable(["स्टॉक बार (Stock #)", "कटिंग टुकड़े (Cut Pieces - ID)", "इस्तेमाल (Used)", "बचा टुकड़ा (Leftover)"], rows));
     cutWrap.appendChild(sec);
   });
 }
 
-// BULLETPROOF RULES UI WITH NO "DIVIDE BY" ON HEIGHT PROFILES & TRACK STRIP
 function buildRulesUI(tabMode){
   const defaults = DEFAULT_RULES_CONFIG[tabMode] || DEFAULT_RULES_CONFIG.D3;
   const custom = STATE.customRules[tabMode] || {};
@@ -855,102 +967,268 @@ function buildRulesUI(tabMode){
 
   const isBuiltIn = ['D2','D3','S2','S3','N2','N3'].includes(tabMode);
   $('#deleteCustomModeBtn').style.display = isBuiltIn ? 'none' : 'inline-block';
-
+  const isDomalOrSystem = tabMode.startsWith('D') || tabMode.startsWith('S') || tabMode.startsWith('C');
   const showJali = tabMode.endsWith('3') || custom.hasJali;
 
-  const rateCard = document.createElement('div'); rateCard.className='wc-card';
-  rateCard.innerHTML = `<h4>Cost Rules & Settings (${tabMode})</h4>
+  let cardHtml = `
+  <div class="wc-card">
+    <h4>💰 1. खर्च और मजदूरी रेट्स (Cost & Labour Rates)</h4>
     <div class="row">
-      <div class="group"><label class="lbl">Add ₹/Window (ARW)</label><input class="input wc-field" data-type="arw" type="number" value="${custom.arw ?? defaults.arw ?? 500}" /></div>
-      <div class="group"><label class="lbl">Labour Rate (₹/Sq.Ft)</label><input class="input wc-field" data-type="lr" type="number" value="${custom.lr ?? defaults.lr ?? 100}" /></div>
+      <div>
+        <label class="lbl">ARW चार्ज (Extra ₹/Window)
+          <span class="sub-hint">अतिरिक्त फिटिंग चार्ज (Fitting Charge)</span>
+        </label>
+        <input class="input wc-field" data-type="arw" type="number" value="${custom.arw ?? defaults.arw ?? 500}" />
+      </div>
+      <div>
+        <label class="lbl">मजदूरी रेट (Labour Rate ₹/Sq.Ft)
+          <span class="sub-hint">लेबर रेट प्रति वर्ग फुट (Per Sq.Ft)</span>
+        </label>
+        <input class="input wc-field" data-type="lr" type="number" value="${custom.lr ?? defaults.lr ?? 100}" />
+      </div>
     </div>
     <div class="row">
-      <div class="group"><label class="lbl">Rubber Wt (Kg/Ft)</label><input class="input wc-field" data-type="rubberWtFt" type="number" step="0.001" value="${custom.rubberWtFt ?? defaults.rubberWtFt ?? 0.025}" /></div>
-      <div class="group"><label class="lbl">Rubber Rate (₹/Kg)</label><input class="input wc-field" data-type="rubberRate" type="number" value="${custom.rubberRate ?? defaults.rubberRate ?? 160}" /></div>
+      <div>
+        <label class="lbl">रबर वजन (Rubber Wt Kg/Ft)
+          <span class="sub-hint">प्रति फुट रबर वजन (Per Running Ft)</span>
+        </label>
+        <input class="input wc-field" data-type="rubberWtFt" type="number" step="0.001" value="${custom.rubberWtFt ?? defaults.rubberWtFt ?? 0.025}" />
+      </div>
+      <div>
+        <label class="lbl">रबर भाव (Rubber Rate ₹/Kg)
+          <span class="sub-hint">प्रति किलो रबर का रेट (Per Kg)</span>
+        </label>
+        <input class="input wc-field" data-type="rubberRate" type="number" value="${custom.rubberRate ?? defaults.rubberRate ?? 160}" />
+      </div>
     </div>
     <div class="row">
-      <div class="group"><label class="lbl">Glass Qty per Window</label><input class="input wc-field" data-type="glassQty" type="number" value="${custom.glassQty ?? defaults.glassQty ?? 2}" /></div>
-      ${showJali ? `<div class="group"><label class="lbl">Jali Rate (₹/Sq.Ft)</label><input class="input wc-field" data-type="jaliRate" type="number" value="${custom.jaliRate ?? defaults.jaliRate ?? 30}" /></div>` : ''}
-    </div>`;
-  body.appendChild(rateCard);
+      <div>
+        <label class="lbl">कांच के पल्ले (Glass Quantity)
+          <span class="sub-hint">1 विंडो में कांच की संख्या (Nos)</span>
+        </label>
+        <input class="input wc-field" data-type="glassQty" type="number" value="${custom.glassQty ?? defaults.glassQty ?? 2}" />
+      </div>
+      ${showJali ? `
+      <div>
+        <label class="lbl">जाली का भाव (Jali Rate ₹/Sq.Ft)
+          <span class="sub-hint">मच्छर जाली रेट प्रति वर्ग फुट</span>
+        </label>
+        <input class="input wc-field" data-type="jaliRate" type="number" value="${custom.jaliRate ?? defaults.jaliRate ?? 30}" />
+      </div>` : ''}
+    </div>
+  </div>`;
 
-  const glassWOff = getGlassOffset(custom.glassW_offset ?? custom.glassW ?? defaults.glassW_offset ?? defaults.glassW, -4.1);
-  const glassHOff = getGlassOffset(custom.glassH_offset ?? custom.glassH ?? defaults.glassH_offset ?? defaults.glassH, -4.1);
+  const glassWOff = getGlassOffset(custom.glassW_offset ?? custom.glassW ?? defaults.glassW_offset ?? defaults.glassW, isDomalOrSystem ? -4.1 : 0.5);
+  const glassHOff = getGlassOffset(custom.glassH_offset ?? custom.glassH ?? defaults.glassH_offset ?? defaults.glassH, isDomalOrSystem ? -4.1 : -2.5);
 
   const isMM = STATE.unitMode === 'mm';
   const glassWDisp = isMM ? safeFix(glassWOff * 25.4, 1) : fmtSutOffset(glassWOff);
   const glassHDisp = isMM ? safeFix(glassHOff * 25.4, 1) : fmtSutOffset(glassHOff);
 
-  const glassCard = document.createElement('div'); glassCard.className = 'wc-card';
-  glassCard.innerHTML = `<h4>Glass Size Rules (Shutter / Profile Cut Size से +/-)</h4>
+  cardHtml += `
+  <div class="wc-card">
+    <h4>🪟 2. कांच कटिंग नियम (Glass Size Offsets)</h4>
     <div class="row">
-      <div class="group"><label class="lbl">Glass Width Offset (${isMM?'mm':'+/- Sut'})</label><input class="input wc-field" data-type="glassW_offset" type="text" value="${glassWDisp}" placeholder="e.g. -4.1" /></div>
-      <div class="group"><label class="lbl">Glass Height Offset (${isMM?'mm':'+/- Sut'})</label><input class="input wc-field" data-type="glassH_offset" type="text" value="${glassHDisp}" placeholder="e.g. -4.1" /></div>
-    </div>`;
-  body.appendChild(glassCard);
+      <div>
+        <label class="lbl">कांच चौड़ाई (Glass Width +/- Sut)
+          <span class="sub-hint">${isDomalOrSystem ? 'शटर चौड़ाई से +/- सूत' : 'बियरिंग बॉटम से +/- सूत'}</span>
+        </label>
+        <input class="input wc-field" data-type="glassW_offset" type="text" value="${glassWDisp}" placeholder="e.g. -4.1" />
+      </div>
+      <div>
+        <label class="lbl">कांच ऊंचाई (Glass Height +/- Sut)
+          <span class="sub-hint">${isDomalOrSystem ? 'शटर ऊंचाई से +/- सूत' : 'हैंडल ऊंचाई से +/- सूत'}</span>
+        </label>
+        <input class="input wc-field" data-type="glassH_offset" type="text" value="${glassHDisp}" placeholder="e.g. -4.1" />
+      </div>
+    </div>
+  </div>`;
 
-  let keys = custom.includedProfiles ? custom.includedProfiles.slice() : [];
-  if (!custom.includedProfiles) {
-    keys = tabMode.startsWith('D') || tabMode.startsWith('S')
-      ? ['ShutterW', 'ShutterH', 'Interlock']
-      : ['BearingBottomW', 'Handle', 'Interlock'];
-    if (tabMode === 'S2' || tabMode === 'S3') keys.push('TrackStrip');
+  if (isDomalOrSystem) {
+    const swRule = custom.ShutterW || defaults.ShutterW || { formula: 'W / 2', qty: 4 };
+    const shRule = custom.ShutterH || defaults.ShutterH || { formula: 'H - 2.6', qty: 4 };
+    const intRule = custom.Interlock || defaults.Interlock || { formula: 'H - 2.6', qty: 2 };
+
+    const swParts = parseFormulaToParts(swRule.formula, 2);
+    const swOffDisp = isMM ? safeFix(swParts.offset * 25.4, 1) : fmtSutOffset(swParts.offset);
+
+    const shParts = parseFormulaToParts(shRule.formula, 1);
+    const shOffDisp = isMM ? safeFix(shParts.offset * 25.4, 1) : fmtSutOffset(shParts.offset);
+
+    const intParts = parseFormulaToParts(intRule.formula, 1);
+    const intOffDisp = isMM ? safeFix(intParts.offset * 25.4, 1) : fmtSutOffset(intParts.offset);
+
+    cardHtml += `
+    <div class="wc-card">
+      <h4>📐 3. शटर चौड़ाई नियम (Shutter Width - W Rules)</h4>
+      <div class="grid-4">
+        <div>
+          <label class="lbl">नाप का आधार</label>
+          <input class="input input-fixed" type="text" value="विंडो चौड़ाई (W) से" readonly disabled />
+        </div>
+        <div>
+          <label class="lbl">माइनस सूत (Offset)</label>
+          <input class="input wc-prof-part" data-type="ShutterW" data-prop="offset" type="text" value="${swOffDisp}">
+        </div>
+        <div>
+          <label class="lbl">भाग (Divide By)</label>
+          <input class="input wc-prof-part" data-type="ShutterW" data-prop="divisor" type="number" value="${swParts.divisor || 2}">
+        </div>
+        <div>
+          <label class="lbl">कुल पीस (Qty)</label>
+          <input class="input wc-prof-part" data-type="ShutterW" data-prop="qty" type="number" value="${swRule.qty || (tabMode.endsWith('3')?6:4)}">
+        </div>
+      </div>
+    </div>
+
+    <div class="wc-card">
+      <h4>📐 4. शटर ऊंचाई नियम (Shutter Height - H Rules)</h4>
+      <div class="grid-3">
+        <div>
+          <label class="lbl">नाप का आधार</label>
+          <input class="input input-fixed" type="text" value="विंडो ऊंचाई (H) से" readonly disabled />
+        </div>
+        <div>
+          <label class="lbl">माइनस सूत (Offset)</label>
+          <input class="input wc-prof-part" data-type="ShutterH" data-prop="offset" type="text" value="${shOffDisp}">
+        </div>
+        <div>
+          <label class="lbl">कुल पीस (Quantity)</label>
+          <input class="input wc-prof-part" data-type="ShutterH" data-prop="qty" type="number" value="${shRule.qty || (tabMode.endsWith('3')?6:4)}">
+        </div>
+      </div>
+    </div>
+
+    <div class="wc-card">
+      <h4>🔒 5. इंटरलोक नियम (Interlock - H Rules)</h4>
+      <div class="grid-3">
+        <div>
+          <label class="lbl">नाप का आधार</label>
+          <input class="input input-fixed" type="text" value="विंडो ऊंचाई (H) से" readonly disabled />
+        </div>
+        <div>
+          <label class="lbl">माइनस सूत (Offset)</label>
+          <input class="input wc-prof-part" data-type="Interlock" data-prop="offset" type="text" value="${intOffDisp}">
+        </div>
+        <div>
+          <label class="lbl">कुल पीस (Quantity)</label>
+          <input class="input wc-prof-part" data-type="Interlock" data-prop="qty" type="number" value="${intRule.qty || 2}">
+        </div>
+      </div>
+    </div>`;
+
+    if (tabMode === 'S2' || tabMode === 'S3') {
+      const tsRule = custom.TrackStrip || defaults.TrackStrip || { formula: 'W - 3', qty: (tabMode==='S3'?3:2), stockLen: 192.5, rate: 800 };
+      const tsParts = parseFormulaToParts(tsRule.formula, 1);
+      const tsOffDisp = isMM ? safeFix(tsParts.offset * 25.4, 1) : fmtSutOffset(tsParts.offset);
+      const stockDisp = isMM ? safeFix((tsRule.stockLen ?? 192.5) * 25.4, 1) : (tsRule.stockLen ?? 192.5);
+
+      cardHtml += `
+      <div class="wc-card">
+        <h4>📏 6. ट्रैक पट्टी नियम (Track Strip - W Rules)</h4>
+        <div class="grid-3">
+          <div>
+            <label class="lbl">नाप का आधार</label>
+            <input class="input input-fixed" type="text" value="विंडो चौड़ाई (W) से" readonly disabled />
+          </div>
+          <div>
+            <label class="lbl">माइनस सूत (Offset)</label>
+            <input class="input wc-prof-part" data-type="TrackStrip" data-prop="offset" type="text" value="${tsOffDisp}">
+          </div>
+          <div>
+            <label class="lbl">कुल पट्टी (Quantity)</label>
+            <input class="input wc-prof-part" data-type="TrackStrip" data-prop="qty" type="number" value="${tsRule.qty || (tabMode==='S3'?3:2)}">
+          </div>
+        </div>
+        <div class="row" style="margin-top:4px;">
+          <div>
+            <label class="lbl">पट्टी लंबाई (Stock Length in)</label>
+            <input class="input wc-prof-part" data-type="TrackStrip" data-prop="stockLen" type="number" step="0.25" value="${stockDisp}">
+          </div>
+          <div>
+            <label class="lbl">पट्टी का भाव (Rate ₹/Bar)</label>
+            <input class="input wc-prof-part" data-type="TrackStrip" data-prop="rate" type="number" value="${tsRule.rate ?? 800}">
+          </div>
+        </div>
+      </div>`;
+    }
+
+  } else {
+    // N2 / N3 (3/4" SLIDING SERIES)
+    const bbRule = custom.BearingBottomW || defaults.BearingBottomW || { formula: '(W - 6.2) / 2', qty: (tabMode==='N3'?6:4) };
+    const hRule = custom.Handle || defaults.Handle || { formula: 'H - 1.7', qty: (tabMode==='N3'?3:2) };
+    const intRule = custom.Interlock || defaults.Interlock || { formula: 'H - 1.7', qty: (tabMode==='N3'?3:2) };
+
+    const bbParts = parseFormulaToParts(bbRule.formula, 2);
+    const bbOffDisp = isMM ? safeFix(bbParts.offset * 25.4, 1) : fmtSutOffset(bbParts.offset);
+
+    const hParts = parseFormulaToParts(hRule.formula, 1);
+    const hOffDisp = isMM ? safeFix(hParts.offset * 25.4, 1) : fmtSutOffset(hParts.offset);
+
+    const intParts = parseFormulaToParts(intRule.formula, 1);
+    const intOffDisp = isMM ? safeFix(intParts.offset * 25.4, 1) : fmtSutOffset(intParts.offset);
+
+    cardHtml += `
+    <div class="wc-card">
+      <h4>📐 3. बियरिंग बॉटम नियम (Bearing Bottom Width - W Rules)</h4>
+      <div class="grid-4">
+        <div>
+          <label class="lbl">नाप का आधार</label>
+          <input class="input input-fixed" type="text" value="विंडो चौड़ाई (W) से" readonly disabled />
+        </div>
+        <div>
+          <label class="lbl">माइनस सूत (Offset)</label>
+          <input class="input wc-prof-part" data-type="BearingBottomW" data-prop="offset" type="text" value="${bbOffDisp}">
+        </div>
+        <div>
+          <label class="lbl">भाग (Divide By)</label>
+          <input class="input wc-prof-part" data-type="BearingBottomW" data-prop="divisor" type="number" value="${bbParts.divisor || 2}">
+        </div>
+        <div>
+          <label class="lbl">कुल पीस (Qty)</label>
+          <input class="input wc-prof-part" data-type="BearingBottomW" data-prop="qty" type="number" value="${bbRule.qty || (tabMode==='N3'?6:4)}">
+        </div>
+      </div>
+    </div>
+
+    <div class="wc-card">
+      <h4>📐 4. हैंडल ऊंचाई नियम (Handle Height - H Rules)</h4>
+      <div class="grid-3">
+        <div>
+          <label class="lbl">नाप का आधार</label>
+          <input class="input input-fixed" type="text" value="विंडो ऊंचाई (H) से" readonly disabled />
+        </div>
+        <div>
+          <label class="lbl">माइनस सूत (Offset)</label>
+          <input class="input wc-prof-part" data-type="Handle" data-prop="offset" type="text" value="${hOffDisp}">
+        </div>
+        <div>
+          <label class="lbl">कुल पीस (Quantity)</label>
+          <input class="input wc-prof-part" data-type="Handle" data-prop="qty" type="number" value="${hRule.qty || (tabMode==='N3'?3:2)}">
+        </div>
+      </div>
+    </div>
+
+    <div class="wc-card">
+      <h4>🔒 5. इंटरलोक नियम (Interlock - H Rules)</h4>
+      <div class="grid-3">
+        <div>
+          <label class="lbl">नाप का आधार</label>
+          <input class="input input-fixed" type="text" value="विंडो ऊंचाई (H) से" readonly disabled />
+        </div>
+        <div>
+          <label class="lbl">माइनस सूत (Offset)</label>
+          <input class="input wc-prof-part" data-type="Interlock" data-prop="offset" type="text" value="${intOffDisp}">
+        </div>
+        <div>
+          <label class="lbl">कुल पीस (Quantity)</label>
+          <input class="input wc-prof-part" data-type="Interlock" data-prop="qty" type="number" value="${intRule.qty || (tabMode==='N3'?3:2)}">
+        </div>
+      </div>
+    </div>`;
   }
 
-  keys = keys.filter(k => k !== 'Track' && k !== 'TopTrack' && k !== 'BottomTrack' && k !== 'TopBottomTrack' && k !== 'SideTrack');
-
-  keys.forEach(key => {
-    const def = defaults[key] || { formula: 'W / 2', qty: 2 };
-    const cur = custom[key] || def;
-    const isW = key.toLowerCase().includes('w') || key === 'BearingBottomW';
-    const isTrackStrip = key === 'TrackStrip';
-    
-    // ONLY ShutterW and BearingBottomW have Divide By!
-    const hasDivide = isW && !isTrackStrip;
-    const parts = parseFormulaToParts(cur.formula, hasDivide ? 2 : 1);
-    const offDisp = isMM ? safeFix(parts.offset * 25.4, 1) : fmtSutOffset(parts.offset);
-
-    const card = document.createElement('div'); card.className='wc-card';
-    
-    if (hasDivide) {
-      // 4 COLUMNS (WITH DIVIDE BY)
-      card.innerHTML = `<h4>${key} Rules</h4>
-        <div class="grid-4">
-          <div class="group"><label class="lbl">Axis</label>
-            <select class="input wc-prof-part" data-type="${key}" data-prop="base">
-              <option value="W" ${parts.base==='W'?'selected':''}>Width (W)</option>
-              <option value="H" ${parts.base==='H'?'selected':''}>Height (H)</option>
-            </select>
-          </div>
-          <div class="group"><label class="lbl">Offset (${isMM?'mm':'Sut'})</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" placeholder="0" /></div>
-          <div class="group"><label class="lbl">Divide By</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="0.1" value="${parts.divisor}" /></div>
-          <div class="group"><label class="lbl">Quantity</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
-        </div>`;
-    } else {
-      // 3 COLUMNS (NO DIVIDE BY FOR HEIGHT SHUTTER, INTERLOCK, HANDLE, TRACK STRIP)
-      card.innerHTML = `<h4>${key} Rules</h4>
-        <div class="grid-3">
-          <div class="group"><label class="lbl">Axis</label>
-            <select class="input wc-prof-part" data-type="${key}" data-prop="base">
-              <option value="W" ${parts.base==='W'?'selected':''}>Width (W)</option>
-              <option value="H" ${parts.base==='H'?'selected':''}>Height (H)</option>
-            </select>
-          </div>
-          <div class="group"><label class="lbl">Offset (${isMM?'mm':'Sut'})</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" placeholder="0" /></div>
-          <div class="group"><label class="lbl">Quantity</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
-        </div>`;
-    }
-
-    if (isTrackStrip) {
-      const stockDisp = isMM ? safeFix((cur.stockLen ?? 192.5) * 25.4, 1) : (cur.stockLen ?? 192.5);
-      card.innerHTML += `
-        <div class="row" style="margin-top:4px;">
-          <div class="group"><label class="lbl">Stock Length (${isMM?'mm':'in'})</label><input class="input wc-prof-part" data-type="TrackStrip" data-prop="stockLen" type="number" step="0.25" value="${stockDisp}" /></div>
-          <div class="group"><label class="lbl">Rate per Bar (₹)</label><input class="input wc-prof-part" data-type="TrackStrip" data-prop="rate" type="number" value="${cur.rate ?? 800}" /></div>
-        </div>`;
-    }
-    body.appendChild(card);
-  });
+  body.innerHTML = cardHtml;
 }
 
 function buildWeightUI(tabMode){
@@ -966,7 +1244,7 @@ function buildWeightUI(tabMode){
     card.innerHTML = `<h4>${tp}</h4>
       <div class="row">
         <div class="group" data-span="2">
-          <label class="lbl">Kg per bar (LC)</label>
+          <label class="lbl"><b>${tp}</b> — 1 फुल बार का वजन (Weight per Full Bar in Kg)</label>
           <input class="input wc-field" data-type="${tp}" type="number" step="0.001" value="${val}" placeholder="e.g. 2.150">
         </div>
       </div>`;
@@ -1200,15 +1478,15 @@ function bindEvents(){
     }
   });
   
-  // 3-WAY SQ.FT MODE TOGGLE
+  // 3-WAY SQ.FT MODE TOGGLE (6" STEP ➔ 3" STEP ➔ INCH-TO-INCH)
   $('#sqftModeBtn').onclick = () => {
     triggerInterstitialAd();
-    if (STATE.sqftMode === '6step') {
-      STATE.sqftMode = '3step';
-    } else if (STATE.sqftMode === '3step') {
+    if (STATE.sqftMode === '3step') {
+      STATE.sqftMode = '6step';
+    } else if (STATE.sqftMode === '6step') {
       STATE.sqftMode = 'inch';
     } else {
-      STATE.sqftMode = '6step';
+      STATE.sqftMode = '3step';
     }
     updateSqftButtonLabel();
     saveInputs();
@@ -1293,7 +1571,7 @@ function bindEvents(){
     }
   };
 
-  // 100% PERSISTENT & CLEAN RULES SAVE
+  // RULES SAVE (DEEP MERGE)
   $('#rulesSave').onclick = () => {
     triggerInterstitialAd();
     const active = STATE.currentRulesTab || STATE.mode;
@@ -1318,11 +1596,9 @@ function bindEvents(){
 
     for (const type in profs) {
       const p = profs[type];
-      const base = p.base || 'W';
+      const base = (type.includes('H') || type === 'Interlock' || type === 'Handle') ? 'H' : 'W';
       let parsedOffset = (STATE.unitMode === 'mm') ? (parseFloat(p.offset) || 0) / 25.4 : parseSutOffset(p.offset);
       let stockLenInches = p.stockLen ? (STATE.unitMode === 'mm' ? (parseFloat(p.stockLen)||0)/25.4 : parseFloat(p.stockLen)||192.5) : undefined;
-      
-      // If no divisor field (height profiles / trackstrip), force divisor = 1!
       const divisorToUse = p.divisor ? safeNum(p.divisor) : 1;
       const formula = buildFormulaFromParts(base, parsedOffset, divisorToUse);
       
@@ -1335,7 +1611,7 @@ function bindEvents(){
     LS.setRules(STATE.customRules);
     $('#rulesModal').classList.remove('open');
     hydrateView();
-    setStatus('Rules saved for ' + active);
+    setStatus('Rules saved permanently for ' + active);
   };
 
   $('#weightSave').onclick = () => {
