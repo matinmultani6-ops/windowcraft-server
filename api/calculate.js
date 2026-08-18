@@ -1,23 +1,59 @@
 function safeNum(v) { const n = Number(v); return isNaN(n) ? 0 : n; }
-function safeFix(v, d=2) { return safeNum(v).toFixed(d); }
-const num = (n,d=3)=>Number(Number(n).toFixed(d));
+function safeFix(v, d = 2) { return safeNum(v).toFixed(d); }
+const num = (n, d = 3) => Number(Number(n).toFixed(d));
 const CUTTING_MARGIN = 0.125;
 
-function parseSutToken(str, unitMode='inch') {
-  if (!str) return 0;
-  const s = String(str).trim();
-  if (unitMode === 'mm') return (parseFloat(s) || 0) / 25.4;
-  const doubleDotMatch = s.match(/^(\d+)\.(\d)\.5$/);
-  if (doubleDotMatch) {
-    const inch = parseInt(doubleDotMatch[1], 10);
-    const sut = parseInt(doubleDotMatch[2], 10) + 0.5;
-    return inch + (sut / 8);
+// ==========================================
+// 1. FAST FORMULA COMPILATION & JIT CACHE
+// ==========================================
+const FORMULA_CACHE = new Map();
+function evaluateFormula(formula, W, H) {
+  if (!formula) return NaN;
+  let fn = FORMULA_CACHE.get(formula);
+  if (!fn) {
+    try {
+      fn = new Function('W', 'H', 'return ' + formula);
+      FORMULA_CACHE.set(formula, fn);
+    } catch (e) {
+      fn = () => NaN;
+      FORMULA_CACHE.set(formula, fn);
+    }
   }
-  const singleDotMatch = s.match(/^(\d+)\.(\d)$/);
-  if (singleDotMatch) {
-    const inch = parseInt(singleDotMatch[1], 10);
-    const sut = parseInt(singleDotMatch[2], 10);
-    if (sut >= 0 && sut <= 7) return inch + (sut / 8);
+  try {
+    return num(fn(W, H));
+  } catch (e) {
+    return NaN;
+  }
+}
+
+// ==========================================
+// 2. ULTRA-FAST SUT & OFFSET PARSERS
+// ==========================================
+function parseSutToken(str, unitMode = 'inch') {
+  if (!str && str !== 0) return 0;
+  if (typeof str === 'number') return str;
+  const s = String(str).trim();
+  if (!s) return 0;
+  if (unitMode === 'mm') {
+    const val = parseFloat(s);
+    return isNaN(val) ? 0 : val / 25.4;
+  }
+
+  const dot1 = s.indexOf('.');
+  if (dot1 !== -1) {
+    const dot2 = s.indexOf('.', dot1 + 1);
+    if (dot2 !== -1) {
+      const doubleDotMatch = s.match(/^(\d+)\.(\d)\.5$/);
+      if (doubleDotMatch) {
+        return parseInt(doubleDotMatch[1], 10) + ((parseInt(doubleDotMatch[2], 10) + 0.5) / 8);
+      }
+    } else {
+      const singleDotMatch = s.match(/^(\d+)\.(\d)$/);
+      if (singleDotMatch) {
+        const sut = parseInt(singleDotMatch[2], 10);
+        if (sut >= 0 && sut <= 7) return parseInt(singleDotMatch[1], 10) + (sut / 8);
+      }
+    }
   }
   const val = parseFloat(s);
   return isNaN(val) ? 0 : val;
@@ -25,9 +61,10 @@ function parseSutToken(str, unitMode='inch') {
 
 function parseSutOffset(val) {
   if (val === undefined || val === null || val === '') return 0;
+  if (typeof val === 'number') return val;
   const s = String(val).trim();
-  const isNeg = s.startsWith('-');
-  const clean = s.replace('-', '');
+  const isNeg = s.charCodeAt(0) === 45; // '-'
+  const clean = isNeg ? s.slice(1) : s;
   const parts = clean.split('.');
   if (parts.length === 2) {
     const inch = parseInt(parts[0], 10) || 0;
@@ -47,20 +84,17 @@ function parseSutOffset(val) {
   return isNaN(n) ? 0 : n;
 }
 
-function fmtEighthDigits(n){
-  if(n==null || isNaN(n)) return '';
+function fmtEighthDigits(n) {
+  if (n == null || isNaN(n)) return '';
   const whole = Math.floor(n);
   const dec = num(n - whole, 4);
   const sut16 = Math.round(dec * 16);
   if (sut16 === 0) return String(whole);
   if (sut16 % 2 === 0) return `${whole}.${sut16 / 2}`;
-  else {
-    const s = Math.floor(sut16 / 2);
-    return `${whole}.${s}½`;
-  }
+  return `${whole}.${Math.floor(sut16 / 2)}½`;
 }
 
-function fmtLength(n, unitMode='inch') {
+function fmtLength(n, unitMode = 'inch') {
   if (n == null || isNaN(n)) return '';
   if (unitMode === 'mm') return `${num(n * 25.4, 1)} mm`;
   return fmtEighthDigits(n);
@@ -82,8 +116,8 @@ function isTrackProfile(key) {
   return mapped === 'Track' || mapped === 'TopTrack' || mapped === 'BottomTrack' || mapped === 'TopBottomTrack' || mapped === 'SideTrack';
 }
 
-function roundToEighth(v){
-  if (v==null || isNaN(v)) return 0;
+function roundToEighth(v) {
+  if (v == null || isNaN(v)) return 0;
   const whole = Math.floor(v);
   const dec = v - whole;
   const sut16 = Math.round(dec * 16);
@@ -102,14 +136,9 @@ function applySutRounding(valInInches, profileType, isWidth) {
   return Math.round(totalSut) / 8;
 }
 
-function evaluateFormula(formula, W, H) {
-  try {
-    if (!formula) return NaN;
-    const fn = new Function('W', 'H', 'return ' + formula);
-    return num(fn(W, H));
-  } catch (e) { return NaN; }
-}
-
+// ==========================================
+// 3. CONFIG & DEFAULTS
+// ==========================================
 const DEFAULT_RULES_CONFIG = {
   D2: { arw: 500, lr: 100, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, ShutterW: { formula: 'W / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 4 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
   D3: { arw: 700, lr: 120, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, ShutterW: { formula: 'W / 2', qty: 6 }, ShutterH: { formula: 'H - 2.6', qty: 6 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
@@ -139,11 +168,17 @@ const FIXED_TRACK_RULES = {
 };
 
 function getCurrentRulesConfig(mode, customRules = {}) {
-  const isBuiltIn = ['D2','D3','S2','S3','N2','N3'].includes(mode);
+  const isBuiltIn = ['D2', 'D3', 'S2', 'S3', 'N2', 'N3'].includes(mode);
   const defaults = isBuiltIn ? (DEFAULT_RULES_CONFIG[mode] || DEFAULT_RULES_CONFIG.D3) : {};
   const custom = customRules[mode] || {};
-  
-  let res = JSON.parse(JSON.stringify(defaults));
+
+  const res = { ...defaults };
+  for (const key in defaults) {
+    if (typeof defaults[key] === 'object' && defaults[key] !== null) {
+      res[key] = { ...defaults[key] };
+    }
+  }
+
   for (const key in custom) {
     if (typeof custom[key] === 'object' && custom[key] !== null && !Array.isArray(custom[key])) {
       res[key] = { ...(res[key] || {}), ...custom[key] };
@@ -162,25 +197,31 @@ function getCurrentRulesConfig(mode, customRules = {}) {
 }
 
 function getModeFamily(mode) {
-  const m = mode.toUpperCase();
-  if (m.startsWith('D')) return 'D-Series';
-  if (m.startsWith('N')) return 'N-Series';
-  if (m.startsWith('S')) return 'S-Series';
-  return m;
+  const c = mode.charCodeAt(0);
+  if (c === 68 || c === 100) return 'D-Series';
+  if (c === 78 || c === 110) return 'N-Series';
+  if (c === 83 || c === 115) return 'S-Series';
+  return mode.toUpperCase();
 }
 
 function getProfileCutCategory(key, windowMode, allWindowModes) {
   const type = mapToProfileType(key);
   const family = getModeFamily(windowMode);
-  const familiesInProject = new Set(allWindowModes.map(getModeFamily));
-  const isMultiFamily = familiesInProject.size > 1;
+  let multiFamily = false;
+  const firstFam = getModeFamily(allWindowModes[0]);
+  for (let i = 1; i < allWindowModes.length; i++) {
+    if (getModeFamily(allWindowModes[i]) !== firstFam) {
+      multiFamily = true;
+      break;
+    }
+  }
 
   if (type === 'Track' || type === 'TopTrack' || type === 'BottomTrack' || type === 'TopBottomTrack' || type === 'SideTrack') {
     const hasMultipleModesInFamily = allWindowModes.some(m => getModeFamily(m) === family && m !== windowMode);
-    if (hasMultipleModesInFamily || isMultiFamily) return `${type} (${windowMode})`;
+    if (hasMultipleModesInFamily || multiFamily) return `${type} (${windowMode})`;
     return type;
   }
-  if (isMultiFamily) return `${type} (${family})`;
+  if (multiFamily) return `${type} (${family})`;
   return type;
 }
 
@@ -206,33 +247,36 @@ function getWeight(mode, category, storedWeights = {}) {
   return safeNum(defObj[mapped] || 2.5);
 }
 
-function getWindowPiecesAndGlass(W, H, mode, customRules = {}) {
-  const rules = getCurrentRulesConfig(mode, customRules);
-  const pieces = {}; const originalLengths = {};
+function getWindowPiecesAndGlass(W, H, mode, rules) {
+  const pieces = {};
+  const originalLengths = {};
   const W_shutter = applySutRounding(W, 'non-track', true);
   const H_shutter = applySutRounding(H, 'non-track', false);
 
-  const isBuiltIn = ['D2','D3','S2','S3','N2','N3'].includes(mode);
+  const isBuiltIn = (mode === 'D2' || mode === 'D3' || mode === 'S2' || mode === 'S3' || mode === 'N2' || mode === 'N3');
   const included = rules.includedProfiles;
 
   for (const key in rules) {
-    if (['glassQty','glassW_offset','glassH_offset','glassW','glassH','arw','lr','jaliRate','rubberWtFt','rubberRate','hasJali','includedProfiles','trackType'].includes(key)) continue;
+    if (key === 'glassQty' || key === 'glassW_offset' || key === 'glassH_offset' ||
+        key === 'glassW' || key === 'glassH' || key === 'arw' || key === 'lr' ||
+        key === 'jaliRate' || key === 'rubberWtFt' || key === 'rubberRate' ||
+        key === 'hasJali' || key === 'includedProfiles' || key === 'trackType') continue;
+
     if (!isBuiltIn && Array.isArray(included) && !included.includes(key)) continue;
 
     const rule = rules[key];
     if (typeof rule === 'object' && rule.formula && rule.qty > 0) {
       let length = evaluateFormula(rule.formula, W_shutter, H_shutter);
       if (isNaN(length)) continue;
-      const isW = rule.formula.toLowerCase().includes('w');
+      const isW = rule.formula.indexOf('W') !== -1 || rule.formula.indexOf('w') !== -1;
       length = applySutRounding(length, key, isW);
       originalLengths[key] = num(length);
       if (!isNaN(length) && length > 0) length += CUTTING_MARGIN;
       const finalLength = applySutRounding(length, key, isW);
-      if (finalLength > 0) pieces[key] = Array(parseInt(rule.qty,10)).fill(finalLength);
+      if (finalLength > 0) pieces[key] = Array(parseInt(rule.qty, 10)).fill(finalLength);
     }
   }
 
-  // 3 TRACK ARCHITECTURE OPTIONS
   let trackRulesToUse = {};
   if (isBuiltIn) {
     trackRulesToUse = FIXED_TRACK_RULES[mode] || {};
@@ -248,13 +292,19 @@ function getWindowPiecesAndGlass(W, H, mode, customRules = {}) {
   }
 
   for (const key in trackRulesToUse) {
-    pieces[key] = trackRulesToUse[key].map(formula => {
+    const arr = trackRulesToUse[key];
+    const lenArr = [];
+    const origArr = [];
+    for (let i = 0; i < arr.length; i++) {
+      const formula = arr[i];
       let length = (formula === 'W') ? W : H;
-      originalLengths[key] = originalLengths[key] || [];
-      originalLengths[key].push(num(length));
+      origArr.push(num(length));
       if (!isNaN(length) && length > 0) length += CUTTING_MARGIN;
-      return applySutRounding(length, key, true);
-    }).filter(v => v > 0);
+      const fLen = applySutRounding(length, key, true);
+      if (fLen > 0) lenArr.push(fLen);
+    }
+    originalLengths[key] = origArr;
+    pieces[key] = lenArr;
   }
 
   let shutterW_val = evaluateFormula(rules.ShutterW?.formula || rules.BearingBottomW?.formula || 'W / 2', W_shutter, H_shutter);
@@ -271,79 +321,129 @@ function getWindowPiecesAndGlass(W, H, mode, customRules = {}) {
   return { pieces, glass: g, originalLengths };
 }
 
-function assignFromStock(required, stockPieces){
-  const req=required.map(c=>({...c})).sort((a,b)=>b.len-a.len);
-  const stock=stockPieces.map(v=>({len:v, originalLength:v, cuts:[]}));
-  const usedFromStockGrouped=[]; const remaining=[];
-  for(const cut of req){
-    let best=-1, bestLeft=Infinity;
-    for(let i=0;i<stock.length;i++){
-      if(stock[i].len>=cut.len){
-        const left=num(stock[i].len-cut.len);
-        if(left<bestLeft){bestLeft=left; best=i;}
+function assignFromStock(required, stockPieces) {
+  const req = required.map(c => ({ ...c })).sort((a, b) => b.len - a.len);
+  const stock = stockPieces.map(v => ({ len: v, originalLength: v, cuts: [] }));
+  const usedFromStockGrouped = [];
+  const remaining = [];
+
+  for (let i = 0; i < req.length; i++) {
+    const cut = req[i];
+    let best = -1, bestLeft = Infinity;
+    for (let j = 0; j < stock.length; j++) {
+      if (stock[j].len >= cut.len) {
+        const left = num(stock[j].len - cut.len);
+        if (left < bestLeft) {
+          bestLeft = left;
+          best = j;
+          if (left === 0) break;
+        }
       }
     }
-    if(best>=0){ stock[best].len = num(stock[best].len - cut.len); stock[best].cuts.push(cut); }
-    else remaining.push(cut);
+    if (best >= 0) {
+      stock[best].len = num(stock[best].len - cut.len);
+      stock[best].cuts.push(cut);
+    } else {
+      remaining.push(cut);
+    }
   }
+
   const updatedStock = [];
-  for (const s of stock) {
+  for (let i = 0; i < stock.length; i++) {
+    const s = stock[i];
     if (s.cuts.length > 0) usedFromStockGrouped.push({ originalLength: s.originalLength, leftover: s.len, cuts: s.cuts });
     if (s.len >= 0.01) updatedStock.push(s.len);
   }
-  return { usedFromStockGrouped, remainingReq: remaining.sort((a,b)=>b.len-a.len), updatedStock };
+  return { usedFromStockGrouped, remainingReq: remaining.sort((a, b) => b.len - a.len), updatedStock };
 }
 
-// 1. ORIGINAL MIN WASTE ALGORITHM (Best-Fit Decreasing)
-function optimizeMinWaste(cuts, stockLen){
-  const items = cuts.map(v => ({...v})).sort((a,b) => b.len - a.len);
+// ==========================================
+// 4. FAST BIN PACKING OPTIMIZERS
+// ==========================================
+function optimizeMinWaste(cuts, stockLen) {
+  if (!cuts.length) return [];
+  const items = cuts.slice().sort((a, b) => b.len - a.len);
   const bins = [];
-  for (const item of items) {
+  const binsCount = { val: 0 };
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const itemLen = item.len;
     let bestBin = null;
     let minRemainder = Infinity;
-    for (const bin of bins) {
-      const rem = num(stockLen - bin.used - item.len);
-      if (rem >= 0 && rem < minRemainder) {
-        minRemainder = rem;
-        bestBin = bin;
+
+    for (let j = 0; j < bins.length; j++) {
+      const bin = bins[j];
+      const rem = num(stockLen - bin.used - itemLen);
+      if (rem >= 0) {
+        if (rem < minRemainder) {
+          minRemainder = rem;
+          bestBin = bin;
+          if (rem === 0) break; // Early exit on perfect fit
+        }
       }
     }
+
     if (bestBin) {
       bestBin.cuts.push(item);
-      bestBin.used = num(bestBin.used + item.len);
+      bestBin.used = num(bestBin.used + itemLen);
       bestBin.waste = num(stockLen - bestBin.used);
     } else {
-      bins.push({ cuts: [item], used: num(item.len), waste: num(stockLen - item.len) });
+      bins.push({ cuts: [item], used: num(itemLen), waste: num(stockLen - itemLen) });
     }
   }
   return bins;
 }
 
-// 2. ORIGINAL DYNAMIC PROGRAMMING SUBSET-SUM ALGORITHM (MIN BARS)
-function bestFitSubsetIndices(items, stockLen, scale=1000){
-  const ints = items.map(it => Math.round(it.len * scale));
+// Reusable DP buffer to prevent garbage collection overhead
+let SHARED_DP_BUFFER = null;
+let SHARED_DP_CAPACITY = 0;
+function getSharedDpBuffer(size) {
+  if (!SHARED_DP_BUFFER || SHARED_DP_CAPACITY < size) {
+    SHARED_DP_CAPACITY = Math.max(size, SHARED_DP_CAPACITY * 2, 65536);
+    SHARED_DP_BUFFER = new Int32Array(SHARED_DP_CAPACITY);
+  }
+  return SHARED_DP_BUFFER;
+}
+
+function bestFitSubsetIndices(items, stockLen, scale = 1000) {
   const target = Math.round(stockLen * scale);
-  const dp = new Int32Array(target + 1).fill(-1);
+  const n = items.length;
+  const ints = new Int32Array(n);
+  for (let i = 0; i < n; i++) ints[i] = Math.round(items[i].len * scale);
+
+  const dp = getSharedDpBuffer(target + 1);
+  dp.fill(-1, 0, target + 1);
   dp[0] = -2;
-  for (let i = 0; i < ints.length; i++){
+
+  for (let i = 0; i < n; i++) {
     const val = ints[i];
     if (val > target) continue;
-    for (let s = target; s >= val; s--){
-      if (dp[s] === -1 && dp[s - val] !== -1) dp[s] = i;
+    for (let s = target; s >= val; s--) {
+      if (dp[s] === -1 && dp[s - val] !== -1) {
+        dp[s] = i;
+      }
     }
   }
+
   let best = -1;
-  for (let s = target; s >= 0; s--){
+  for (let s = target; s >= 0; s--) {
     if (dp[s] !== -1) { best = s; break; }
   }
+
   if (best <= 0) {
     let ix = -1, mx = -1;
-    for (let i = 0; i < ints.length; i++){
-      if (ints[i] <= target && ints[i] > mx){ mx = ints[i]; ix = i; }
+    for (let i = 0; i < n; i++) {
+      if (ints[i] <= target && ints[i] > mx) {
+        mx = ints[i];
+        ix = i;
+      }
     }
     return ix === -1 ? [] : [ix];
   }
-  const chosen = []; let cur = best;
+
+  const chosen = [];
+  let cur = best;
   while (cur > 0) {
     const i = dp[cur];
     if (i < 0) break;
@@ -353,8 +453,8 @@ function bestFitSubsetIndices(items, stockLen, scale=1000){
   return chosen;
 }
 
-function optimizeMinBars(cuts, stockLen){
-  const items = cuts.map(v => ({...v}));
+function optimizeMinBars(cuts, stockLen) {
+  let items = cuts.slice();
   const bins = [];
   while (items.length) {
     const idxs = bestFitSubsetIndices(items, stockLen);
@@ -363,10 +463,11 @@ function optimizeMinBars(cuts, stockLen){
       bins.push({ cuts: [one], used: num(one.len), waste: num(stockLen - one.len) });
       continue;
     }
-    const pick = Array.from(new Set(idxs)).sort((a,b) => b - a);
-    const pack = []; let used = 0;
-    for (const p of pick) {
-      const it = items.splice(p, 1)[0];
+    idxs.sort((a, b) => b - a);
+    const pack = [];
+    let used = 0;
+    for (let i = 0; i < idxs.length; i++) {
+      const it = items.splice(idxs[i], 1)[0];
       pack.push(it);
       used += it.len;
     }
@@ -376,34 +477,37 @@ function optimizeMinBars(cuts, stockLen){
   return bins;
 }
 
-// 6" STEP, 3" STEP (WITH 7 SUT / 0.875" TOLERANCE) & INCH LOGIC
-function roundWindowStep6(val){
-  const base = Math.floor(val/6)*6;
-  return (val <= base + 0.875)? base : base + 6;
+// ==========================================
+// 5. SQFT CALCULATIONS
+// ==========================================
+function roundWindowStep6(val) {
+  const base = Math.floor(val / 6) * 6;
+  return (val <= base + 0.875) ? base : base + 6;
 }
 
-function roundWindowStep3(val){
-  const base = Math.floor(val/3)*3;
-  return (val <= base + 0.875)? base : base + 3;
+function roundWindowStep3(val) {
+  const base = Math.floor(val / 3) * 3;
+  return (val <= base + 0.875) ? base : base + 3;
 }
 
-function windowSqFtSingle(w, h, mode='6step'){
+function windowSqFtSingle(w, h, mode = '6step') {
   if (mode === 'inch') return (w * h) / 144;
   if (mode === '3step') {
-    const rw = roundWindowStep3(w), rh = roundWindowStep3(h);
-    return (rw * rh) / 144;
+    return (roundWindowStep3(w) * roundWindowStep3(h)) / 144;
   }
-  const rw = roundWindowStep6(w), rh = roundWindowStep6(h);
-  return (rw * rh) / 144;
+  return (roundWindowStep6(w) * roundWindowStep6(h)) / 144;
 }
 
-function roundGlassStep(val){
-  const base = Math.floor(val/6)*6;
-  return (val % 6 === 0)? base : base + 6;
+function roundGlassStep(val) {
+  const base = Math.floor(val / 6) * 6;
+  return (val % 6 === 0) ? base : base + 6;
 }
-function glassSqFt(w,h){ return (roundGlassStep(w) * roundGlassStep(h)) / 144; }
-function glassRunningFeet(w, h, qty=2){ return ((w + h) * 2 / 12) * qty; }
+function glassSqFt(w, h) { return (roundGlassStep(w) * roundGlassStep(h)) / 144; }
+function glassRunningFeet(w, h, qty = 2) { return ((w + h) * 2 / 12) * qty; }
 
+// ==========================================
+// 6. MAIN SERVERLESS / API HANDLER
+// ==========================================
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -424,15 +528,18 @@ module.exports = async (req, res) => {
     let windowCounter = 1;
     const sizes = [];
     if (sizesRaw) {
-      sizesRaw.split(/\n+/g).map(s=>s.trim()).filter(Boolean).forEach(line => {
+      const lines = sizesRaw.split(/\n+/g);
+      for (let l = 0; l < lines.length; l++) {
+        const line = lines[l].trim();
+        if (!line) continue;
         const m = line.match(/^\s*([\d\.]+)\s*[\*xX×]\s*([\d\.]+)(?:\s*\((.*?)\))?\s*$/);
-        if(!m) return;
-        let w = parseSutToken(m[1], unitMode);
-        let h = parseSutToken(m[2], unitMode);
-        if(isNaN(w) || isNaN(h) || w <= 0 || h <= 0) return;
-        
+        if (!m) continue;
+        const w = parseSutToken(m[1], unitMode);
+        const h = parseSutToken(m[2], unitMode);
+        if (isNaN(w) || isNaN(h) || w <= 0 || h <= 0) continue;
+
         let q = 1, mode = defaultMode;
-        if(m[3]){
+        if (m[3]) {
           const tag = m[3].trim();
           const parsedTag = tag.match(/^(\d+)?\s*([a-zA-Z0-9_\-]+)?$/);
           if (parsedTag) {
@@ -440,53 +547,104 @@ module.exports = async (req, res) => {
             if (parsedTag[2] && !/^\d+$/.test(parsedTag[2])) mode = parsedTag[2].toUpperCase();
           }
         }
-        for (let k = 0; k < q; k++) sizes.push({ w, h, id: windowCounter++, mode });
-      });
+        for (let k = 0; k < q; k++) {
+          sizes.push({ w, h, id: windowCounter++, mode });
+        }
+      }
     }
 
     const piecesByType = {};
     const glasses = [];
-    const allWindowModes = sizes.map(s => s.mode || defaultMode);
     const windowCutDetails = [];
+    const allWindowModes = sizes.map(s => s.mode || defaultMode);
 
-    // 1. PROCESS WINDOWS
-    sizes.forEach(sz => {
+    // Cache rules config per unique mode to avoid recalculating JSON merges
+    const rulesCache = {};
+    function getRules(m) {
+      if (!rulesCache[m]) rulesCache[m] = getCurrentRulesConfig(m, customRules);
+      return rulesCache[m];
+    }
+
+    let arwCost = 0, laborCost = 0, jaliCost = 0, totalRubberCost = 0;
+    let totalWindowSqFt = 0;
+    let totalGlassSqFt = 0;
+
+    // 1. SINGLE-PASS PROCESS FOR WINDOWS & COSTS
+    for (let i = 0; i < sizes.length; i++) {
+      const sz = sizes[i];
       const W = num(sz.w), H = num(sz.h);
       const winMode = sz.mode || defaultMode;
-      const { pieces: pc, glass: g, originalLengths } = getWindowPiecesAndGlass(W, H, winMode, customRules);
-      
-      const glassSq = safeFix(glassSqFt(g.w, g.h) * g.qty);
-      const winSq = safeFix(windowSqFtSingle(W, H, sqftMode));
+      const rules = getRules(winMode);
+
+      const { pieces: pc, glass: g, originalLengths } = getWindowPiecesAndGlass(W, H, winMode, rules);
+
+      const singleGlassSq = glassSqFt(g.w, g.h) * g.qty;
+      const winSq = windowSqFtSingle(W, H, sqftMode);
+
+      totalWindowSqFt += winSq;
+      totalGlassSqFt += singleGlassSq;
+
+      // Accumulate costs in same pass (Eliminates redundant loop)
+      totalRubberCost += (glassRunningFeet(g.w || 0, g.h || 0, g.qty || 2) * (rules.rubberWtFt || 0.025)) * (rules.rubberRate || 160);
+      arwCost += safeNum(rules.arw);
+      laborCost += safeNum(rules.lr) * winSq;
+      if (rules.jaliRate) jaliCost += safeNum(rules.jaliRate) * winSq;
 
       glasses.push({
-        window: sz.id, widthFmt: fmtLength(g.w, unitMode), heightFmt: fmtLength(g.h, unitMode),
-        qty: g.qty, rawW: W, rawH: H, mode: winMode, totalGlassSq: glassSq, winSqFt: winSq,
+        window: sz.id,
+        widthFmt: fmtLength(g.w, unitMode),
+        heightFmt: fmtLength(g.h, unitMode),
+        qty: g.qty,
+        rawW: W,
+        rawH: H,
+        mode: winMode,
+        totalGlassSq: safeFix(singleGlassSq),
+        winSqFt: safeFix(winSq),
         sizeFmt: `${fmtLength(W, unitMode)} x ${fmtLength(H, unitMode)}`
       });
 
       const formattedOrig = {};
-      for (const [pk, val] of Object.entries(originalLengths)) {
+      for (const pk in originalLengths) {
+        const val = originalLengths[pk];
         formattedOrig[pk] = Array.isArray(val) ? val.map(v => fmtLength(v, unitMode)).join(', ') : fmtLength(val, unitMode);
       }
 
       windowCutDetails.push({
-        id: `W${sz.id}`, mode: winMode, W: fmtLength(W, unitMode), H: fmtLength(H, unitMode), origFmt: formattedOrig
+        id: `W${sz.id}`,
+        mode: winMode,
+        W: fmtLength(W, unitMode),
+        H: fmtLength(H, unitMode),
+        origFmt: formattedOrig
       });
 
-      for(const [key, arr] of Object.entries(pc)){
+      for (const key in pc) {
+        const arr = pc[key];
         const category = getProfileCutCategory(key, winMode, allWindowModes);
-        piecesByType[category] = piecesByType[category] || [];
-        let orig = originalLengths[key];
-        piecesByType[category].push(...arr.map((len, idx) => ({
-          len, id: `W${sz.id}`, winMode: winMode, originalLen: Array.isArray(orig) ? orig[idx%orig.length] : orig,
-          origFmt: fmtLength(Array.isArray(orig) ? orig[idx%orig.length] : orig, unitMode)
-        })));
+        if (!piecesByType[category]) piecesByType[category] = [];
+        const orig = originalLengths[key];
+        const isArr = Array.isArray(orig);
+        const origLen = isArr ? orig.length : 1;
+
+        for (let a = 0; a < arr.length; a++) {
+          const cutLen = arr[a];
+          const origVal = isArr ? orig[a % origLen] : orig;
+          piecesByType[category].push({
+            len: cutLen,
+            id: `W${sz.id}`,
+            winMode: winMode,
+            originalLen: origVal,
+            origFmt: fmtLength(origVal, unitMode)
+          });
+        }
       }
-    });
+    }
 
     // 2. PROCESS PIPES
     if (pipeSizesRaw) {
-      pipeSizesRaw.split(/\n+/g).map(s => s.trim()).filter(Boolean).forEach((line, pIdx) => {
+      const pLines = pipeSizesRaw.split(/\n+/g);
+      for (let pIdx = 0; pIdx < pLines.length; pIdx++) {
+        const line = pLines[pIdx].trim();
+        if (!line) continue;
         const m = line.match(/^([\d\.]+)(?:\s*(?:[\*\(\(xX×,\-])\s*(\d+)\)?)?$/);
         let len = 0, qty = 1;
         if (m) {
@@ -497,9 +655,9 @@ module.exports = async (req, res) => {
           len = parseSutToken(parts[0], unitMode);
           qty = parts[1] ? parseInt(parts[1], 10) || 1 : 1;
         }
-        if (isNaN(len) || len <= 0) return;
+        if (isNaN(len) || len <= 0) continue;
 
-        piecesByType['Pipes'] = piecesByType['Pipes'] || [];
+        if (!piecesByType['Pipes']) piecesByType['Pipes'] = [];
         for (let q = 0; q < qty; q++) {
           let cutLen = len;
           if (cutLen > 0) cutLen += CUTTING_MARGIN;
@@ -511,58 +669,66 @@ module.exports = async (req, res) => {
             origFmt: fmtLength(len, unitMode)
           });
         }
-      });
+      }
     }
 
+    // 3. CUT PLAN OPTIMIZATION
     const cutPlans = {};
-    let grandBars = 0; let grandWeight = 0; let trackStripTotalCost = 0;
+    let grandBars = 0;
+    let grandWeight = 0;
+    let trackStripTotalCost = 0;
     const barSummaryRows = [];
 
-    Object.entries(piecesByType).forEach(([type, cuts]) => {
-      if (!cuts || cuts.length === 0) return;
+    const categories = Object.keys(piecesByType);
+    for (let c = 0; c < categories.length; c++) {
+      const type = categories[c];
+      const cuts = piecesByType[type];
+      if (!cuts || cuts.length === 0) continue;
+
       const stockLengthToUse = (type === 'Pipes') ? pipeStockLen : stockLen;
-      const af = assignFromStock(cuts, (stockMap[type] || []).slice().sort((a,b)=>b-a));
-      
+      const stockArr = (stockMap[type] || []).slice().sort((a, b) => b - a);
+      const af = assignFromStock(cuts, stockArr);
+
       const strategy = optStrategy[type] || 'minWaste';
       const bins = (strategy === 'minBars')
         ? optimizeMinBars(af.remainingReq, stockLengthToUse)
         : optimizeMinWaste(af.remainingReq, stockLengthToUse);
-      
-      const formattedBins = bins.map(b => ({
-        usedFmt: fmtLength(b.used, unitMode),
-        wasteFmt: fmtLength(stockLengthToUse - b.used, unitMode),
-        cutsStr: b.cuts.map(c => `${fmtLength(c.originalLen, unitMode)} (${c.id})`).join(", ")
-      }));
+
+      const formattedBins = new Array(bins.length);
+      for (let b = 0; b < bins.length; b++) {
+        const bin = bins[b];
+        formattedBins[b] = {
+          usedFmt: fmtLength(bin.used, unitMode),
+          wasteFmt: fmtLength(stockLengthToUse - bin.used, unitMode),
+          cutsStr: bin.cuts.map(cut => `${fmtLength(cut.originalLen, unitMode)} (${cut.id})`).join(", ")
+        };
+      }
+
+      const formattedStockGrouped = new Array(af.usedFromStockGrouped.length);
+      for (let u = 0; u < af.usedFromStockGrouped.length; u++) {
+        const stockItem = af.usedFromStockGrouped[u];
+        formattedStockGrouped[u] = {
+          origFmt: fmtLength(stockItem.originalLength, unitMode),
+          leftFmt: fmtLength(stockItem.leftover, unitMode),
+          cutsStr: stockItem.cuts.map(cut => `${fmtLength(cut.originalLen, unitMode)} (${cut.id})`).join(", ")
+        };
+      }
 
       cutPlans[type] = {
-        usedFromStock: af.usedFromStockGrouped.map(u => ({
-          origFmt: fmtLength(u.originalLength, unitMode), leftFmt: fmtLength(u.leftover, unitMode),
-          cutsStr: u.cuts.map(c => `${fmtLength(c.originalLen, unitMode)} (${c.id})`).join(", ")
-        })),
-        bins: formattedBins, stockLenFmt: fmtLength(stockLengthToUse, unitMode)
+        usedFromStock: formattedStockGrouped,
+        bins: formattedBins,
+        stockLenFmt: fmtLength(stockLengthToUse, unitMode)
       };
+
       const bars = bins.length;
       const kgPerBar = getWeight(defaultMode, type, weights);
       const totalKg = bars * kgPerBar;
-      grandBars += bars; grandWeight += totalKg;
+      grandBars += bars;
+      grandWeight += totalKg;
       barSummaryRows.push([type, `${bars} Bars`, `${safeFix(kgPerBar, 3)} kg`, `${safeFix(totalKg, 3)} kg`]);
-    });
+    }
 
-    let arwCost = 0, laborCost = 0, jaliCost = 0, totalRubberCost = 0;
     const windowsCount = sizes.length;
-    const totalGlassSqFt = safeNum(glasses.reduce((s,g)=> s + (glassSqFt(parseSutToken(g.widthFmt, unitMode), parseSutToken(g.heightFmt, unitMode))*g.qty || 0), 0));
-    const totalWindowSqFt = safeNum(sizes.reduce((s,sz)=> s + (windowSqFtSingle(sz.w, sz.h, sqftMode) || 0), 0));
-
-    sizes.forEach(sz => {
-      const winMode = sz.mode || defaultMode;
-      const rules = getCurrentRulesConfig(winMode, customRules);
-      const winSq = windowSqFtSingle(sz.w, sz.h, sqftMode);
-      const { glass: g } = getWindowPiecesAndGlass(sz.w, sz.h, winMode, customRules);
-      totalRubberCost += (glassRunningFeet(g.w || 0, g.h || 0, g.qty || 2) * (rules.rubberWtFt || 0.025)) * (rules.rubberRate || 160);
-      arwCost += safeNum(rules.arw); laborCost += safeNum(rules.lr) * winSq;
-      if (rules.jaliRate) jaliCost += safeNum(rules.jaliRate) * winSq;
-    });
-
     const glassCost = safeNum(totalGlassSqFt * gr);
     const weightCost = safeNum(mrc * grandWeight);
     const grandTotal = safeNum(weightCost + glassCost + arwCost + laborCost + jaliCost + trackStripTotalCost + totalRubberCost);
@@ -571,17 +737,27 @@ module.exports = async (req, res) => {
     return res.status(200).json({
       status: 'success',
       data: {
-        sizes: glasses, windowCutDetails, cutPlans,
+        sizes: glasses,
+        windowCutDetails,
+        cutPlans,
         barSummary: { rows: barSummaryRows, grandBars, grandWeight: safeFix(grandWeight, 3) },
         totals: {
-          windowsCount, totalWindowSqFt: safeFix(totalWindowSqFt), totalBars: grandBars,
-          totalWeightKg: safeFix(grandWeight, 3), weightCost: safeFix(weightCost),
-          totalGlassSqFt: safeFix(totalGlassSqFt), glassCost: safeFix(glassCost),
-          totalRubberCost: safeFix(totalRubberCost), laborCost: safeFix(laborCost),
-          arwCost: safeFix(arwCost), jaliCost: safeFix(jaliCost),
+          windowsCount,
+          totalWindowSqFt: safeFix(totalWindowSqFt),
+          totalBars: grandBars,
+          totalWeightKg: safeFix(grandWeight, 3),
+          weightCost: safeFix(weightCost),
+          totalGlassSqFt: safeFix(totalGlassSqFt),
+          glassCost: safeFix(glassCost),
+          totalRubberCost: safeFix(totalRubberCost),
+          laborCost: safeFix(laborCost),
+          arwCost: safeFix(arwCost),
+          jaliCost: safeFix(jaliCost),
           trackStripTotalCost: safeFix(trackStripTotalCost),
-          grandTotal: safeFix(grandTotal), avgRatePerSqFt: safeFix(avgRatePerSqFt),
-          matsRate: mrc, glassRate: gr
+          grandTotal: safeFix(grandTotal),
+          avgRatePerSqFt: safeFix(avgRatePerSqFt),
+          matsRate: mrc,
+          glassRate: gr
         }
       }
     });
