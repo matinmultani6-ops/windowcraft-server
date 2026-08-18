@@ -5,21 +5,27 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes,maximum-scale=3.0" />
 <title>WindowCraft Pro</title>
 
+<!-- PWA Manifest & Theme Settings -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#1a73e8">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+<!-- SERVICE WORKER CACHE KILLER -->
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for (let registration of registrations) { registration.unregister(); }
+      for (let registration of registrations) {
+        registration.unregister();
+      }
     });
   }
   if ('caches' in window) {
     caches.keys().then(function(names) {
-      for (let name of names) { caches.delete(name); }
+      for (let name of names) {
+        caches.delete(name);
+      }
     });
   }
 </script>
@@ -34,6 +40,12 @@
 *{box-sizing:border-box;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif}
 html, body { margin: 0; padding: 0; min-height: 100%; width: 100%; background: var(--bg); overflow-x: hidden !important; }
 body{ color:var(--text); line-height:1.45; padding-top: var(--header-height); padding-bottom: 60px; font-size: var(--base-font-size); }
+
+.offline-banner {
+  position: fixed; top: 0; left: 0; right: 0; background: #dc3545; color: #ffffff;
+  text-align: center; padding: 8px 12px; font-size: 0.82rem; font-weight: bold; z-index: 10000;
+  display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
 
 header.top{
   position:fixed;top:0;left:0;right:0;height:var(--header-height);z-index:50;padding:4px 8px;text-align:center;
@@ -67,14 +79,72 @@ textarea.input[rows="2"] { min-height: 110px; padding: 6px; font-size: 0.82rem; 
 
 .group[data-span="2"] { grid-column: span 2; }
 
-.input-guide-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 6px; align-items: stretch; }
-@media (max-width: 480px) { .input-guide-grid { grid-template-columns: 1fr; } }
-.guide-box { background: #f0f7ff; border: 1px solid #cce3fd; border-radius: 6px; padding: 6px 8px; font-size: 0.70rem; line-height: 1.45; color: #1e3a8a; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
-.guide-box div { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.guide-pill { background: #ffffff; border: 1px solid #93c5fd; padding: 0 4px; border-radius: 4px; font-weight: 700; color: #1d4ed8; font-family: monospace; font-size: 0.72rem; }
+/* INSTRUCTION GUIDE BOXES */
+.input-guide-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 6px;
+  align-items: stretch;
+}
+@media (max-width: 480px) {
+  .input-guide-grid { grid-template-columns: 1fr; }
+}
+.guide-box {
+  background: #f0f7ff;
+  border: 1px solid #cce3fd;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.70rem;
+  line-height: 1.45;
+  color: #1e3a8a;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+}
+.guide-box div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.guide-pill {
+  background: #ffffff;
+  border: 1px solid #93c5fd;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-weight: 700;
+  color: #1d4ed8;
+  font-family: monospace;
+  font-size: 0.72rem;
+}
 
-.modal-guide-banner { background: #f0f7ff; border-left: 3px solid var(--primary); padding: 6px 8px; font-size: 0.72rem; color: #1e3a8a; border-radius: 0 4px 4px 0; margin-bottom: 8px; line-height: 1.35; }
-.fixed-base-box { background: #eaf2fc; border: 1px solid #b9d5f7; border-radius: 4px; padding: 5px 6px; font-size: 0.75rem; font-weight: 700; color: #0d47a1; text-align: center; display: flex; align-items: center; justify-content: center; height: 28px; box-sizing: border-box; }
+.modal-guide-banner {
+  background: #f0f7ff;
+  border-left: 3px solid var(--primary);
+  padding: 6px 8px;
+  font-size: 0.72rem;
+  color: #1e3a8a;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.fixed-base-box {
+  background: #eaf2fc;
+  border: 1px solid #b9d5f7;
+  border-radius: 4px;
+  padding: 5px 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0d47a1;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  box-sizing: border-box;
+}
 
 .gear-btn { background: var(--primary); border: none; font-size: 0.75rem; cursor: pointer; color: #ffffff; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
 .toolbar { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
@@ -141,6 +211,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
 </header>
 
 <main class="wrap">
+  <!-- LEFT COLUMN: INPUTS & ACTIONS -->
   <div class="left-col">
     <section class="card">
       <h2>
@@ -161,6 +232,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
         </div>
       </div>
       
+      <!-- WINDOW SIZES WITH INSTRUCTION BOX -->
       <div style="margin-bottom: 8px;">
         <label class="lbl" id="sizesLabel" for="sizesInput">🪟 विंडो साइज़ (चौड़ाई × ऊंचाई)</label>
         <span class="sub-lbl">हर लाइन में 1 खिड़की का नाप (1 Size per line)</span>
@@ -176,6 +248,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
         </div>
       </div>
 
+      <!-- CUSTOM PIPE SIZES WITH INSTRUCTION BOX -->
       <div style="margin-bottom: 8px;">
         <label class="lbl" id="pipeSizesLabel" for="pipeSizesInput">✂️ कस्टम पाइप कटआउट (Custom Pipe Sizes)</label>
         <span class="sub-lbl">पाइप के छोटे टुकड़े (Short Cutouts)</span>
@@ -209,22 +282,26 @@ tr:nth-child(even) td{ background:#f9fbfd }
     </section>
   </div>
 
+  <!-- RIGHT COLUMN: REPORT & CALCULATION TABLES -->
   <div class="right-col">
     <section class="card">
       <h2>2. 📊 प्रोजेक्ट रिपोर्ट एवं कटिंग विवरण (Project Report)</h2>
       <div class="tables">
+        <!-- 1. TOTALS AND COST -->
         <div>
           <h3>1. कुल खर्च और सारांश (Totals and Cost ₹)</h3>
           <div class="section-guide">💡 कुल लागत, लेबर, मेटल वजन, कांच व रबर खर्च का पूरा विवरण</div>
           <div id="totalsWrap" class="table-wrap muted">—</div>
         </div>
 
+        <!-- 2. BARS & WEIGHT SUMMARY -->
         <div>
           <h3>2. प्रोफाइल बार और वजन सारांश (Profile Bars & Weight Summary)</h3>
           <div class="section-guide">💡 हर सेक्शन के कुल आवश्यक 16' बार, प्रति बार वजन और कुल किलो</div>
           <div id="barSummaryWrap" class="table-wrap muted">—</div>
         </div>
 
+        <!-- 3. WINDOW SIZES & GLASS -->
         <div>
           <h3>
             <span>3. विंडो साइज और कांच नाप (Window Sizes & Glass)</span>
@@ -234,15 +311,17 @@ tr:nth-child(even) td{ background:#f9fbfd }
           <div id="windowSizeGlassDetails" class="table-wrap muted">Enter sizes and select mode.</div>
         </div>
 
+        <!-- 4. PROFILE CUT LENGTHS -->
         <div>
           <h3>4. प्रोफाइल कटिंग साइज (Profile Cut Lengths)</h3>
           <div class="section-guide">💡 प्रत्येक विंडो के अनुसार ट्रैक, शटर, इंटरलोक व अन्य प्रोफाइल की कटिंग लंबाई</div>
           <div id="windowDetails" class="table-wrap muted">—</div>
         </div>
 
+        <!-- 5. CUTTING PLAN -->
         <div>
           <h3>5. कटिंग प्लान - बार ऑप्टिमाइजेशन (Cutting Plan - Optimized)</h3>
-          <div class="section-guide">💡 16 फीट बार से न्यूनतम वेस्टेज में कटिंग लेआउट</div>
+          <div class="section-guide">💡 16 फीट बार से न्यूनतम वेस्टेज में कटिंग लेआउट (Min Waste / Min Bars स्विच करें)</div>
           <div id="cutPlan" class="table-wrap muted">—</div>
         </div>
       </div>
@@ -250,6 +329,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </main>
 
+<!-- IN-APP PDF NAME MODAL -->
 <div id="pdfNameModal" class="modal">
   <div class="box">
     <h4>📄 PDF फाइल / कस्टमर का नाम (PDF & Customer Name)</h4>
@@ -267,6 +347,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
+<!-- SETTINGS MODAL -->
 <div id="settingsModal" class="modal">
   <div class="box">
     <h4>⚙️ सेटिंग्स और रेट्स (Settings & Base Rates)</h4>
@@ -311,6 +392,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
+<!-- STOCK MODAL -->
 <div id="stockModal" class="modal">
   <div class="box">
     <h4>📦 उपलब्ध टुकड़ा स्टॉक (Available Stock Pieces)</h4>
@@ -325,6 +407,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
+<!-- RULES MODAL -->
 <div id="rulesModal" class="modal">
   <div class="box" style="max-width: 580px;">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--border); padding-bottom: 4px; margin-bottom: 4px;">
@@ -349,6 +432,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
+<!-- ADD CUSTOM MODAL -->
 <div id="addCustomModal" class="modal">
   <div class="box">
     <h4>➕ नई विंडो / कस्टम मोड बनाएं (Add Custom Window)</h4>
@@ -392,6 +476,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
+<!-- WEIGHT MODAL -->
 <div id="weightModal" class="modal">
   <div class="box">
     <h4>⚖️ प्रोफाइल बार वजन (Bar Weight - Kg per 16 Ft Bar)</h4>
@@ -715,7 +800,7 @@ function assignFromStock(required, stockPieces){
   return { usedFromStockGrouped, remainingReq: remaining.sort((a,b)=>b.len-a.len) };
 }
 
-// ULTRA-FAST SEGMENT TREE BIN PACKING (0.001s for 60,000 cuts)
+// 1. ULTRA-FAST SEGMENT TREE BIN PACKING (MIN WASTE)
 function optimizeMinWaste(cuts, stockLen){
   if (!cuts || cuts.length === 0) return [];
   const SCALE = 1000;
@@ -778,6 +863,88 @@ function optimizeMinWaste(cuts, stockLen){
       bucketBins[newRemInt].push(newBin);
       updateTree(newRemInt, 1);
     }
+  }
+  return bins;
+}
+
+// 2. ULTRA-FAST SUBSET-SUM DP ALGORITHM (MIN BARS)
+let SHARED_DP_BUFFER = null;
+let SHARED_DP_CAPACITY = 0;
+function getSharedDpBuffer(size) {
+  if (!SHARED_DP_BUFFER || SHARED_DP_CAPACITY < size) {
+    SHARED_DP_CAPACITY = Math.max(size, SHARED_DP_CAPACITY * 2, 65536);
+    SHARED_DP_BUFFER = new Int32Array(SHARED_DP_CAPACITY);
+  }
+  return SHARED_DP_BUFFER;
+}
+
+function bestFitSubsetIndices(items, stockLen, scale = 1000) {
+  const target = Math.round(stockLen * scale);
+  const n = items.length;
+  const ints = new Int32Array(n);
+  for (let i = 0; i < n; i++) ints[i] = Math.round(items[i].len * scale);
+
+  const dp = getSharedDpBuffer(target + 1);
+  dp.fill(-1, 0, target + 1);
+  dp[0] = -2;
+
+  for (let i = 0; i < n; i++) {
+    const val = ints[i];
+    if (val > target) continue;
+    for (let s = target; s >= val; s--) {
+      if (dp[s] === -1 && dp[s - val] !== -1) {
+        dp[s] = i;
+      }
+    }
+  }
+
+  let best = -1;
+  for (let s = target; s >= 0; s--) {
+    if (dp[s] !== -1) { best = s; break; }
+  }
+
+  if (best <= 0) {
+    let ix = -1, mx = -1;
+    for (let i = 0; i < n; i++) {
+      if (ints[i] <= target && ints[i] > mx) {
+        mx = ints[i];
+        ix = i;
+      }
+    }
+    return ix === -1 ? [] : [ix];
+  }
+
+  const chosen = [];
+  let cur = best;
+  while (cur > 0) {
+    const i = dp[cur];
+    if (i < 0) break;
+    chosen.push(i);
+    cur -= ints[i];
+  }
+  return chosen;
+}
+
+function optimizeMinBars(cuts, stockLen) {
+  let items = cuts.slice();
+  const bins = [];
+  while (items.length) {
+    const idxs = bestFitSubsetIndices(items, stockLen);
+    if (!idxs.length) {
+      const one = items.shift();
+      bins.push({ cuts: [one], used: num(one.len), waste: num(stockLen - one.len) });
+      continue;
+    }
+    idxs.sort((a, b) => b - a);
+    const pack = [];
+    let used = 0;
+    for (let i = 0; i < idxs.length; i++) {
+      const it = items.splice(idxs[i], 1)[0];
+      pack.push(it);
+      used += it.len;
+    }
+    used = num(used);
+    bins.push({ cuts: pack, used, waste: num(stockLen - used) });
   }
   return bins;
 }
@@ -963,7 +1130,10 @@ function runCalculationEngine(reqBody) {
     const stockArr = (stockMap[type] || []).slice().sort((a, b) => b - a);
     const af = assignFromStock(cuts, stockArr);
 
-    const bins = optimizeMinWaste(af.remainingReq, stockLengthToUse);
+    const strategy = optStrategy[type] || 'minWaste';
+    const bins = (strategy === 'minBars')
+      ? optimizeMinBars(af.remainingReq, stockLengthToUse)
+      : optimizeMinWaste(af.remainingReq, stockLengthToUse);
 
     const formattedBins = new Array(bins.length);
     for (let b = 0; b < bins.length; b++) {
@@ -999,6 +1169,7 @@ function runCalculationEngine(reqBody) {
     barSummaryRows.push([type, `${bars} Bars`, `${safeFix(kgPerBar, 3)} kg`, `${safeFix(totalKg, 3)} kg`]);
   }
 
+  const activeRules = getRules(defaultMode);
   const windowsCount = sizes.length;
   const glassCost = safeNum(totalGlassSqFt * gr);
   const weightCost = safeNum(mrc * grandWeight);
@@ -1016,7 +1187,11 @@ function runCalculationEngine(reqBody) {
       arwCost: safeFix(arwCost), jaliCost: safeFix(jaliCost),
       trackStripTotalCost: safeFix(trackStripTotalCost),
       grandTotal: safeFix(grandTotal), avgRatePerSqFt: safeFix(avgRatePerSqFt),
-      matsRate: mrc, glassRate: gr
+      matsRate: mrc, glassRate: gr,
+      labourRate: activeRules.lr ?? 120,
+      arwRate: activeRules.arw ?? 700,
+      jaliRate: activeRules.jaliRate ?? 30,
+      rubberRate: activeRules.rubberRate ?? 160
     }
   };
 }
@@ -1357,13 +1532,19 @@ function renderReportTables(data) {
   const t = data.totals;
   const totalsWrap = $('#totalsWrap'); totalsWrap.innerHTML = '';
   const totalsRows = [
-    ["Total Windows Count", `${t.windowsCount} Nos`], ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft (${STATE.sqftMode})`],
-    ["Total Profile Bars", `${t.totalBars} Bars`], ["Total Profile Weight", `${t.totalWeightKg} Kg`],
-    [`Material Cost (@ Rs. ${t.matsRate}/kg)`, `Rs. ${t.weightCost}`], ["Total Glass Area", `${t.totalGlassSqFt} Sq.Ft`],
-    [`Glass Cost (@ Rs. ${t.glassRate}/sq.ft)`, `Rs. ${t.glassCost}`], ["Rubber Total Cost", `Rs. ${t.totalRubberCost}`],
-    ["Labour Total", `Rs. ${t.laborCost}`], ["Additional Charges", `Rs. ${t.arwCost}`]
+    ["Total Windows Count", `${t.windowsCount} Nos`],
+    ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft (${STATE.sqftMode})`],
+    ["Total Profile Bars", `${t.totalBars} Bars`],
+    ["Total Profile Weight", `${t.totalWeightKg} Kg`],
+    [`Material Cost (@ Rs. ${t.matsRate}/kg)`, `Rs. ${t.weightCost}`],
+    ["Total Glass Area", `${t.totalGlassSqFt} Sq.Ft`],
+    [`Glass Cost (@ Rs. ${t.glassRate}/sq.ft)`, `Rs. ${t.glassCost}`],
+    [`Rubber Total Cost (@ Rs. ${t.rubberRate}/kg)`, `Rs. ${t.totalRubberCost}`],
+    [`Labour Total (@ Rs. ${t.labourRate}/sq.ft)`, `Rs. ${t.laborCost}`],
+    [`Additional Charges (@ Rs. ${t.arwRate}/win)`, `Rs. ${t.arwCost}`]
   ];
-  if (parseFloat(t.jaliCost) > 0) totalsRows.push(["Jali Total Cost", `Rs. ${t.jaliCost}`]);
+  if (parseFloat(t.jaliCost) > 0) totalsRows.push([`Jali Total Cost (@ Rs. ${t.jaliRate}/sq.ft)`, `Rs. ${t.jaliCost}`]);
+  if (parseFloat(t.trackStripTotalCost) > 0) totalsRows.push(["Track Strip Cost", `Rs. ${t.trackStripTotalCost}`]);
   totalsRows.push(["GRAND TOTAL", `Rs. ${t.grandTotal}`]);
   totalsRows.push(["Average Rate per Sq.Ft", `Rs. ${t.avgRatePerSqFt} / Sq.Ft`]);
   totalsWrap.appendChild(buildTable(["विवरण (Description)", "रकम / विवरण (Details & Amount)"], totalsRows));
@@ -1399,13 +1580,27 @@ function renderReportTables(data) {
     }
   } else { cutDetailWrap.textContent = '—'; }
 
+  // 5. CUTTING PLAN WITH RESTORED MIN WASTE / MIN BARS TOGGLE BUTTON
   const cutWrap = $('#cutPlan'); cutWrap.innerHTML = '';
   Object.entries(data.cutPlans).forEach(([type, plan]) => {
     if (!plan.bins || !plan.bins.length) return;
     const sec = document.createElement('div'); sec.style.marginBottom = '10px';
     const h = document.createElement('h3');
-    h.innerHTML = `<span>${type} — Cutting Plan <small>(Stock: ${plan.stockLenFmt})</small></span>`;
+
+    const strategy = STATE.optStrategy[type] || 'minWaste';
+    const toggleBtnText = strategy === 'minWaste' ? 'Min Waste' : 'Min Bars';
+    const btnClass = strategy === 'minWaste' ? 'toggle-pill active-orange' : 'toggle-pill active-green';
+
+    h.innerHTML = `<span>${type} — Cutting Plan <small>(Stock: ${plan.stockLenFmt})</small></span>
+                   <button class="${btnClass}" data-type="${type}" type="button">${toggleBtnText}</button>`;
     sec.appendChild(h);
+
+    h.querySelector('button').onclick = () => {
+      triggerInterstitialAd();
+      STATE.optStrategy[type] = (STATE.optStrategy[type] === 'minBars') ? 'minWaste' : 'minBars';
+      saveInputs();
+      hydrateView();
+    };
 
     if (plan.usedFromStock && plan.usedFromStock.length) {
       const groupedRows = plan.usedFromStock.map(u => [u.origFmt, u.cutsStr, u.leftFmt]);
@@ -1570,147 +1765,272 @@ function saveStockModal(){
   hydrateView();
 }
 
-function generateFabricationPDF(fileName){
+// ==========================================
+// 3. SEPARATED PDF GENERATORS (EXACT MATCH)
+// ==========================================
+
+// BUTTON 1: QUOTATION & BILL SUMMARY (Includes Summary, Weight, Sizes/Glass)
+function generateBillPDF(fileName) {
   try {
     if (!STATE.serverData) { alert("Please click Calculate first!"); return; }
     const company = STATE.companyName || "WindowCraft Pro";
     const jsPDFConstructor = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
-    const doc = new jsPDFConstructor({unit:'pt', format:'a4'});
-    const pageHeight = doc.internal.pageSize.getHeight();
+    const doc = new jsPDFConstructor({ unit: 'pt', format: 'a4' });
     const dateStr = new Date().toLocaleDateString('en-GB');
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12); doc.text(company.toUpperCase(), 297, 26, { align: 'center' });
-    doc.setFontSize(9); doc.text('FABRICATION & CUTTING REPORT', 297, 38, { align: 'center' });
-    doc.setLineWidth(0.8); doc.line(40, 44, 555, 44);
+    doc.setFontSize(11);
+    doc.text(company.toUpperCase(), 297, 24, { align: 'center' });
+    doc.setFontSize(8.5);
+    doc.text('DETAILED COST ESTIMATION (QUOTATION)', 297, 35, { align: 'center' });
+    doc.setLineWidth(0.6);
+    doc.setDrawColor(0, 0, 0);
+    doc.line(35, 41, 560, 41);
 
-    doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
-    doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()}) | Area: ${STATE.sqftMode.toUpperCase()}`, 40, 56);
-    doc.text(`Date: ${dateStr}`, 555, 56, { align: 'right' });
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Project Mode: ${STATE.mode}`, 35, 51);
+    doc.text(`Date: ${dateStr}`, 560, 51, { align: 'right' });
 
-    let currentY = 66;
+    let currentY = 57;
 
-    const wsRows = (STATE.serverData.sizes || []).map(g => [
-      `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq
-    ]);
+    const tableBaseStyles = {
+      theme: 'grid',
+      styles: {
+        fontSize: 7.2,
+        cellPadding: 2.8,
+        textColor: [0, 0, 0],
+        lineColor: [100, 100, 100],
+        lineWidth: 0.5,
+        font: 'helvetica'
+      },
+      headStyles: {
+        fillColor: [248, 248, 248],
+        textColor: [0, 0, 0],
+        fontStyle: 'bold',
+        lineColor: [100, 100, 100],
+        lineWidth: 0.5
+      },
+      margin: { left: 35, right: 35 }
+    };
 
-    doc.autoTable({
-      head: [[{ content: '1. Window Sizes & Glass', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold' } }],
-             ["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]],
-      body: wsRows, startY: currentY, theme: 'grid',
-      styles: { fontSize: 8, cellPadding: 3.5, halign: 'center' },
-      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold' },
-      margin: { left: 40, right: 40 }
-    });
-
-    currentY = doc.lastAutoTable.finalY + 12;
-
-    if (STATE.serverData.windowCutDetails && STATE.serverData.windowCutDetails.length) {
-      const cdRows = STATE.serverData.windowCutDetails.map(cd => {
-        const orig = cd.origFmt || {};
-        return [
-          cd.id, orig.Track || orig.TopTrack || orig.TopBottomTrack || '-', orig.ShutterW || orig.BearingBottomW || '-',
-          orig.ShutterH || orig.Handle || '-', orig.Interlock || '-', orig.TrackStrip || orig.SideTrack || '-'
-        ];
-      });
-
-      doc.autoTable({
-        head: [[{ content: '2. Profile Cut Lengths', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold' } }],
-               ["Win #", "Track", "Shutter (W)", "Shutter (H)", "Interlock", "Track Strip/Sides"]],
-        body: cdRows, startY: currentY, theme: 'grid',
-        styles: { fontSize: 8, cellPadding: 3.5, halign: 'center' },
-        headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold' },
-        margin: { left: 40, right: 40 }
-      });
-      currentY = doc.lastAutoTable.finalY + 12;
-    }
-
-    let planIndex = 3;
-    Object.entries(STATE.serverData.cutPlans || {}).forEach(([type, plan]) => {
-      if(!plan.bins || !plan.bins.length) return;
-      const binRows = plan.bins.map((b, i) => [`Bar ${i+1}`, b.cutsStr, b.usedFmt, b.wasteFmt]);
-      if (currentY + 70 > pageHeight - 35) { doc.addPage(); currentY = 40; }
-
-      doc.autoTable({
-        head: [[{ content: `${planIndex++}. Cutting Plan - ${type} (Stock: ${plan.stockLenFmt})`, colSpan: 4, styles: { halign: 'left', fontStyle: 'bold' } }],
-               ["Bar #", "Pieces (ID)", "Used", "Leftover"]],
-        body: binRows, startY: currentY, theme: 'grid',
-        styles: { fontSize: 8, cellPadding: 3.5, halign: 'center' },
-        headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold' },
-        columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' } },
-        margin: { left: 40, right: 40 }
-      });
-      currentY = doc.lastAutoTable.finalY + 10;
-    });
-
-    downloadPdfDirect(doc, fileName);
-  } catch(e) { alert("PDF Error: " + e.message); }
-}
-
-function generateBillPDF(fileName){
-  try {
-    if (!STATE.serverData) { alert("Please click Calculate first!"); return; }
-    const company = STATE.companyName || "WindowCraft Pro";
-    const jsPDFConstructor = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
-    const doc = new jsPDFConstructor({unit:'pt', format:'a4'});
-    const dateStr = new Date().toLocaleDateString('en-GB');
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12); doc.text(company.toUpperCase(), 297, 26, { align: 'center' });
-    doc.setFontSize(9); doc.text('DETAILED COST ESTIMATION (QUOTATION)', 297, 38, { align: 'center' });
-    doc.setLineWidth(0.8); doc.line(40, 44, 555, 44);
-
-    doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
-    doc.text(`Project Mode: ${STATE.mode} | Area: ${STATE.sqftMode.toUpperCase()}`, 40, 56);
-    doc.text(`Date: ${dateStr}`, 555, 56, { align: 'right' });
-
-    let currentY = 66;
+    // 1. MAIN SUMMARY & QUOTATION TABLE (WITH COMPLETE RATES PRINTED)
     const t = STATE.serverData.totals || {};
     const qRows = [
       ["Total Windows Count", `${safeNum(t.windowsCount)} Nos`],
-      ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft (${STATE.sqftMode})`],
+      ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft`],
       ["Total Profile Bars", `${t.totalBars} Bars`],
       ["Total Profile Weight", `${t.totalWeightKg} Kg`],
       [`Material Cost (@ Rs. ${t.matsRate}/kg)`, `Rs. ${t.weightCost}`],
       ["Total Glass Area", `${t.totalGlassSqFt} Sq.Ft`],
       [`Glass Cost (@ Rs. ${t.glassRate}/sq.ft)`, `Rs. ${t.glassCost}`],
-      ["Labour Total", `Rs. ${t.laborCost}`],
-      ["Additional Charges", `Rs. ${t.arwCost}`]
+      [`Labour Total (@ Rs. ${t.labourRate}/sq.ft)`, `Rs. ${t.laborCost}`],
+      [`Additional Charges (@ Rs. ${t.arwRate}/win)`, `Rs. ${t.arwCost}`]
     ];
-    if (parseFloat(t.jaliCost) > 0) qRows.push(["Jali Cost", `Rs. ${t.jaliCost}`]);
+    if (parseFloat(t.jaliCost) > 0) qRows.push([`Jali Cost (@ Rs. ${t.jaliRate}/sq.ft)`, `Rs. ${t.jaliCost}`]);
     if (parseFloat(t.trackStripTotalCost) > 0) qRows.push(["Track Strip Cost", `Rs. ${t.trackStripTotalCost}`]);
-    if (parseFloat(t.totalRubberCost) > 0) qRows.push(["Rubber Total Cost", `Rs. ${t.totalRubberCost}`]);
+    if (parseFloat(t.totalRubberCost) > 0) qRows.push([`Rubber Total Cost (@ Rs. ${t.rubberRate}/kg)`, `Rs. ${t.totalRubberCost}`]);
 
     qRows.push(["GRAND TOTAL", `Rs. ${t.grandTotal}`]);
     qRows.push(["Average Rate per Sq.Ft", `Rs. ${t.avgRatePerSqFt} / Sq.Ft`]);
 
     doc.autoTable({
+      ...tableBaseStyles,
       head: [["Description", "Details / Amount"]],
-      body: qRows, startY: currentY, theme: 'grid',
-      styles: { fontSize: 8, cellPadding: 3.5 },
-      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold' },
+      body: qRows,
+      startY: currentY,
       columnStyles: { 0: { halign: 'left' }, 1: { halign: 'right' } },
-      margin: { left: 40, right: 40 }
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.row.index >= qRows.length - 2) {
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
     });
+    currentY = doc.lastAutoTable.finalY + 8;
 
-    currentY = doc.lastAutoTable.finalY + 12;
-
+    // 2. PROFILE BARS & WEIGHT SUMMARY TABLE
     const pdfBarRows = (STATE.serverData.barSummary?.rows || []).map(r => [r[0], r[1], r[2], r[3]]);
     pdfBarRows.push(["TOTAL SUMMARY", `${STATE.serverData.barSummary?.grandBars} Bars`, "—", `${STATE.serverData.barSummary?.grandWeight} kg`]);
 
     doc.autoTable({
-      head: [[{ content: '1. Profile Bars & Weight Summary', colSpan: 4, styles: { halign: 'left', fontStyle: 'bold' } }],
-             ["Profile / Bar", "Bar Quantity", "Weight / Bar (kg) / Rate", "Total Weight (kg) / Cost"]],
-      body: pdfBarRows, startY: currentY, theme: 'grid',
-      styles: { fontSize: 8, cellPadding: 3.5, halign: 'center' },
-      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold' },
-      margin: { left: 40, right: 40 }
+      ...tableBaseStyles,
+      head: [
+        [{ content: '1. Profile Bars & Weight Summary', colSpan: 4, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+        ["Profile / Bar", "Bar Quantity", "Weight / Bar (kg) / Rate", "Total Weight (kg) / Cost"]
+      ],
+      body: pdfBarRows,
+      startY: currentY,
+      styles: { ...tableBaseStyles.styles, halign: 'center' },
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.row.index === pdfBarRows.length - 1) {
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    });
+    currentY = doc.lastAutoTable.finalY + 8;
+
+    // 3. WINDOW SIZES & GLASS TABLE
+    const wsRows = (STATE.serverData.sizes || []).map(g => [
+      `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq
+    ]);
+
+    doc.autoTable({
+      ...tableBaseStyles,
+      head: [
+        [{ content: '2. Window Sizes & Glass', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+        ["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]
+      ],
+      body: wsRows,
+      startY: currentY,
+      styles: { ...tableBaseStyles.styles, halign: 'center' }
     });
 
     downloadPdfDirect(doc, fileName);
-  } catch(e) { alert("PDF Error: " + e.message); }
+  } catch (e) { alert("PDF Error: " + e.message); }
 }
 
+// BUTTON 2: FABRICATION & CUT REPORT (Includes Sizes/Glass, Profile Cuts, Cut Layout Plans)
+function generateFabricationPDF(fileName) {
+  try {
+    if (!STATE.serverData) { alert("Please click Calculate first!"); return; }
+    const company = STATE.companyName || "WindowCraft Pro";
+    const jsPDFConstructor = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+    const doc = new jsPDFConstructor({ unit: 'pt', format: 'a4' });
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const dateStr = new Date().toLocaleDateString('en-GB');
+
+    function drawHeader(isFirstPage = true) {
+      doc.setFont('helvetica', 'bold');
+      if (isFirstPage) {
+        doc.setFontSize(11);
+        doc.text(company.toUpperCase(), 297, 24, { align: 'center' });
+        doc.setFontSize(8.5);
+        doc.text('FABRICATION & CUTTING REPORT', 297, 35, { align: 'center' });
+        doc.setLineWidth(0.6);
+        doc.setDrawColor(0, 0, 0);
+        doc.line(35, 41, 560, 41);
+
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()})`, 35, 51);
+        doc.text(`Date: ${dateStr}`, 560, 51, { align: 'right' });
+      } else {
+        doc.setFontSize(10.5);
+        doc.text(company.toUpperCase(), 297, 22, { align: 'center' });
+        doc.setLineWidth(0.6);
+        doc.setDrawColor(0, 0, 0);
+        doc.line(35, 27, 560, 27);
+      }
+    }
+
+    drawHeader(true);
+    let currentY = 57;
+
+    const tableBaseStyles = {
+      theme: 'grid',
+      styles: {
+        fontSize: 7.2,
+        cellPadding: 2.8,
+        textColor: [0, 0, 0],
+        lineColor: [100, 100, 100],
+        lineWidth: 0.5,
+        font: 'helvetica'
+      },
+      headStyles: {
+        fillColor: [248, 248, 248],
+        textColor: [0, 0, 0],
+        fontStyle: 'bold',
+        lineColor: [100, 100, 100],
+        lineWidth: 0.5
+      },
+      margin: { left: 35, right: 35 }
+    };
+
+    // 1. WINDOW SIZES & GLASS TABLE
+    const wsRows = (STATE.serverData.sizes || []).map(g => [
+      `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq
+    ]);
+
+    doc.autoTable({
+      ...tableBaseStyles,
+      head: [
+        [{ content: '1. Window Sizes & Glass', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+        ["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]
+      ],
+      body: wsRows,
+      startY: currentY,
+      styles: { ...tableBaseStyles.styles, halign: 'center' }
+    });
+    currentY = doc.lastAutoTable.finalY + 8;
+
+    // 2. PROFILE CUT LENGTHS TABLE
+    if (STATE.serverData.windowCutDetails && STATE.serverData.windowCutDetails.length) {
+      const is3Track = STATE.mode.includes('3');
+      const sQty = is3Track ? '(x6)' : '(x4)';
+      const iQty = is3Track ? '(x3)' : '(x2)';
+
+      const cdRows = STATE.serverData.windowCutDetails.map(cd => {
+        const orig = cd.origFmt || {};
+        let trackW = orig.Track || orig.TopBottomTrack || '-';
+        let trackH = orig.SideTrack || orig.Track || '-';
+        if (typeof orig.Track === 'string' && orig.Track.includes(',')) {
+          const parts = orig.Track.split(',').map(s => s.trim());
+          trackW = `${parts[0]}, ${parts[1] || parts[0]}`;
+          trackH = `${parts[2] || parts[0]}, ${parts[3] || parts[1] || parts[0]}`;
+        }
+        const sW = orig.ShutterW || orig.BearingBottomW ? `${orig.ShutterW || orig.BearingBottomW} ${sQty}` : '-';
+        const sH = orig.ShutterH || orig.Handle ? `${orig.ShutterH || orig.Handle} ${sQty}` : '-';
+        const iH = orig.Interlock ? `${orig.Interlock} ${iQty}` : '-';
+
+        return [cd.id, trackW, trackH, sW, sH, iH];
+      });
+
+      doc.autoTable({
+        ...tableBaseStyles,
+        head: [
+          [{ content: '2. Profile Cut Lengths', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+          ["Win #", "Track (W)", "Track (H)", "Shutter (W)", "Shutter (H)", "Interlock (H)"]
+        ],
+        body: cdRows,
+        startY: currentY,
+        styles: { ...tableBaseStyles.styles, halign: 'center' }
+      });
+      currentY = doc.lastAutoTable.finalY + 8;
+    }
+
+    // 3. CUTTING PLANS (Section 3, 4, 5...)
+    let planIndex = 3;
+    Object.entries(STATE.serverData.cutPlans || {}).forEach(([type, plan]) => {
+      if (!plan.bins || !plan.bins.length) return;
+      const binRows = plan.bins.map((b, i) => [`Bar ${i + 1}`, b.cutsStr, b.usedFmt, b.wasteFmt]);
+
+      if (currentY + 50 > pageHeight - 35) {
+        doc.addPage();
+        drawHeader(false);
+        currentY = 36;
+      }
+
+      doc.autoTable({
+        ...tableBaseStyles,
+        head: [
+          [{ content: `${planIndex++}. Cutting Plan - ${type} (New Stock)`, colSpan: 4, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+          ["Bar #", "Pieces (ID)", "Used", "Leftover"]
+        ],
+        body: binRows,
+        startY: currentY,
+        styles: { ...tableBaseStyles.styles, halign: 'center' },
+        columnStyles: { 0: { halign: 'left', cellWidth: 45 }, 1: { halign: 'left' }, 2: { halign: 'center', cellWidth: 50 }, 3: { halign: 'center', cellWidth: 50 } }
+      });
+      currentY = doc.lastAutoTable.finalY + 8;
+    });
+
+    downloadPdfDirect(doc, fileName);
+  } catch (e) { alert("PDF Error: " + e.message); }
+}
+
+// ==========================================
+// 4. EVENT BINDINGS & INIT
+// ==========================================
 function bindEvents(){
   $('#calculateBtn').onclick = () => { triggerRewardedAd(() => hydrateView()); };
   $('#clearAllBtn').onclick = () => { triggerInterstitialAd(); $('#sizesInput').value = ''; $('#pipeSizesInput').value = ''; hydrateView(); };
