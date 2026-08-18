@@ -1,3 +1,4 @@
+
 function safeNum(v) { const n = Number(v); return isNaN(n) ? 0 : n; }
 function safeFix(v, d=2) { return safeNum(v).toFixed(d); }
 const num = (n,d=3)=>Number(Number(n).toFixed(d));
@@ -232,7 +233,7 @@ function getWindowPiecesAndGlass(W, H, mode, customRules = {}) {
     }
   }
 
-  // 3 TRACK ARCHITECTURE OPTIONS
+  // 3 TRACK OPTIONS
   let trackRulesToUse = {};
   if (isBuiltIn) {
     trackRulesToUse = FIXED_TRACK_RULES[mode] || {};
@@ -294,23 +295,18 @@ function assignFromStock(required, stockPieces){
   return { usedFromStockGrouped, remainingReq: remaining.sort((a,b)=>b.len-a.len), updatedStock };
 }
 
-// 1. ORIGINAL MIN WASTE ALGORITHM (Best-Fit Decreasing)
+// 1. MIN WASTE ALGORITHM (Group Largest First)
 function optimizeMinWaste(cuts, stockLen){
-  const items = cuts.map(v => ({...v})).sort((a,b) => b.len - a.len);
+  const items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
   const bins = [];
   for (const item of items) {
-    let bestBin = null;
-    let minRemainder = Infinity;
+    let bestBin = null; let minRemainder = Infinity;
     for (const bin of bins) {
       const rem = num(stockLen - bin.used - item.len);
-      if (rem >= 0 && rem < minRemainder) {
-        minRemainder = rem;
-        bestBin = bin;
-      }
+      if (rem >= 0 && rem < minRemainder) { minRemainder = rem; bestBin = bin; }
     }
     if (bestBin) {
-      bestBin.cuts.push(item);
-      bestBin.used = num(bestBin.used + item.len);
+      bestBin.cuts.push(item); bestBin.used = num(bestBin.used + item.len);
       bestBin.waste = num(stockLen - bestBin.used);
     } else {
       bins.push({ cuts: [item], used: num(item.len), waste: num(stockLen - item.len) });
@@ -319,64 +315,34 @@ function optimizeMinWaste(cuts, stockLen){
   return bins;
 }
 
-// 2. ORIGINAL DYNAMIC PROGRAMMING SUBSET-SUM ALGORITHM (MIN BARS)
-function bestFitSubsetIndices(items, stockLen, scale=1000){
-  const ints = items.map(it => Math.round(it.len * scale));
-  const target = Math.round(stockLen * scale);
-  const dp = new Int32Array(target + 1).fill(-1);
-  dp[0] = -2;
-  for (let i = 0; i < ints.length; i++){
-    const val = ints[i];
-    if (val > target) continue;
-    for (let s = target; s >= val; s--){
-      if (dp[s] === -1 && dp[s - val] !== -1) dp[s] = i;
-    }
-  }
-  let best = -1;
-  for (let s = target; s >= 0; s--){
-    if (dp[s] !== -1) { best = s; break; }
-  }
-  if (best <= 0) {
-    let ix = -1, mx = -1;
-    for (let i = 0; i < ints.length; i++){
-      if (ints[i] <= target && ints[i] > mx){ mx = ints[i]; ix = i; }
-    }
-    return ix === -1 ? [] : [ix];
-  }
-  const chosen = []; let cur = best;
-  while (cur > 0) {
-    const i = dp[cur];
-    if (i < 0) break;
-    chosen.push(i);
-    cur -= ints[i];
-  }
-  return chosen;
-}
-
+// 2. MIN BARS ALGORITHM (Greedy Large-Small Pairing - Fast & Guaranteed Termination)
 function optimizeMinBars(cuts, stockLen){
-  const items = cuts.map(v => ({...v}));
+  let items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
   const bins = [];
-  while (items.length) {
-    const idxs = bestFitSubsetIndices(items, stockLen);
-    if (!idxs.length) {
-      const one = items.shift();
-      bins.push({ cuts: [one], used: num(one.len), waste: num(stockLen - one.len) });
-      continue;
+  while (items.length > 0) {
+    const currentCuts = [items.shift()];
+    let currentUsed = num(currentCuts[0].len);
+
+    let i = 0;
+    while (i < items.length) {
+      if (num(currentUsed + items[i].len) <= stockLen) {
+        currentUsed = num(currentUsed + items[i].len);
+        currentCuts.push(items.splice(i, 1)[0]);
+      } else {
+        i++;
+      }
     }
-    const pick = Array.from(new Set(idxs)).sort((a,b) => b - a);
-    const pack = []; let used = 0;
-    for (const p of pick) {
-      const it = items.splice(p, 1)[0];
-      pack.push(it);
-      used += it.len;
-    }
-    used = num(used);
-    bins.push({ cuts: pack, used, waste: num(stockLen - used) });
+
+    bins.push({
+      cuts: currentCuts,
+      used: currentUsed,
+      waste: num(stockLen - currentUsed)
+    });
   }
   return bins;
 }
 
-// 6" STEP, 3" STEP (WITH 7 SUT / 0.875" TOLERANCE) & INCH LOGIC
+// EXACT 3" STEP (WITH 7-SUT TOLERANCE), 6" STEP & INCH LOGIC
 function roundWindowStep6(val){
   const base = Math.floor(val/6)*6;
   return (val <= base + 0.875)? base : base + 6;
@@ -433,12 +399,9 @@ module.exports = async (req, res) => {
         
         let q = 1, mode = defaultMode;
         if(m[3]){
-          const tag = m[3].trim();
-          const parsedTag = tag.match(/^(\d+)?\s*([a-zA-Z0-9_\-]+)?$/);
-          if (parsedTag) {
-            if (parsedTag[1]) q = parseInt(parsedTag[1], 10);
-            if (parsedTag[2] && !/^\d+$/.test(parsedTag[2])) mode = parsedTag[2].toUpperCase();
-          }
+          const tag = m[3].trim().toUpperCase();
+          if (/^\d+$/.test(tag)) q = parseInt(tag, 10);
+          else mode = tag;
         }
         for (let k = 0; k < q; k++) sizes.push({ w, h, id: windowCounter++, mode });
       });
