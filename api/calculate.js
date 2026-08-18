@@ -4,7 +4,7 @@ const num = (n, d = 3) => Number(Number(n).toFixed(d));
 const CUTTING_MARGIN = 0.125;
 
 // ==========================================
-// 1. FAST FORMULA COMPILATION & JIT CACHE
+// 1. FAST FORMULA EVALUATION CACHE
 // ==========================================
 const FORMULA_CACHE = new Map();
 function evaluateFormula(formula, W, H) {
@@ -204,27 +204,6 @@ function getModeFamily(mode) {
   return mode.toUpperCase();
 }
 
-function getProfileCutCategory(key, windowMode, allWindowModes) {
-  const type = mapToProfileType(key);
-  const family = getModeFamily(windowMode);
-  let multiFamily = false;
-  const firstFam = getModeFamily(allWindowModes[0]);
-  for (let i = 1; i < allWindowModes.length; i++) {
-    if (getModeFamily(allWindowModes[i]) !== firstFam) {
-      multiFamily = true;
-      break;
-    }
-  }
-
-  if (type === 'Track' || type === 'TopTrack' || type === 'BottomTrack' || type === 'TopBottomTrack' || type === 'SideTrack') {
-    const hasMultipleModesInFamily = allWindowModes.some(m => getModeFamily(m) === family && m !== windowMode);
-    if (hasMultipleModesInFamily || multiFamily) return `${type} (${windowMode})`;
-    return type;
-  }
-  if (multiFamily) return `${type} (${family})`;
-  return type;
-}
-
 function getWeight(mode, category, storedWeights = {}) {
   const m = category.match(/\(([A-Za-z0-9\-]+)\)$/);
   let type = category.replace(/\s*\([^\)]+\)$/, '').trim();
@@ -322,7 +301,7 @@ function getWindowPiecesAndGlass(W, H, mode, rules) {
 }
 
 function assignFromStock(required, stockPieces) {
-  const req = required.map(c => ({ ...c })).sort((a, b) => b.len - a.len);
+  const req = required.slice().sort((a, b) => b.len - a.len);
   const stock = stockPieces.map(v => ({ len: v, originalLength: v, cuts: [] }));
   const usedFromStockGrouped = [];
   const remaining = [];
@@ -348,54 +327,83 @@ function assignFromStock(required, stockPieces) {
     }
   }
 
-  const updatedStock = [];
   for (let i = 0; i < stock.length; i++) {
     const s = stock[i];
     if (s.cuts.length > 0) usedFromStockGrouped.push({ originalLength: s.originalLength, leftover: s.len, cuts: s.cuts });
-    if (s.len >= 0.01) updatedStock.push(s.len);
   }
-  return { usedFromStockGrouped, remainingReq: remaining.sort((a, b) => b.len - a.len), updatedStock };
+  return { usedFromStockGrouped, remainingReq: remaining.sort((a, b) => b.len - a.len) };
 }
 
 // ==========================================
-// 4. FAST BIN PACKING OPTIMIZERS
+// 4. ULTRA FAST SEGMENT-TREE BIN PACKING (O(N log M))
 // ==========================================
 function optimizeMinWaste(cuts, stockLen) {
-  if (!cuts.length) return [];
+  if (!cuts || cuts.length === 0) return [];
+  const SCALE = 1000;
+  const targetInt = Math.round(stockLen * SCALE);
   const items = cuts.slice().sort((a, b) => b.len - a.len);
-  const bins = [];
-  const binsCount = { val: 0 };
 
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    const itemLen = item.len;
-    let bestBin = null;
-    let minRemainder = Infinity;
+  let treeSize = 1;
+  while (treeSize <= targetInt + 1) treeSize <<= 1;
+  const segTree = new Int32Array(treeSize * 2);
 
-    for (let j = 0; j < bins.length; j++) {
-      const bin = bins[j];
-      const rem = num(stockLen - bin.used - itemLen);
-      if (rem >= 0) {
-        if (rem < minRemainder) {
-          minRemainder = rem;
-          bestBin = bin;
-          if (rem === 0) break; // Early exit on perfect fit
-        }
-      }
-    }
+  const bucketBins = new Array(targetInt + 1);
+  for (let i = 0; i <= targetInt; i++) bucketBins[i] = [];
 
-    if (bestBin) {
-      bestBin.cuts.push(item);
-      bestBin.used = num(bestBin.used + itemLen);
-      bestBin.waste = num(stockLen - bestBin.used);
-    } else {
-      bins.push({ cuts: [item], used: num(itemLen), waste: num(stockLen - itemLen) });
+  function updateTree(val, delta) {
+    let idx = treeSize + val;
+    segTree[idx] += delta;
+    for (idx >>= 1; idx > 0; idx >>= 1) {
+      segTree[idx] = segTree[idx << 1] + segTree[(idx << 1) | 1];
     }
   }
+
+  function queryBestFit(node, l, r, minCap) {
+    if (segTree[node] === 0 || r < minCap) return -1;
+    if (l === r) return l;
+    const mid = (l + r) >> 1;
+    if (mid >= minCap && segTree[node << 1] > 0) {
+      const res = queryBestFit(node << 1, l, mid, minCap);
+      if (res !== -1) return res;
+    }
+    return queryBestFit((node << 1) | 1, mid + 1, r, minCap);
+  }
+
+  const bins = [];
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const itemLenInt = Math.round(item.len * SCALE);
+    if (itemLenInt > targetInt) {
+      bins.push({ cuts: [item], used: num(item.len), waste: 0 });
+      continue;
+    }
+
+    const bestRemInt = queryBestFit(1, 0, treeSize - 1, itemLenInt);
+
+    if (bestRemInt !== -1) {
+      const binList = bucketBins[bestRemInt];
+      const bin = binList.pop();
+      updateTree(bestRemInt, -1);
+
+      bin.cuts.push(item);
+      bin.used = num(bin.used + item.len);
+      bin.waste = num(stockLen - bin.used);
+
+      const newRemInt = bestRemInt - itemLenInt;
+      bucketBins[newRemInt].push(bin);
+      updateTree(newRemInt, 1);
+    } else {
+      const newBin = { cuts: [item], used: num(item.len), waste: num(stockLen - item.len) };
+      bins.push(newBin);
+      const newRemInt = targetInt - itemLenInt;
+      bucketBins[newRemInt].push(newBin);
+      updateTree(newRemInt, 1);
+    }
+  }
+
   return bins;
 }
 
-// Reusable DP buffer to prevent garbage collection overhead
 let SHARED_DP_BUFFER = null;
 let SHARED_DP_CAPACITY = 0;
 function getSharedDpBuffer(size) {
@@ -492,9 +500,7 @@ function roundWindowStep3(val) {
 
 function windowSqFtSingle(w, h, mode = '6step') {
   if (mode === 'inch') return (w * h) / 144;
-  if (mode === '3step') {
-    return (roundWindowStep3(w) * roundWindowStep3(h)) / 144;
-  }
+  if (mode === '3step') return (roundWindowStep3(w) * roundWindowStep3(h)) / 144;
   return (roundWindowStep6(w) * roundWindowStep6(h)) / 144;
 }
 
@@ -556,9 +562,45 @@ module.exports = async (req, res) => {
     const piecesByType = {};
     const glasses = [];
     const windowCutDetails = [];
-    const allWindowModes = sizes.map(s => s.mode || defaultMode);
 
-    // Cache rules config per unique mode to avoid recalculating JSON merges
+    // Precompute window modes & categories in O(1)
+    const modeSet = new Set();
+    const familySet = new Set();
+    for (let i = 0; i < sizes.length; i++) {
+      const m = sizes[i].mode || defaultMode;
+      modeSet.add(m);
+      familySet.add(getModeFamily(m));
+    }
+    const isMultiFamily = familySet.size > 1;
+
+    const categoryCache = new Map();
+    function getFastCutCategory(key, windowMode) {
+      const cacheKey = `${key}_${windowMode}`;
+      let cat = categoryCache.get(cacheKey);
+      if (cat) return cat;
+
+      const type = mapToProfileType(key);
+      const family = getModeFamily(windowMode);
+
+      if (type === 'Track' || type === 'TopTrack' || type === 'BottomTrack' || type === 'TopBottomTrack' || type === 'SideTrack') {
+        let hasMultipleModesInFamily = false;
+        for (const m of modeSet) {
+          if (getModeFamily(m) === family && m !== windowMode) {
+            hasMultipleModesInFamily = true;
+            break;
+          }
+        }
+        if (hasMultipleModesInFamily || isMultiFamily) cat = `${type} (${windowMode})`;
+        else cat = type;
+      } else if (isMultiFamily) {
+        cat = `${type} (${family})`;
+      } else {
+        cat = type;
+      }
+      categoryCache.set(cacheKey, cat);
+      return cat;
+    }
+
     const rulesCache = {};
     function getRules(m) {
       if (!rulesCache[m]) rulesCache[m] = getCurrentRulesConfig(m, customRules);
@@ -569,7 +611,7 @@ module.exports = async (req, res) => {
     let totalWindowSqFt = 0;
     let totalGlassSqFt = 0;
 
-    // 1. SINGLE-PASS PROCESS FOR WINDOWS & COSTS
+    // 1. SINGLE-PASS PROCESSING
     for (let i = 0; i < sizes.length; i++) {
       const sz = sizes[i];
       const W = num(sz.w), H = num(sz.h);
@@ -584,7 +626,6 @@ module.exports = async (req, res) => {
       totalWindowSqFt += winSq;
       totalGlassSqFt += singleGlassSq;
 
-      // Accumulate costs in same pass (Eliminates redundant loop)
       totalRubberCost += (glassRunningFeet(g.w || 0, g.h || 0, g.qty || 2) * (rules.rubberWtFt || 0.025)) * (rules.rubberRate || 160);
       arwCost += safeNum(rules.arw);
       laborCost += safeNum(rules.lr) * winSq;
@@ -619,7 +660,7 @@ module.exports = async (req, res) => {
 
       for (const key in pc) {
         const arr = pc[key];
-        const category = getProfileCutCategory(key, winMode, allWindowModes);
+        const category = getFastCutCategory(key, winMode);
         if (!piecesByType[category]) piecesByType[category] = [];
         const orig = originalLengths[key];
         const isArr = Array.isArray(orig);
