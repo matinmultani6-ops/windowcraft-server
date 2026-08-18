@@ -471,7 +471,8 @@ tr:nth-child(even) td{ background:#f9fbfd }
 </div>
 
 <script>
-const VERCEL_API_URL = "https://windowcraft-server.vercel.app/api/calculate";
+// AUTO-DETECT CURRENT BACKEND DOMAIN (NO CORS ISSUES!)
+const VERCEL_API_URL = "/api/calculate";
 
 const $ = (s, r=document)=>r.querySelector(s);
 const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
@@ -502,8 +503,7 @@ function triggerRewardedAd(onSuccess) {
   if (window.AndroidBridge && window.AndroidBridge.showRewardedAd) {
     window.onRewardedAdSuccess = runCallback;
     window.AndroidBridge.showRewardedAd();
-    // Safe timeout fallback
-    setTimeout(runCallback, 1500);
+    setTimeout(runCallback, 1500); // Safe fallback
   } else {
     runCallback();
   }
@@ -599,7 +599,7 @@ const WEIGHT_TYPES = {
   Pipes: ["Pipes"]
 };
 
-// PRESERVE USER DATA
+// PRESERVE ALL USER DATA
 const LS = {
   getWeights(){ try{ return JSON.parse(localStorage.getItem('fs_weights')||'{}'); }catch(e){ return {}; } },
   setWeights(obj){ localStorage.setItem('fs_weights', JSON.stringify(obj)); },
@@ -826,7 +826,7 @@ function updateModeDropdownsAndTabs(){
   }
 }
 
-// ⚡ HIGH-SPEED HYDRATE VIEW (SERVER FETCH WITH INSTANT LOCAL ENGINE FALLBACK)
+// ⚡ HIGH-SPEED HYDRATE VIEW (DUAL ENGINE WITH INSTANT LOCAL FALLBACK)
 async function hydrateView() {
   checkNetworkStatus();
   saveInputs(); updateHeaderCompany(); updateUnitUI();
@@ -871,7 +871,7 @@ async function hydrateView() {
     $('#modeBtn').textContent = `${STATE.mode} Mode (मोड बदलें)`;
     setStatus('Ready');
   } catch(err) {
-    // Fallback: If Vercel connection is slow/offline, calculate locally instantly!
+    // If Vercel API fails/times out, execute instantly using internal local engine!
     console.log("Using Local Engine Fallback:", err.message);
     executeLocalCalculation();
     setStatus('Ready');
@@ -880,7 +880,7 @@ async function hydrateView() {
   }
 }
 
-// 1. LOCAL CALCULATION FALLBACK ENGINE
+// 1. LOCAL CALCULATION ENGINE (STANDALONE / OFFLINE FALLBACK)
 const CUTTING_MARGIN = 0.125;
 function parseSutToken(str, unitMode='inch') {
   if (!str) return 0;
@@ -931,7 +931,7 @@ function windowSqFtSingle(w, h, mode='3step'){
 }
 
 function optimizeMinWaste(cuts, stockLen){
-  const items = cuts.map(v => ({...v})).sort((a,b) => b.len - a.len);
+  const items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
   const bins = [];
   for (const item of items) {
     let bestBin = null; let minRemainder = Infinity;
@@ -949,52 +949,28 @@ function optimizeMinWaste(cuts, stockLen){
   return bins;
 }
 
-function bestFitSubsetIndices(items, stockLen, scale=1000){
-  const ints = items.map(it => Math.round(it.len * scale));
-  const target = Math.round(stockLen * scale);
-  const dp = new Int32Array(target + 1).fill(-1);
-  dp[0] = -2;
-  for (let i = 0; i < ints.length; i++){
-    const val = ints[i];
-    if (val > target) continue;
-    for (let s = target; s >= val; s--){
-      if (dp[s] === -1 && dp[s - val] !== -1) dp[s] = i;
-    }
-  }
-  let best = -1;
-  for (let s = target; s >= 0; s--){
-    if (dp[s] !== -1) { best = s; break; }
-  }
-  if (best <= 0) return items.length ? [0] : [];
-  const chosen = []; let cur = best;
-  while (cur > 0) {
-    const i = dp[cur];
-    if (i < 0) break;
-    chosen.push(i);
-    cur -= ints[i];
-  }
-  return chosen;
-}
-
 function optimizeMinBars(cuts, stockLen){
-  const items = cuts.map(v => ({...v}));
+  let items = cuts.filter(v => v && v.len > 0.01).map(v => ({...v})).sort((a,b) => b.len - a.len);
   const bins = [];
-  while (items.length) {
-    const idxs = bestFitSubsetIndices(items, stockLen);
-    if (!idxs.length) {
-      const one = items.shift();
-      bins.push({ cuts: [one], used: num(one.len), waste: num(stockLen - one.len) });
-      continue;
+  while (items.length > 0) {
+    const currentCuts = [items.shift()];
+    let currentUsed = num(currentCuts[0].len);
+
+    let i = 0;
+    while (i < items.length) {
+      if (num(currentUsed + items[i].len) <= stockLen) {
+        currentUsed = num(currentUsed + items[i].len);
+        currentCuts.push(items.splice(i, 1)[0]);
+      } else {
+        i++;
+      }
     }
-    const pick = Array.from(new Set(idxs)).sort((a,b) => b - a);
-    const pack = []; let used = 0;
-    for (const p of pick) {
-      const it = items.splice(p, 1)[0];
-      pack.push(it);
-      used += it.len;
-    }
-    used = num(used);
-    bins.push({ cuts: pack, used, waste: num(stockLen - used) });
+
+    bins.push({
+      cuts: currentCuts,
+      used: currentUsed,
+      waste: num(stockLen - currentUsed)
+    });
   }
   return bins;
 }
@@ -1455,7 +1431,7 @@ function buildRulesUI(tabMode){
     }
 
   } else {
-    // N2 / N3 (3/4" SLIDING SERIES)
+    // N2 / N3
     const bbRule = custom.BearingBottomW || defaults.BearingBottomW || { formula: '(W - 6.2) / 2', qty: (tabMode==='N3'?6:4) };
     const hRule = custom.Handle || defaults.Handle || { formula: 'H - 1.7', qty: (tabMode==='N3'?3:2) };
     const intRule = custom.Interlock || defaults.Interlock || { formula: 'H - 1.7', qty: (tabMode==='N3'?3:2) };
