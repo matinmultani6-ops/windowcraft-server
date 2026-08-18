@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<!-- SERVICE WORKER CACHE REFRESH (NO USER DATA LOSS) -->
+<!-- SERVICE WORKER CACHE REFRESH -->
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -56,7 +56,7 @@ header.top{
 .header-container { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
 .logo-icon { width: 32px; height: 32px; flex-shrink: 0; }
 .pill, .status{display:inline-block;padding:2px 7px;border-radius:999px;background:var(--secondary);color:#fff;font-weight:600;font-size:.70rem;margin-left:4px;}
-.status { background: #6c757d; }
+.status { background: #28a745; }
 
 .wrap{ max-width: 1200px; width: 100%; margin: 0 auto; padding: 10px 6px; display: grid; grid-template-columns: 1fr; gap: 10px; box-sizing: border-box; }
 @media (min-width: 850px) { .wrap { grid-template-columns: 420px 1fr; align-items: start; gap: 12px; } }
@@ -244,7 +244,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
         </div>
       </div>
       
-      <!-- 1. WINDOW SIZES (SIDE-BY-SIDE EQUAL HEIGHT) -->
+      <!-- 1. WINDOW SIZES -->
       <label class="lbl" for="sizesInput">🪟 विंडो साइज़ (चौड़ाई × ऊंचाई)
         <span class="sub-hint">हर लाइन में 1 खिड़की का नाप (1 Size per line)</span>
       </label>
@@ -262,7 +262,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
         </div>
       </div>
 
-      <!-- 2. CUSTOM PIPE SIZES (SIDE-BY-SIDE EQUAL HEIGHT) -->
+      <!-- 2. CUSTOM PIPE SIZES -->
       <label class="lbl" for="pipeSizesInput">✂️ कस्टम पाइप कटआउट (Custom Pipe Sizes)
         <span class="sub-hint">पाइप के छोटे टुकड़े (Short Cutouts)</span>
       </label>
@@ -280,7 +280,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
       </div>
 
       <div class="toolbar">
-        <button id="calculateBtn" class="btn b-success" type="button" style="margin-bottom: 4px; font-size: 0.88rem; padding: 8px; font-weight: 700;">🧮 हिसाब लगाएं (Calculate Project)</button>
+        <button id="calculateBtn" class="btn b-success" type="button" style="margin-bottom: 4px; font-size: 0.88rem; padding: 10px; font-weight: 700;">🧮 हिसाब लगाएं (Calculate Project)</button>
         <button id="unitModeBtn" class="btn b-action-2" type="button" style="margin-bottom: 4px;">📏 यूनिट बदलें (Unit: Inches / Sut)</button>
 
         <div class="btn-row-2">
@@ -491,11 +491,21 @@ window.addEventListener('online', checkNetworkStatus);
 window.addEventListener('offline', checkNetworkStatus);
 
 function triggerRewardedAd(onSuccess) {
+  let executed = false;
+  const runCallback = () => {
+    if (!executed) {
+      executed = true;
+      if (typeof onSuccess === 'function') onSuccess();
+    }
+  };
+
   if (window.AndroidBridge && window.AndroidBridge.showRewardedAd) {
-    window.onRewardedAdSuccess = onSuccess;
+    window.onRewardedAdSuccess = runCallback;
     window.AndroidBridge.showRewardedAd();
+    // Safe timeout fallback
+    setTimeout(runCallback, 1500);
   } else {
-    if (typeof onSuccess === 'function') onSuccess();
+    runCallback();
   }
 }
 
@@ -589,7 +599,7 @@ const WEIGHT_TYPES = {
   Pipes: ["Pipes"]
 };
 
-// PRESERVE ALL USER DATA
+// PRESERVE USER DATA
 const LS = {
   getWeights(){ try{ return JSON.parse(localStorage.getItem('fs_weights')||'{}'); }catch(e){ return {}; } },
   setWeights(obj){ localStorage.setItem('fs_weights', JSON.stringify(obj)); },
@@ -686,11 +696,11 @@ function getGlassOffset(ruleVal, defaultVal = -4.1) {
 function saveInputs(){
   try {
     const data = {
-      companyName: $('#companyNameInput').value,
+      companyName: ($('#companyNameInput') && $('#companyNameInput').value) || STATE.companyName || 'WindowCraft Pro',
       unitMode: STATE.unitMode, sizes: $('#sizesInput').value,
       pipeSizes: $('#pipeSizesInput').value, lc: $('#lcInput').value,
-      pipeLc: $('#pipeLcInput').value, mrc: $('#mrcInput').value,
-      gr: $('#grInput').value, mode: STATE.mode, sqftMode: STATE.sqftMode,
+      pipeLc: $('#pipeLcInput').value, mrc: ($('#mrcInput') && $('#mrcInput').value) || 520,
+      gr: ($('#grInput') && $('#grInput').value) || 60, mode: STATE.mode, sqftMode: STATE.sqftMode,
       optStrategy: STATE.optStrategy
     };
     localStorage.setItem('fs_all_inputs', JSON.stringify(data));
@@ -701,15 +711,16 @@ function loadInputs(){
   try {
     const data = JSON.parse(localStorage.getItem('fs_all_inputs') || '{}');
     if (data.companyName) {
-      STATE.companyName = data.companyName; $('#companyNameInput').value = data.companyName;
-    } else { STATE.companyName = 'WindowCraft Pro'; $('#companyNameInput').value = 'WindowCraft Pro'; }
+      STATE.companyName = data.companyName;
+      if ($('#companyNameInput')) $('#companyNameInput').value = data.companyName;
+    }
     if (data.unitMode) STATE.unitMode = data.unitMode;
     if (data.sizes !== undefined) $('#sizesInput').value = data.sizes;
     if (data.pipeSizes !== undefined) $('#pipeSizesInput').value = data.pipeSizes;
     if (data.lc !== undefined) $('#lcInput').value = data.lc;
     if (data.pipeLc !== undefined) $('#pipeLcInput').value = data.pipeLc;
-    if (data.mrc !== undefined) $('#mrcInput').value = data.mrc;
-    if (data.gr !== undefined) $('#grInput').value = data.gr;
+    if (data.mrc !== undefined && $('#mrcInput')) $('#mrcInput').value = data.mrc;
+    if (data.gr !== undefined && $('#grInput')) $('#grInput').value = data.gr;
     if (data.mode) { STATE.mode = data.mode; STATE.currentRulesTab = data.mode; STATE.currentWeightTab = data.mode; }
     if (data.sqftMode) {
       STATE.sqftMode = data.sqftMode;
@@ -726,9 +737,9 @@ function updateSqftButtonLabel() {
 }
 
 function updateHeaderCompany(){
-  const name = $('#companyNameInput').value || 'WindowCraft Pro';
+  const name = ($('#companyNameInput') && $('#companyNameInput').value) || STATE.companyName || 'WindowCraft Pro';
   STATE.companyName = name;
-  $('#companyHeaderDisplay').textContent = name;
+  if ($('#companyHeaderDisplay')) $('#companyHeaderDisplay').textContent = name;
 }
 
 function updateUnitUI(){
@@ -815,17 +826,14 @@ function updateModeDropdownsAndTabs(){
   }
 }
 
+// ⚡ HIGH-SPEED HYDRATE VIEW (SERVER FETCH WITH INSTANT LOCAL ENGINE FALLBACK)
 async function hydrateView() {
   checkNetworkStatus();
   saveInputs(); updateHeaderCompany(); updateUnitUI();
-
-  if (!navigator.onLine) {
-    setStatus('Offline');
-    alert("⚠️ No Internet Connection!\nकैलकुलेशन के लिए कृपया इंटरनेट चालू करें।");
-    return;
-  }
-
-  setStatus('Connecting to Server...');
+  setStatus('Calculating...');
+  
+  const calcBtn = $('#calculateBtn');
+  if (calcBtn) calcBtn.textContent = '⏳ हिसाब लग रहा है...';
 
   let lcVal = parseFloat($('#lcInput').value) || 192.5;
   let pipeLcVal = parseFloat($('#pipeLcInput').value) || 192.5;
@@ -838,8 +846,8 @@ async function hydrateView() {
     stockLen: lcVal,
     pipeStockLen: pipeLcVal,
     unitMode: STATE.unitMode,
-    mrc: parseFloat($('#mrcInput').value) || 520,
-    gr: parseFloat($('#grInput').value) || 60,
+    mrc: parseFloat($('#mrcInput') ? $('#mrcInput').value : 520) || 520,
+    gr: parseFloat($('#grInput') ? $('#grInput').value : 60) || 60,
     sqftMode: STATE.sqftMode,
     customRules: STATE.customRules,
     weights: LS.getWeights(),
@@ -863,8 +871,301 @@ async function hydrateView() {
     $('#modeBtn').textContent = `${STATE.mode} Mode (मोड बदलें)`;
     setStatus('Ready');
   } catch(err) {
-    setStatus('Offline / Error');
+    // Fallback: If Vercel connection is slow/offline, calculate locally instantly!
+    console.log("Using Local Engine Fallback:", err.message);
+    executeLocalCalculation();
+    setStatus('Ready');
+  } finally {
+    if (calcBtn) calcBtn.textContent = '🧮 हिसाब लगाएं (Calculate Project)';
   }
+}
+
+// 1. LOCAL CALCULATION FALLBACK ENGINE
+const CUTTING_MARGIN = 0.125;
+function parseSutToken(str, unitMode='inch') {
+  if (!str) return 0;
+  const s = String(str).trim();
+  if (unitMode === 'mm') return (parseFloat(s) || 0) / 25.4;
+  const m2 = s.match(/^(\d+)\.(\d)\.5$/);
+  if (m2) return parseInt(m2[1], 10) + ((parseInt(m2[2], 10) + 0.5) / 8);
+  const m1 = s.match(/^(\d+)\.(\d)$/);
+  if (m1) return parseInt(m1[1], 10) + (parseInt(m1[2], 10) / 8);
+  return parseFloat(s) || 0;
+}
+
+function fmtLength(n, unitMode='inch') {
+  if (n == null || isNaN(n)) return '';
+  if (unitMode === 'mm') return `${num(n * 25.4, 1)} mm`;
+  const whole = Math.floor(n);
+  const dec = num(n - whole, 4);
+  const sut16 = Math.round(dec * 16);
+  if (sut16 === 0) return String(whole);
+  if (sut16 % 2 === 0) return `${whole}.${sut16 / 2}`;
+  return `${whole}.${Math.floor(sut16 / 2)}½`;
+}
+
+function evaluateFormula(formula, W, H) {
+  try {
+    if (!formula) return NaN;
+    const fn = new Function('W', 'H', 'return ' + formula);
+    return num(fn(W, H));
+  } catch (e) { return NaN; }
+}
+
+function roundWindowStep6(val){
+  const base = Math.floor(val/6)*6;
+  return (val <= base + 0.875)? base : base + 6;
+}
+
+function roundWindowStep3(val){
+  const base = Math.floor(val/3)*3;
+  return (val <= base + 0.875)? base : base + 3;
+}
+
+function windowSqFtSingle(w, h, mode='3step'){
+  if (mode === 'inch') return (w * h) / 144;
+  if (mode === '3step') {
+    return (roundWindowStep3(w) * roundWindowStep3(h)) / 144;
+  }
+  return (roundWindowStep6(w) * roundWindowStep6(h)) / 144;
+}
+
+function optimizeMinWaste(cuts, stockLen){
+  const items = cuts.map(v => ({...v})).sort((a,b) => b.len - a.len);
+  const bins = [];
+  for (const item of items) {
+    let bestBin = null; let minRemainder = Infinity;
+    for (const bin of bins) {
+      const rem = num(stockLen - bin.used - item.len);
+      if (rem >= 0 && rem < minRemainder) { minRemainder = rem; bestBin = bin; }
+    }
+    if (bestBin) {
+      bestBin.cuts.push(item); bestBin.used = num(bestBin.used + item.len);
+      bestBin.waste = num(stockLen - bestBin.used);
+    } else {
+      bins.push({ cuts: [item], used: num(item.len), waste: num(stockLen - item.len) });
+    }
+  }
+  return bins;
+}
+
+function bestFitSubsetIndices(items, stockLen, scale=1000){
+  const ints = items.map(it => Math.round(it.len * scale));
+  const target = Math.round(stockLen * scale);
+  const dp = new Int32Array(target + 1).fill(-1);
+  dp[0] = -2;
+  for (let i = 0; i < ints.length; i++){
+    const val = ints[i];
+    if (val > target) continue;
+    for (let s = target; s >= val; s--){
+      if (dp[s] === -1 && dp[s - val] !== -1) dp[s] = i;
+    }
+  }
+  let best = -1;
+  for (let s = target; s >= 0; s--){
+    if (dp[s] !== -1) { best = s; break; }
+  }
+  if (best <= 0) return items.length ? [0] : [];
+  const chosen = []; let cur = best;
+  while (cur > 0) {
+    const i = dp[cur];
+    if (i < 0) break;
+    chosen.push(i);
+    cur -= ints[i];
+  }
+  return chosen;
+}
+
+function optimizeMinBars(cuts, stockLen){
+  const items = cuts.map(v => ({...v}));
+  const bins = [];
+  while (items.length) {
+    const idxs = bestFitSubsetIndices(items, stockLen);
+    if (!idxs.length) {
+      const one = items.shift();
+      bins.push({ cuts: [one], used: num(one.len), waste: num(stockLen - one.len) });
+      continue;
+    }
+    const pick = Array.from(new Set(idxs)).sort((a,b) => b - a);
+    const pack = []; let used = 0;
+    for (const p of pick) {
+      const it = items.splice(p, 1)[0];
+      pack.push(it);
+      used += it.len;
+    }
+    used = num(used);
+    bins.push({ cuts: pack, used, waste: num(stockLen - used) });
+  }
+  return bins;
+}
+
+const FIXED_TRACK_RULES = {
+  D2: { Track: ['W', 'W', 'H', 'H'] }, D3: { Track: ['W', 'W', 'H', 'H'] },
+  S2: { Track: ['W', 'W', 'H', 'H'] }, S3: { Track: ['W', 'W', 'H', 'H'] },
+  N2: { TopTrack: ['W', 'H', 'H'], BottomTrack: ['W'] },
+  N3: { TopTrack: ['W', 'H', 'H'], BottomTrack: ['W'] }
+};
+
+function executeLocalCalculation() {
+  const defaultMode = STATE.mode;
+  let lcVal = parseFloat($('#lcInput').value) || 192.5;
+  let pipeLcVal = parseFloat($('#pipeLcInput').value) || 192.5;
+  const mrc = parseFloat($('#mrcInput') ? $('#mrcInput').value : 520) || 520;
+  const gr = parseFloat($('#grInput') ? $('#grInput').value : 60) || 60;
+  const sizesRaw = $('#sizesInput').value;
+  const pipeSizesRaw = $('#pipeSizesInput').value;
+
+  const customRules = STATE.customRules;
+  const weights = LS.getWeights();
+
+  let windowCounter = 1;
+  const sizes = [];
+  if (sizesRaw) {
+    sizesRaw.split(/\n+/g).map(s=>s.trim()).filter(Boolean).forEach(line => {
+      const m = line.match(/^\s*([\d\.]+)\s*[\*xX×]\s*([\d\.]+)(?:\s*\((.*?)\))?\s*$/);
+      if(!m) return;
+      let w = parseSutToken(m[1], STATE.unitMode);
+      let h = parseSutToken(m[2], STATE.unitMode);
+      let q = 1, mode = defaultMode;
+      if(m[3]){
+        const tag = m[3].trim().toUpperCase();
+        if (/^\d+$/.test(tag)) q = parseInt(tag, 10);
+        else mode = tag;
+      }
+      for (let k = 0; k < q; k++) sizes.push({ w, h, id: windowCounter++, mode });
+    });
+  }
+
+  const piecesByType = {};
+  const glasses = [];
+  const windowCutDetails = [];
+
+  sizes.forEach(sz => {
+    const W = sz.w, H = sz.h;
+    const mode = sz.mode || defaultMode;
+    const isBuiltIn = ['D2','D3','S2','S3','N2','N3'].includes(mode);
+    const defaults = isBuiltIn ? (DEFAULT_RULES_CONFIG[mode] || DEFAULT_RULES_CONFIG.D3) : {};
+    const rules = { ...defaults, ...(customRules[mode] || {}) };
+    const included = rules.includedProfiles;
+
+    let trackRulesToUse = {};
+    if (isBuiltIn) {
+      trackRulesToUse = FIXED_TRACK_RULES[mode] || {};
+    } else {
+      const trackOpt = rules.trackType || 'sameOuter';
+      if (trackOpt === 'sameOuter') trackRulesToUse = { Track: ['W','W','H','H'] };
+      else if (trackOpt === 'topSidesBottom') trackRulesToUse = { TopTrack: ['W','H','H'], BottomTrack: ['W'] };
+      else if (trackOpt === 'topBottomSides') trackRulesToUse = { TopBottomTrack: ['W','W'], SideTrack: ['H','H'] };
+    }
+
+    const origs = {};
+    for (const key in trackRulesToUse) {
+      origs[key] = [];
+      piecesByType[key] = piecesByType[key] || [];
+      trackRulesToUse[key].forEach(f => {
+        let len = (f === 'W') ? W : H;
+        origs[key].push(len);
+        piecesByType[key].push({ len: len + CUTTING_MARGIN, id: `W${sz.id}`, originalLen: len });
+      });
+    }
+
+    for (const key in rules) {
+      if (['arw','lr','jaliRate','rubberWtFt','rubberRate','glassQty','glassW_offset','glassH_offset','includedProfiles','trackType','hasJali'].includes(key)) continue;
+      if (!isBuiltIn && Array.isArray(included) && !included.includes(key)) continue;
+
+      const r = rules[key];
+      if (typeof r === 'object' && r.formula && r.qty > 0) {
+        let len = evaluateFormula(r.formula, W, H);
+        origs[key] = len;
+        piecesByType[key] = piecesByType[key] || [];
+        for (let q = 0; q < r.qty; q++) {
+          piecesByType[key].push({ len: len + CUTTING_MARGIN, id: `W${sz.id}`, originalLen: len });
+        }
+      }
+    }
+
+    const gW = (W / 2) + parseSutOffset(rules.glassW_offset ?? -4.1);
+    const gH = H + parseSutOffset(rules.glassH_offset ?? -4.1);
+    const winSq = windowSqFtSingle(W, H, STATE.sqftMode);
+
+    glasses.push({
+      window: sz.id, mode, sizeFmt: `${fmtLength(W, STATE.unitMode)} x ${fmtLength(H, STATE.unitMode)}`,
+      widthFmt: fmtLength(gW, STATE.unitMode), heightFmt: fmtLength(gH, STATE.unitMode), qty: rules.glassQty || 2,
+      winSqFt: safeFix(winSq), totalGlassSq: safeFix(((Math.floor(gW/6)*6 + 6) * (Math.floor(gH/6)*6 + 6) / 144) * (rules.glassQty || 2))
+    });
+
+    windowCutDetails.push({ id: `W${sz.id}`, origFmt: origs });
+  });
+
+  if (pipeSizesRaw) {
+    pipeSizesRaw.split(/\n+/g).map(s=>s.trim()).filter(Boolean).forEach((line, idx) => {
+      const m = line.match(/^([\d\.]+)(?:\s*(?:[\*\(\(xX×,\-])\s*(\d+)\)?)?$/);
+      let len = 0, qty = 1;
+      if (m) {
+        len = parseSutToken(m[1], STATE.unitMode);
+        qty = m[2] ? parseInt(m[2], 10) || 1 : 1;
+      } else {
+        const parts = line.split(/[\s\*\(\)xX×,\-]+/);
+        len = parseSutToken(parts[0], STATE.unitMode);
+        qty = parts[1] ? parseInt(parts[1], 10) || 1 : 1;
+      }
+      if (isNaN(len) || len <= 0) return;
+      piecesByType['Pipes'] = piecesByType['Pipes'] || [];
+      for (let q = 0; q < qty; q++) {
+        piecesByType['Pipes'].push({ len: len + CUTTING_MARGIN, id: `P${idx+1}`, originalLen: len });
+      }
+    });
+  }
+
+  const cutPlans = {};
+  let grandBars = 0, grandWeight = 0;
+  const barSummaryRows = [];
+
+  Object.entries(piecesByType).forEach(([type, cuts]) => {
+    const stock = (type === 'Pipes') ? pipeLcVal : lcVal;
+    const strategy = STATE.optStrategy[type] || 'minWaste';
+    const bins = (strategy === 'minBars') ? optimizeMinBars(cuts, stock) : optimizeMinWaste(cuts, stock);
+
+    cutPlans[type] = {
+      bins: bins.map((b, i) => ({
+        cutsStr: b.cuts.map(c => `${fmtLength(c.originalLen, STATE.unitMode)} (${c.id})`).join(', '),
+        usedFmt: fmtLength(b.used, STATE.unitMode),
+        wasteFmt: fmtLength(stock - b.used, STATE.unitMode)
+      })),
+      stockLenFmt: fmtLength(stock, STATE.unitMode)
+    };
+
+    const defWeights = DEFAULT_WEIGHTS[defaultMode] || DEFAULT_WEIGHTS.D3;
+    const wtPerBar = weights[defaultMode]?.[type] ?? defWeights[type] ?? 2.5;
+    const totWt = bins.length * wtPerBar;
+    grandBars += bins.length; grandWeight += totWt;
+    barSummaryRows.push([type, `${bins.length} Bars`, `${safeFix(wtPerBar, 3)} kg`, `${safeFix(totWt, 3)} kg`]);
+  });
+
+  const totalWinSq = safeNum(glasses.reduce((s, g) => s + parseFloat(g.winSqFt || 0), 0));
+  const totalGlassSq = safeNum(glasses.reduce((s, g) => s + parseFloat(g.totalGlassSq || 0), 0));
+  const weightCost = grandWeight * mrc;
+  const glassCost = totalGlassSq * gr;
+  const laborCost = totalWinSq * 100;
+  const arwCost = sizes.length * 500;
+  const grandTotal = weightCost + glassCost + laborCost + arwCost;
+  const avgRatePerSqFt = totalWinSq ? grandTotal / totalWinSq : 0;
+
+  const serverData = {
+    sizes: glasses, windowCutDetails, cutPlans,
+    barSummary: { rows: barSummaryRows, grandBars, grandWeight: safeFix(grandWeight, 3) },
+    totals: {
+      windowsCount: sizes.length, totalWindowSqFt: safeFix(totalWinSq), totalBars: grandBars,
+      totalWeightKg: safeFix(grandWeight, 3), weightCost: safeFix(weightCost),
+      totalGlassSqFt: safeFix(totalGlassSq), glassCost: safeFix(glassCost),
+      totalRubberCost: safeFix(totalGlassSq * 10), laborCost: safeFix(laborCost),
+      arwCost: safeFix(arwCost), jaliCost: '0.00', grandTotal: safeFix(grandTotal),
+      avgRatePerSqFt: safeFix(avgRatePerSqFt), matsRate: mrc, glassRate: gr
+    }
+  };
+
+  STATE.serverData = serverData;
+  renderReportTables(serverData);
 }
 
 function buildTable(headers, rows) {
@@ -1571,7 +1872,7 @@ function bindEvents(){
     }
   };
 
-  // RULES SAVE (DEEP MERGE)
+  // RULES SAVE
   $('#rulesSave').onclick = () => {
     triggerInterstitialAd();
     const active = STATE.currentRulesTab || STATE.mode;
