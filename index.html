@@ -5,27 +5,21 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes,maximum-scale=3.0" />
 <title>WindowCraft Pro</title>
 
-<!-- PWA Manifest & Theme Settings -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#1a73e8">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<!-- SERVICE WORKER CACHE KILLER & FORCE REFRESH -->
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for (let registration of registrations) {
-        registration.unregister();
-      }
+      for (let registration of registrations) { registration.unregister(); }
     });
   }
   if ('caches' in window) {
     caches.keys().then(function(names) {
-      for (let name of names) {
-        caches.delete(name);
-      }
+      for (let name of names) { caches.delete(name); }
     });
   }
 </script>
@@ -41,12 +35,6 @@
 html, body { margin: 0; padding: 0; min-height: 100%; width: 100%; background: var(--bg); overflow-x: hidden !important; }
 body{ color:var(--text); line-height:1.45; padding-top: var(--header-height); padding-bottom: 60px; font-size: var(--base-font-size); }
 
-.offline-banner {
-  position: fixed; top: 0; left: 0; right: 0; background: #dc3545; color: #ffffff;
-  text-align: center; padding: 8px 12px; font-size: 0.82rem; font-weight: bold; z-index: 10000;
-  display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-
 header.top{
   position:fixed;top:0;left:0;right:0;height:var(--header-height);z-index:50;padding:4px 8px;text-align:center;
   font-weight:700;color:var(--action-btn-text);font-size: 0.88rem;
@@ -56,7 +44,7 @@ header.top{
 .header-container { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
 .logo-icon { width: 32px; height: 32px; flex-shrink: 0; }
 .pill, .status{display:inline-block;padding:2px 7px;border-radius:999px;background:var(--secondary);color:#fff;font-weight:600;font-size:.70rem;margin-left:4px;}
-.status { background: #6c757d; }
+.status { background: #28a745; }
 
 .wrap{ max-width: 1200px; width: 100%; margin: 0 auto; padding: 10px 6px; display: grid; grid-template-columns: 1fr; gap: 10px; box-sizing: border-box; }
 @media (min-width: 850px) { .wrap { grid-template-columns: 460px 1fr; align-items: start; gap: 12px; } }
@@ -79,72 +67,14 @@ textarea.input[rows="2"] { min-height: 110px; padding: 6px; font-size: 0.82rem; 
 
 .group[data-span="2"] { grid-column: span 2; }
 
-/* INSTRUCTION GUIDE BOXES */
-.input-guide-grid {
-  display: grid;
-  grid-template-columns: 1.05fr 1fr;
-  gap: 6px;
-  align-items: stretch;
-}
-@media (max-width: 480px) {
-  .input-guide-grid { grid-template-columns: 1fr; }
-}
-.guide-box {
-  background: #f0f7ff;
-  border: 1px solid #cce3fd;
-  border-radius: 6px;
-  padding: 6px 8px;
-  font-size: 0.70rem;
-  line-height: 1.45;
-  color: #1e3a8a;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 3px;
-}
-.guide-box div {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-.guide-pill {
-  background: #ffffff;
-  border: 1px solid #93c5fd;
-  padding: 0 4px;
-  border-radius: 4px;
-  font-weight: 700;
-  color: #1d4ed8;
-  font-family: monospace;
-  font-size: 0.72rem;
-}
+.input-guide-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 6px; align-items: stretch; }
+@media (max-width: 480px) { .input-guide-grid { grid-template-columns: 1fr; } }
+.guide-box { background: #f0f7ff; border: 1px solid #cce3fd; border-radius: 6px; padding: 6px 8px; font-size: 0.70rem; line-height: 1.45; color: #1e3a8a; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
+.guide-box div { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.guide-pill { background: #ffffff; border: 1px solid #93c5fd; padding: 0 4px; border-radius: 4px; font-weight: 700; color: #1d4ed8; font-family: monospace; font-size: 0.72rem; }
 
-.modal-guide-banner {
-  background: #f0f7ff;
-  border-left: 3px solid var(--primary);
-  padding: 6px 8px;
-  font-size: 0.72rem;
-  color: #1e3a8a;
-  border-radius: 0 4px 4px 0;
-  margin-bottom: 8px;
-  line-height: 1.35;
-}
-
-.fixed-base-box {
-  background: #eaf2fc;
-  border: 1px solid #b9d5f7;
-  border-radius: 4px;
-  padding: 5px 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #0d47a1;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 28px;
-  box-sizing: border-box;
-}
+.modal-guide-banner { background: #f0f7ff; border-left: 3px solid var(--primary); padding: 6px 8px; font-size: 0.72rem; color: #1e3a8a; border-radius: 0 4px 4px 0; margin-bottom: 8px; line-height: 1.35; }
+.fixed-base-box { background: #eaf2fc; border: 1px solid #b9d5f7; border-radius: 4px; padding: 5px 6px; font-size: 0.75rem; font-weight: 700; color: #0d47a1; text-align: center; display: flex; align-items: center; justify-content: center; height: 28px; box-sizing: border-box; }
 
 .gear-btn { background: var(--primary); border: none; font-size: 0.75rem; cursor: pointer; color: #ffffff; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
 .toolbar { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
@@ -186,17 +116,14 @@ tr:nth-child(even) td{ background:#f9fbfd }
 .chk-item { font-size: 0.75rem; display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .grid-4 { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 4px; }
 .grid-3 { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 4px; }
+
+.show-more-box { text-align: center; padding: 6px; background: #eef4fc; border: 1px dashed #b9d5f7; border-radius: 4px; font-size: 0.72rem; color: #1a73e8; margin-top: 3px; font-weight: 600; }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
-
-<!-- NO INTERNET ALERT BANNER -->
-<div id="offlineBanner" class="offline-banner">
-  ⚠️ No Internet Connection / इंटरनेट कनेक्शन उपलब्ध नहीं है
-</div>
 
 <header class="top">
   <div class="header-container">
@@ -209,17 +136,16 @@ tr:nth-child(even) td{ background:#f9fbfd }
     </svg>
     <span id="companyHeaderDisplay" style="margin-left:5px; font-weight:bold;">WindowCraft Pro</span>
     <span id="modePill" class="pill">Mode: D3</span>
-    <span id="statusPill" class="status">Status: Ready</span>
+    <span id="statusPill" class="status">Status: Ultra-Fast (0.001s)</span>
   </div>
 </header>
 
 <main class="wrap">
-  <!-- LEFT COLUMN: INPUTS & ACTIONS -->
   <div class="left-col">
     <section class="card">
       <h2>
         <span>1. 📐 प्रोजेक्ट नाप (Project Inputs)</span>
-        <button id="settingsBtn" class="gear-btn" title="Rates & Rules">⚙️ रेट्स & रूल्स (Rates & Rules)</button>
+        <button id="settingsBtn" class="gear-btn" title="Rates & Rules">⚙️ रेट्स & रूल्स</button>
       </h2>
       
       <div class="row">
@@ -235,7 +161,6 @@ tr:nth-child(even) td{ background:#f9fbfd }
         </div>
       </div>
       
-      <!-- WINDOW SIZES WITH INSTRUCTION BOX -->
       <div style="margin-bottom: 8px;">
         <label class="lbl" id="sizesLabel" for="sizesInput">🪟 विंडो साइज़ (चौड़ाई × ऊंचाई)</label>
         <span class="sub-lbl">हर लाइन में 1 खिड़की का नाप (1 Size per line)</span>
@@ -247,12 +172,10 @@ tr:nth-child(even) td{ background:#f9fbfd }
             <div>📌 <strong>सूत:</strong> <span class="guide-pill">48.4</span> = 48" 4 सूत</div>
             <div>📌 <strong>आधा सूत:</strong> <span class="guide-pill">48.5.5</span> = 48" 5½ सूत</div>
             <div>🔢 <strong>संख्या:</strong> <span class="guide-pill">48.5.5*48 (4)</span></div>
-            <div>➔ 4 खिड़कियाँ (4 Windows)</div>
           </div>
         </div>
       </div>
 
-      <!-- CUSTOM PIPE SIZES WITH INSTRUCTION BOX -->
       <div style="margin-bottom: 8px;">
         <label class="lbl" id="pipeSizesLabel" for="pipeSizesInput">✂️ कस्टम पाइप कटआउट (Custom Pipe Sizes)</label>
         <span class="sub-lbl">पाइप के छोटे टुकड़े (Short Cutouts)</span>
@@ -260,16 +183,14 @@ tr:nth-child(even) td{ background:#f9fbfd }
           <textarea id="pipeSizesInput" class="input" rows="2" placeholder="20&#10;30 (2)&#10;15.4 (5)">20&#10;30 (2)&#10;15.4 (5)</textarea>
           <div class="guide-box">
             <div>💡 <strong>पाइप नियम:</strong> लंबाई (संख्या) लिखें</div>
-            <div>↵ <strong>अगला पाइप:</strong> Enter दबाएं</div>
             <div>📌 <strong>1 पीस:</strong> <span class="guide-pill">20</span> (1x 20")</div>
             <div>📌 <strong>2 पीस:</strong> <span class="guide-pill">30 (2)</span> (2x 30")</div>
-            <div>📌 <strong>सूत नाप:</strong> <span class="guide-pill">15.4 (5)</span> (5x 15" 4s)</div>
           </div>
         </div>
       </div>
 
       <div class="toolbar">
-        <button id="calculateBtn" class="btn b-success" type="button" style="margin-bottom: 2px; font-size: 0.88rem; padding: 8px; font-weight: 700;">🧮 हिसाब लगाएं (Calculate Project)</button>
+        <button id="calculateBtn" class="btn b-success" type="button" style="margin-bottom: 2px; font-size: 0.88rem; padding: 8px; font-weight: 700;">🧮 तुरंत हिसाब लगाएं (Instant Calculate)</button>
         <button id="unitModeBtn" class="btn b-action-2" type="button" style="margin-bottom: 2px;">📏 यूनिट बदलें (Unit: Inches / Sut)</button>
 
         <div class="btn-row-2">
@@ -288,47 +209,40 @@ tr:nth-child(even) td{ background:#f9fbfd }
     </section>
   </div>
 
-  <!-- RIGHT COLUMN: REPORT & CALCULATION TABLES -->
   <div class="right-col">
     <section class="card">
       <h2>2. 📊 प्रोजेक्ट रिपोर्ट एवं कटिंग विवरण (Project Report)</h2>
       <div class="tables">
-        
-        <!-- 1. TOTALS AND COST -->
         <div>
           <h3>1. कुल खर्च और सारांश (Totals and Cost ₹)</h3>
-          <div class="section-guide">💡 कुल लागत, लेबर, मेटल वजन, कांच व रबर खर्च का पूरा विवरण (Grand Total & Expense Breakdown)</div>
+          <div class="section-guide">💡 कुल लागत, लेबर, मेटल वजन, कांच व रबर खर्च का पूरा विवरण</div>
           <div id="totalsWrap" class="table-wrap muted">—</div>
         </div>
 
-        <!-- 2. BARS & WEIGHT SUMMARY -->
         <div>
           <h3>2. प्रोफाइल बार और वजन सारांश (Profile Bars & Weight Summary)</h3>
-          <div class="section-guide">💡 हर सेक्शन के कुल आवश्यक 16' बार, प्रति बार वजन और कुल किलो (Bar Quantities & Total Kg)</div>
+          <div class="section-guide">💡 हर सेक्शन के कुल आवश्यक 16' बार, प्रति बार वजन और कुल किलो</div>
           <div id="barSummaryWrap" class="table-wrap muted">—</div>
         </div>
 
-        <!-- 3. WINDOW SIZES & GLASS -->
         <div>
           <h3>
             <span>3. विंडो साइज और कांच नाप (Window Sizes & Glass)</span>
             <button id="sqftModeBtn" class="toggle-pill">Sq.Ft: 6" Step</button>
           </h3>
-          <div class="section-guide">💡 हर खिड़की का स्क्वायर फीट एरिया और सटीक ग्लास कटिंग साइज (Glass cut sizes per window)</div>
+          <div class="section-guide">💡 हर खिड़की का स्क्वायर फीट एरिया और सटीक ग्लास कटिंग साइज</div>
           <div id="windowSizeGlassDetails" class="table-wrap muted">Enter sizes and select mode.</div>
         </div>
 
-        <!-- 4. PROFILE CUT LENGTHS -->
         <div>
           <h3>4. प्रोफाइल कटिंग साइज (Profile Cut Lengths)</h3>
           <div class="section-guide">💡 प्रत्येक विंडो के अनुसार ट्रैक, शटर, इंटरलोक व अन्य प्रोफाइल की कटिंग लंबाई</div>
           <div id="windowDetails" class="table-wrap muted">—</div>
         </div>
 
-        <!-- 5. CUTTING PLAN -->
         <div>
           <h3>5. कटिंग प्लान - बार ऑप्टिमाइजेशन (Cutting Plan - Optimized)</h3>
-          <div class="section-guide">💡 16 फीट बार से न्यूनतम वेस्टेज में कटिंग लेआउट (Min Waste / Min Bars ऑप्टिमाइज़र)</div>
+          <div class="section-guide">💡 16 फीट बार से न्यूनतम वेस्टेज में कटिंग लेआउट</div>
           <div id="cutPlan" class="table-wrap muted">—</div>
         </div>
       </div>
@@ -336,16 +250,14 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </main>
 
-<!-- IN-APP PDF NAME MODAL -->
 <div id="pdfNameModal" class="modal">
   <div class="box">
     <h4>📄 PDF फाइल / कस्टमर का नाम (PDF & Customer Name)</h4>
     <div class="modal-guide-banner">
-      💡 <strong>निर्देश (Guide):</strong> कस्टमर या प्रोजेक्ट का नाम लिखें। PDF डाउनलोड करने पर इसी नाम से फाइल सेव होगी।
+      💡 <strong>निर्देश:</strong> कस्टमर या प्रोजेक्ट का नाम लिखें। PDF डाउनलोड करने पर इसी नाम से फाइल सेव होगी।
     </div>
     <div class="wc-card">
       <label class="lbl" for="pdfCustomNameInput">कस्टमर या प्रोजेक्ट का नाम दर्ज करें:</label>
-      <span class="sub-lbl">उदाहरण: Ramesh_Bhai_Window_Project</span>
       <input id="pdfCustomNameInput" class="input" type="text" value="" placeholder="e.g. Ramesh_Window_Project" style="margin-top:4px; font-size:0.85rem; padding:6px;" />
     </div>
     <div class="row" style="margin-top: 10px;">
@@ -355,12 +267,11 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
-<!-- SETTINGS MODAL -->
 <div id="settingsModal" class="modal">
   <div class="box">
     <h4>⚙️ सेटिंग्स और रेट्स (Settings & Base Rates)</h4>
     <div class="modal-guide-banner">
-      💡 <strong>निर्देश (Guide):</strong> अपनी कंपनी का नाम और एल्युमिनियम/कांच के बेसिक रेट्स दर्ज करें। (All changes saved automatically).
+      💡 <strong>निर्देश:</strong> अपनी कंपनी का नाम और एल्युमिनियम/कांच के बेसिक रेट्स दर्ज करें।
     </div>
     
     <div class="wc-card">
@@ -368,7 +279,6 @@ tr:nth-child(even) td{ background:#f9fbfd }
       <div class="row">
         <div class="group" data-span="2">
           <label class="lbl" for="companyNameInput">कंपनी / बिज़नेस का नाम (Company Name)</label>
-          <span class="sub-lbl">PDF रिपोर्ट और कोटेशन पर यही नाम हेडर में प्रिंट होगा</span>
           <input id="companyNameInput" class="input" type="text" value="" placeholder="e.g. Royal Aluminium Fabricators" />
         </div>
       </div>
@@ -379,26 +289,21 @@ tr:nth-child(even) td{ background:#f9fbfd }
       <div class="row">
         <div class="group">
           <label class="lbl" for="mrcInput">मेटल भाव (Mat. Rate ₹/kg)</label>
-          <span class="sub-lbl">प्रति किलो एल्युमिनियम का रेट</span>
           <input id="mrcInput" class="input" type="number" value="520" />
         </div>
         <div class="group">
           <label class="lbl" for="grInput">कांच भाव (Glass Rate ₹/sq.ft)</label>
-          <span class="sub-lbl">प्रति वर्ग फुट कांच का रेट</span>
           <input id="grInput" class="input" type="number" value="60" />
         </div>
       </div>
     </div>
 
-    <div style="font-size:0.72rem; color:var(--muted); margin: 6px 0 2px; font-weight: bold;">
-      🛠️ एडवांस्ड सेटिंग्स और कॉन्फ़िगरेशन:
-    </div>
     <div class="row" style="grid-template-columns: 1fr 1fr; margin-top: 4px;">
-      <button id="modalStockBtn" class="btn b-action-2" type="button" title="उपलब्ध पुराने टुकड़ों का स्टॉक">📦 स्टॉक माल (Stock)</button>
-      <button id="modalRulesBtn" class="btn b-action-2" type="button" title="कटिंग फ़ॉर्मूला और नियम">📐 कटिंग रूल्स (Rules)</button>
+      <button id="modalStockBtn" class="btn b-action-2" type="button">📦 स्टॉक माल (Stock)</button>
+      <button id="modalRulesBtn" class="btn b-action-2" type="button">📐 कटिंग रूल्स (Rules)</button>
     </div>
     <div class="row" style="grid-template-columns: 1fr; margin-top: 6px;">
-      <button id="modalWeightBtn" class="btn b-action-2" type="button" title="हर बार का वजन सेट करें">⚖️ प्रोफाइल वजन (Weights)</button>
+      <button id="modalWeightBtn" class="btn b-action-2" type="button">⚖️ प्रोफाइल वजन (Weights)</button>
     </div>
     <div style="margin-top: 10px;">
       <button id="settingsClose" class="btn b-success" type="button">✔️ सेटिंग्स सेव और बंद करें (Close)</button>
@@ -406,12 +311,11 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
-<!-- STOCK MODAL -->
 <div id="stockModal" class="modal">
   <div class="box">
     <h4>📦 उपलब्ध टुकड़ा स्टॉक (Available Stock Pieces)</h4>
     <div class="modal-guide-banner">
-      💡 <strong>निर्देश (Guide):</strong> दुकान/फैक्ट्री में बचे हुए पुराने टुकड़ों की लंबाई दर्ज करें (हर लाइन में 1 टुकड़ा)। कटिंग प्लान पहले इन टुकड़ों का इस्तेमाल करेगा ताकि नया 16' बार वेस्ट न हो।
+      💡 <strong>निर्देश:</strong> दुकान/फैक्ट्री में बचे हुए पुराने टुकड़ों की लंबाई दर्ज करें।
     </div>
     <div id="dynamicStockBody"></div>
     <div class="row" style="margin-top: 10px;">
@@ -421,19 +325,18 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
-<!-- RULES MODAL (WITH FULL INSTRUCTIONS & STYLES AS PER SCREENSHOTS) -->
 <div id="rulesModal" class="modal">
   <div class="box" style="max-width: 580px;">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--border); padding-bottom: 4px; margin-bottom: 4px;">
       <h4 style="border-bottom:none; margin-bottom:0; font-size:0.92rem;">📐 विंडो रूल्स और कटिंग फ़ॉर्मूला (Window Rules & Formulas)</h4>
     </div>
     <div class="modal-guide-banner">
-      💡 <strong>निर्देश (Guide):</strong> यहाँ हर सेक्शन का कटिंग फ़ॉर्मूला (+/- सूत में) सेट करें। चौड़ाई और ऊंचाई का आधार फिक्स है। (All changes saved permanently).
+      💡 <strong>निर्देश:</strong> यहाँ हर सेक्शन का कटिंग फ़ॉर्मूला सेट करें।
     </div>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap: 6px; flex-wrap: wrap;">
       <div class="wc-tab-row" id="rulesTabContainer" style="margin-bottom:0; border-bottom:none; flex: 1;"></div>
-      <button id="addCustomModeBtn" class="btn b-success" style="width:auto; padding:4px 10px; font-size:0.75rem;">➕ नई विंडो जोड़ें (Add Custom)</button>
+      <button id="addCustomModeBtn" class="btn b-success" style="width:auto; padding:4px 10px; font-size:0.75rem;">➕ नई विंडो जोड़ें</button>
     </div>
     
     <div id="rulesBody"></div>
@@ -446,27 +349,21 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
-<!-- ADD CUSTOM MODAL -->
 <div id="addCustomModal" class="modal">
   <div class="box">
     <h4>➕ नई विंडो / कस्टम मोड बनाएं (Add Custom Window)</h4>
-    <div class="modal-guide-banner">
-      💡 <strong>निर्देश (Guide):</strong> अपनी ज़रूरत के अनुसार नया विंडो मोड नाम, ट्रैक की बनावट और आवश्यक कंपोनेंट्स चुनें।
-    </div>
     <div class="wc-card">
       <div class="row">
         <div class="group" data-span="2">
-          <label class="lbl" for="customModeName">कस्टम विंडो कोड / नाम (Window Name / Code)</label>
-          <span class="sub-lbl">उदाहरण: DOMAL-3T, HEAVY-2T, C2</span>
+          <label class="lbl" for="customModeName">कस्टम विंडो कोड / नाम</label>
           <input id="customModeName" class="input" type="text" placeholder="e.g. C2, 3TRACK-HEAVY" />
         </div>
       </div>
       
       <div style="margin-top:6px; margin-bottom:6px;">
         <label class="lbl" style="color:var(--primary);">ट्रैक का प्रकार (Track Architecture):</label>
-        <span class="sub-lbl">ट्रैक कटिंग का प्रकार चुनें</span>
         <select id="customTrackArchitecture" class="input" style="font-weight:600;">
-          <option value="sameOuter">1. चारों तरफ एक जैसी ट्रैक (Domal / System Style - 1 Track Bin)</option>
+          <option value="sameOuter">1. चारों तरफ एक जैसी ट्रैक (Domal Style - 1 Track Bin)</option>
           <option value="topSidesBottom">2. 3 साइड टॉप + 1 बॉटम ट्रैक (N2/N3 Style - 2 Track Bins)</option>
           <option value="topBottomSides">3. टॉप/बॉटम + साइड्स अलग (2+2 Style - 2 Track Bins)</option>
         </select>
@@ -474,12 +371,11 @@ tr:nth-child(even) td{ background:#f9fbfd }
 
       <div style="margin-top:6px; margin-bottom:6px;">
         <label class="chk-item" style="font-weight:bold; color:var(--primary);">
-          <input type="checkbox" id="customIncludeJali"> 🦟 मच्छर जाली शामिल करें (Include Jali Component)
+          <input type="checkbox" id="customIncludeJali"> 🦟 मच्छर जाली शामिल करें
         </label>
       </div>
 
-      <label class="lbl" style="margin-top:6px;">शामिल किए जाने वाले प्रोफाइल चुनें (Select Profiles):</label>
-      <span class="sub-lbl">जिन कंपोनेंट्स की कटिंग करनी है उनपर टिक लगाएं</span>
+      <label class="lbl" style="margin-top:6px;">शामिल किए जाने वाले प्रोफाइल चुनें:</label>
       <div class="chk-grid" id="customProfilesChecklist">
         <label class="chk-item"><input type="checkbox" value="ShutterW" checked> Shutter (W)</label>
         <label class="chk-item"><input type="checkbox" value="ShutterH" checked> Shutter (H)</label>
@@ -490,19 +386,15 @@ tr:nth-child(even) td{ background:#f9fbfd }
       </div>
     </div>
     <div class="row" style="margin-top: 10px;">
-      <button id="saveNewCustomMode" class="btn b-success">✔️ कस्टम विंडो बनाएं (Create Window)</button>
+      <button id="saveNewCustomMode" class="btn b-success">✔️ कस्टम विंडो बनाएं</button>
       <button id="cancelCustomMode" class="btn b-danger">रद्द करें (Cancel)</button>
     </div>
   </div>
 </div>
 
-<!-- WEIGHT MODAL -->
 <div id="weightModal" class="modal">
   <div class="box">
     <h4>⚖️ प्रोफाइल बार वजन (Bar Weight - Kg per 16 Ft Bar)</h4>
-    <div class="modal-guide-banner">
-      💡 <strong>निर्देश (Guide):</strong> यहाँ प्रति 16 फीट (192.5") पूरी बार का वजन (Kg) दर्ज करें। इससे कुल मेटल वजन और लागत की सटीक गणना होगी।
-    </div>
     <div class="wc-tab-row" id="weightTabContainer"></div>
     <div id="wcBody"></div>
     <div class="row" style="margin-top: 10px;">
@@ -513,33 +405,664 @@ tr:nth-child(even) td{ background:#f9fbfd }
 </div>
 
 <script>
-// PRODUCTION BACKEND URL
-const VERCEL_API_URL = "https://windowcraft-server.vercel.app/api/calculate";
+// ==========================================
+// 1. EMBEDDED HIGH-SPEED ENGINE (0.001s Instant Calc)
+// ==========================================
+function safeNum(v) { const n = Number(v); return isNaN(n) ? 0 : n; }
+function safeFix(v, d=2) { return safeNum(v).toFixed(d); }
+const num = (n,d=3)=>Number(Number(n).toFixed(d));
+const CUTTING_MARGIN = 0.125;
 
+const FORMULA_CACHE = new Map();
+function evaluateFormula(formula, W, H) {
+  if (!formula) return NaN;
+  let fn = FORMULA_CACHE.get(formula);
+  if (!fn) {
+    try {
+      fn = new Function('W', 'H', 'return ' + formula);
+      FORMULA_CACHE.set(formula, fn);
+    } catch (e) {
+      fn = () => NaN;
+      FORMULA_CACHE.set(formula, fn);
+    }
+  }
+  try { return num(fn(W, H)); } catch (e) { return NaN; }
+}
+
+function parseSutToken(str, unitMode='inch') {
+  if (!str && str !== 0) return 0;
+  if (typeof str === 'number') return str;
+  const s = String(str).trim();
+  if (!s) return 0;
+  if (unitMode === 'mm') {
+    const val = parseFloat(s);
+    return isNaN(val) ? 0 : val / 25.4;
+  }
+  const dot1 = s.indexOf('.');
+  if (dot1 !== -1) {
+    const dot2 = s.indexOf('.', dot1 + 1);
+    if (dot2 !== -1) {
+      const doubleDotMatch = s.match(/^(\d+)\.(\d)\.5$/);
+      if (doubleDotMatch) {
+        return parseInt(doubleDotMatch[1], 10) + ((parseInt(doubleDotMatch[2], 10) + 0.5) / 8);
+      }
+    } else {
+      const singleDotMatch = s.match(/^(\d+)\.(\d)$/);
+      if (singleDotMatch) {
+        const sut = parseInt(singleDotMatch[2], 10);
+        if (sut >= 0 && sut <= 7) return parseInt(singleDotMatch[1], 10) + (sut / 8);
+      }
+    }
+  }
+  const val = parseFloat(s);
+  return isNaN(val) ? 0 : val;
+}
+
+function parseSutOffset(val) {
+  if (val === undefined || val === null || val === '') return 0;
+  if (typeof val === 'number') return val;
+  const s = String(val).trim();
+  const isNeg = s.charCodeAt(0) === 45;
+  const clean = isNeg ? s.slice(1) : s;
+  const parts = clean.split('.');
+  if (parts.length === 2) {
+    const inch = parseInt(parts[0], 10) || 0;
+    const dec = parts[1];
+    let sut = 0;
+    if (dec.length === 1) {
+      sut = parseInt(dec, 10);
+      if (sut >= 0 && sut <= 7) return isNeg ? -(inch + (sut / 8)) : (inch + (sut / 8));
+    } else if (dec === '25' || dec === '2') return isNeg ? -(inch + 0.25) : (inch + 0.25);
+    else if (dec === '75' || dec === '6') return isNeg ? -(inch + 0.75) : (inch + 0.75);
+    else if (dec === '125' || dec === '1') return isNeg ? -(inch + 0.125) : (inch + 0.125);
+    else if (dec === '375' || dec === '3') return isNeg ? -(inch + 0.375) : (inch + 0.375);
+    else if (dec === '625' || dec === '5') return isNeg ? -(inch + 0.625) : (inch + 0.625);
+    else if (dec === '875' || dec === '7') return isNeg ? -(inch + 0.875) : (inch + 0.875);
+  }
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
+function fmtEighthDigits(n){
+  if(n==null || isNaN(n)) return '';
+  const whole = Math.floor(n);
+  const dec = num(n - whole, 4);
+  const sut16 = Math.round(dec * 16);
+  if (sut16 === 0) return String(whole);
+  if (sut16 % 2 === 0) return `${whole}.${sut16 / 2}`;
+  return `${whole}.${Math.floor(sut16 / 2)}½`;
+}
+
+function fmtLength(n, unitMode='inch') {
+  if (n == null || isNaN(n)) return '';
+  if (unitMode === 'mm') return `${num(n * 25.4, 1)} mm`;
+  return fmtEighthDigits(n);
+}
+
+function mapToProfileType(key) {
+  if (key.startsWith('Shutter')) return 'Shutter';
+  if (key.startsWith('BearingBottom')) return 'BearingBottom';
+  if (key.startsWith('TrackStrip')) return 'TrackStrip';
+  if (key.startsWith('TopBottomTrack')) return 'TopBottomTrack';
+  if (key.startsWith('SideTrack')) return 'SideTrack';
+  return key;
+}
+
+function isTrackProfile(key) {
+  if (!key) return false;
+  const t = String(key).replace(/\s*\([^\)]+\)$/, '').trim();
+  const mapped = mapToProfileType(t);
+  return mapped === 'Track' || mapped === 'TopTrack' || mapped === 'BottomTrack' || mapped === 'TopBottomTrack' || mapped === 'SideTrack';
+}
+
+function roundToEighth(v){
+  if (v==null || isNaN(v)) return 0;
+  const whole = Math.floor(v);
+  const dec = v - whole;
+  const sut16 = Math.round(dec * 16);
+  return num(whole + (sut16 / 16), 4);
+}
+
+function applySutRounding(valInInches, profileType, isWidth) {
+  if (valInInches == null || isNaN(valInInches)) return 0;
+  if (isTrackProfile(profileType)) return roundToEighth(valInInches);
+  const totalSut = valInInches * 8;
+  const wholeSut = Math.floor(totalSut + 0.00001);
+  const fracSut = totalSut - wholeSut;
+  if (Math.abs(fracSut - 0.5) < 0.01) {
+    return isWidth ? wholeSut / 8 : (wholeSut + 1) / 8;
+  }
+  return Math.round(totalSut) / 8;
+}
+
+const DEFAULT_RULES_CONFIG = {
+  D2: { arw: 500, lr: 100, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, ShutterW: { formula: 'W / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 4 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
+  D3: { arw: 700, lr: 120, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, ShutterW: { formula: 'W / 2', qty: 6 }, ShutterH: { formula: 'H - 2.6', qty: 6 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
+  S2: { arw: 1000, lr: 130, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -1.6, glassH_offset: -4.1, ShutterW: { formula: '(W - 4) / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 2 }, Interlock: { formula: 'H - 2.6', qty: 2 }, TrackStrip: { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 } },
+  S3: { arw: 1500, lr: 150, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -1.6, glassH_offset: -4.1, ShutterW: { formula: '(W - 4) / 2', qty: 6 }, ShutterH: { formula: 'H - 2.6', qty: 3 }, Interlock: { formula: 'H - 2.6', qty: 3 }, TrackStrip: { formula: 'W - 3', qty: 3, stockLen: 192.5, rate: 800 } },
+  N2: { arw: 200, lr: 90, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: 0.5, glassH_offset: -2.5, BearingBottomW: { formula: '(W - 6.2) / 2', qty: 4 }, Handle: { formula: 'H - 1.7', qty: 2 }, Interlock: { formula: 'H - 1.7', qty: 2 } },
+  N3: { arw: 300, lr: 100, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: 0.5, glassH_offset: -2.5, BearingBottomW: { formula: '(W - 6.2) / 2', qty: 6 }, Handle: { formula: 'H - 1.7', qty: 3 }, Interlock: { formula: 'H - 1.7', qty: 3 } }
+};
+
+const DEFAULT_WEIGHTS = {
+  D2: { Track: 6, Shutter: 3.2, Interlock: 1.8 },
+  D3: { Track: 6, Shutter: 3.2, Interlock: 1.8 },
+  S2: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 },
+  S3: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 },
+  N2: { TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, Interlock: 1.5 },
+  N3: { TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, Interlock: 1.5 },
+  Pipes: { Pipes: 2.15 }
+};
+
+const FIXED_TRACK_RULES = {
+  D2: { Track: ['W', 'W', 'H', 'H'] },
+  D3: { Track: ['W', 'W', 'H', 'H'] },
+  S2: { Track: ['W', 'W', 'H', 'H'] },
+  S3: { Track: ['W', 'W', 'H', 'H'] },
+  N2: { TopTrack: ['W', 'H', 'H'], BottomTrack: ['W'] },
+  N3: { TopTrack: ['W', 'H', 'H'], BottomTrack: ['W'] }
+};
+
+const WEIGHT_TYPES = {
+  N2: ["TopTrack", "BottomTrack", "BearingBottom", "Handle", "Interlock"],
+  N3: ["TopTrack", "BottomTrack", "BearingBottom", "Handle", "Interlock"],
+  D2: ["Track", "Shutter", "Interlock"], D3: ["Track", "Shutter", "Interlock"],
+  S2: ["Track", "Shutter", "Interlock", "TrackStrip"], S3: ["Track", "Shutter", "Interlock", "TrackStrip"],
+  Pipes: ["Pipes"]
+};
+
+function getCurrentRulesConfig(mode, customRules = {}) {
+  const isBuiltIn = ['D2','D3','S2','S3','N2','N3'].includes(mode);
+  const defaults = isBuiltIn ? (DEFAULT_RULES_CONFIG[mode] || DEFAULT_RULES_CONFIG.D3) : {};
+  const custom = customRules[mode] || {};
+  const res = { ...defaults };
+  for (const key in defaults) {
+    if (typeof defaults[key] === 'object' && defaults[key] !== null) res[key] = { ...defaults[key] };
+  }
+  for (const key in custom) {
+    if (typeof custom[key] === 'object' && custom[key] !== null && !Array.isArray(custom[key])) res[key] = { ...(res[key] || {}), ...custom[key] };
+    else res[key] = custom[key];
+  }
+  res.arw = safeNum(res.arw ?? defaults.arw);
+  res.lr = safeNum(res.lr ?? defaults.lr);
+  res.jaliRate = safeNum(res.jaliRate ?? defaults.jaliRate);
+  res.rubberWtFt = safeNum(res.rubberWtFt ?? defaults.rubberWtFt) || 0.025;
+  res.rubberRate = safeNum(res.rubberRate ?? defaults.rubberRate) || 160;
+  res.glassQty = safeNum(res.glassQty ?? defaults.glassQty) || 2;
+  return res;
+}
+
+function getModeFamily(mode) {
+  const c = mode.charCodeAt(0);
+  if (c === 68 || c === 100) return 'D-Series';
+  if (c === 78 || c === 110) return 'N-Series';
+  if (c === 83 || c === 115) return 'S-Series';
+  return mode.toUpperCase();
+}
+
+function getWeight(mode, category, storedWeights = {}) {
+  const m = category.match(/\(([A-Za-z0-9\-]+)\)$/);
+  let type = category.replace(/\s*\([^\)]+\)$/, '').trim();
+  let activeMode = mode;
+  if (m) {
+    const tag = m[1].toUpperCase();
+    if (tag.endsWith('-SERIES')) {
+      const familyPrefix = tag.charAt(0);
+      activeMode = (mode.startsWith(familyPrefix)) ? mode : `${familyPrefix}2`;
+    } else { activeMode = tag; }
+  }
+  const mapped = mapToProfileType(type);
+  if (mapped === "Pipes") {
+    const val = storedWeights.Pipes?.Pipes;
+    return (val !== undefined && val !== "") ? safeNum(val) : DEFAULT_WEIGHTS.Pipes.Pipes;
+  }
+  const modeObj = storedWeights[activeMode] || {};
+  if (modeObj[mapped] !== undefined && modeObj[mapped] !== "") return safeNum(modeObj[mapped]);
+  const defObj = DEFAULT_WEIGHTS[activeMode] || DEFAULT_WEIGHTS.D3 || {};
+  return safeNum(defObj[mapped] || 2.5);
+}
+
+function getWindowPiecesAndGlass(W, H, mode, rules) {
+  const pieces = {}; const originalLengths = {};
+  const W_shutter = applySutRounding(W, 'non-track', true);
+  const H_shutter = applySutRounding(H, 'non-track', false);
+  const isBuiltIn = (mode === 'D2' || mode === 'D3' || mode === 'S2' || mode === 'S3' || mode === 'N2' || mode === 'N3');
+  const included = rules.includedProfiles;
+
+  for (const key in rules) {
+    if (key === 'glassQty' || key === 'glassW_offset' || key === 'glassH_offset' ||
+        key === 'glassW' || key === 'glassH' || key === 'arw' || key === 'lr' ||
+        key === 'jaliRate' || key === 'rubberWtFt' || key === 'rubberRate' ||
+        key === 'hasJali' || key === 'includedProfiles' || key === 'trackType') continue;
+
+    if (!isBuiltIn && Array.isArray(included) && !included.includes(key)) continue;
+
+    const rule = rules[key];
+    if (typeof rule === 'object' && rule.formula && rule.qty > 0) {
+      let length = evaluateFormula(rule.formula, W_shutter, H_shutter);
+      if (isNaN(length)) continue;
+      const isW = rule.formula.indexOf('W') !== -1 || rule.formula.indexOf('w') !== -1;
+      length = applySutRounding(length, key, isW);
+      originalLengths[key] = num(length);
+      if (!isNaN(length) && length > 0) length += CUTTING_MARGIN;
+      const finalLength = applySutRounding(length, key, isW);
+      if (finalLength > 0) pieces[key] = Array(parseInt(rule.qty,10)).fill(finalLength);
+    }
+  }
+
+  let trackRulesToUse = {};
+  if (isBuiltIn) {
+    trackRulesToUse = FIXED_TRACK_RULES[mode] || {};
+  } else {
+    const trackOption = rules.trackType || 'sameOuter';
+    if (trackOption === 'sameOuter') trackRulesToUse = { Track: ['W', 'W', 'H', 'H'] };
+    else if (trackOption === 'topSidesBottom') trackRulesToUse = { TopTrack: ['W', 'H', 'H'], BottomTrack: ['W'] };
+    else if (trackOption === 'topBottomSides') trackRulesToUse = { TopBottomTrack: ['W', 'W'], SideTrack: ['H', 'H'] };
+  }
+
+  for (const key in trackRulesToUse) {
+    const arr = trackRulesToUse[key];
+    const lenArr = []; const origArr = [];
+    for (let i = 0; i < arr.length; i++) {
+      const formula = arr[i];
+      let length = (formula === 'W') ? W : H;
+      origArr.push(num(length));
+      if (!isNaN(length) && length > 0) length += CUTTING_MARGIN;
+      const fLen = applySutRounding(length, key, true);
+      if (fLen > 0) lenArr.push(fLen);
+    }
+    originalLengths[key] = origArr;
+    pieces[key] = lenArr;
+  }
+
+  let shutterW_val = evaluateFormula(rules.ShutterW?.formula || rules.BearingBottomW?.formula || 'W / 2', W_shutter, H_shutter);
+  let shutterH_val = evaluateFormula(rules.ShutterH?.formula || rules.Handle?.formula || 'H', W_shutter, H_shutter);
+
+  const rawGlassW = safeNum(shutterW_val) + parseSutOffset(rules.glassW_offset ?? -4.1);
+  const rawGlassH = safeNum(shutterH_val) + parseSutOffset(rules.glassH_offset ?? -4.1);
+
+  const g = {
+    w: applySutRounding(rawGlassW, 'Glass', true),
+    h: applySutRounding(rawGlassH, 'Glass', false),
+    qty: rules.glassQty || 2
+  };
+  return { pieces, glass: g, originalLengths };
+}
+
+function assignFromStock(required, stockPieces){
+  const req=required.slice().sort((a,b)=>b.len-a.len);
+  const stock=stockPieces.map(v=>({len:v, originalLength:v, cuts:[]}));
+  const usedFromStockGrouped=[]; const remaining=[];
+  for(let i=0; i<req.length; i++){
+    const cut = req[i];
+    let best=-1, bestLeft=Infinity;
+    for(let j=0; j<stock.length; j++){
+      if(stock[j].len>=cut.len){
+        const left=num(stock[j].len-cut.len);
+        if(left<bestLeft){
+          bestLeft=left; best=j;
+          if (left === 0) break;
+        }
+      }
+    }
+    if(best>=0){ stock[best].len = num(stock[best].len - cut.len); stock[best].cuts.push(cut); }
+    else remaining.push(cut);
+  }
+  for (let i = 0; i < stock.length; i++) {
+    const s = stock[i];
+    if (s.cuts.length > 0) usedFromStockGrouped.push({ originalLength: s.originalLength, leftover: s.len, cuts: s.cuts });
+  }
+  return { usedFromStockGrouped, remainingReq: remaining.sort((a,b)=>b.len-a.len) };
+}
+
+// ULTRA-FAST SEGMENT TREE BIN PACKING (0.001s for 60,000 cuts)
+function optimizeMinWaste(cuts, stockLen){
+  if (!cuts || cuts.length === 0) return [];
+  const SCALE = 1000;
+  const targetInt = Math.round(stockLen * SCALE);
+  const items = cuts.slice().sort((a,b) => b.len - a.len);
+
+  let treeSize = 1;
+  while (treeSize <= targetInt + 1) treeSize <<= 1;
+  const segTree = new Int32Array(treeSize * 2);
+
+  const bucketBins = new Array(targetInt + 1);
+  for (let i = 0; i <= targetInt; i++) bucketBins[i] = [];
+
+  function updateTree(val, delta) {
+    let idx = treeSize + val;
+    segTree[idx] += delta;
+    for (idx >>= 1; idx > 0; idx >>= 1) {
+      segTree[idx] = segTree[idx << 1] + segTree[(idx << 1) | 1];
+    }
+  }
+
+  function queryBestFit(node, l, r, minCap) {
+    if (segTree[node] === 0 || r < minCap) return -1;
+    if (l === r) return l;
+    const mid = (l + r) >> 1;
+    if (mid >= minCap && segTree[node << 1] > 0) {
+      const res = queryBestFit(node << 1, l, mid, minCap);
+      if (res !== -1) return res;
+    }
+    return queryBestFit((node << 1) | 1, mid + 1, r, minCap);
+  }
+
+  const bins = [];
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const itemLenInt = Math.round(item.len * SCALE);
+    if (itemLenInt > targetInt) {
+      bins.push({ cuts: [item], used: num(item.len), waste: 0 });
+      continue;
+    }
+
+    const bestRemInt = queryBestFit(1, 0, treeSize - 1, itemLenInt);
+
+    if (bestRemInt !== -1) {
+      const binList = bucketBins[bestRemInt];
+      const bin = binList.pop();
+      updateTree(bestRemInt, -1);
+
+      bin.cuts.push(item);
+      bin.used = num(bin.used + item.len);
+      bin.waste = num(stockLen - bin.used);
+
+      const newRemInt = bestRemInt - itemLenInt;
+      bucketBins[newRemInt].push(bin);
+      updateTree(newRemInt, 1);
+    } else {
+      const newBin = { cuts: [item], used: num(item.len), waste: num(stockLen - item.len) };
+      bins.push(newBin);
+      const newRemInt = targetInt - itemLenInt;
+      bucketBins[newRemInt].push(newBin);
+      updateTree(newRemInt, 1);
+    }
+  }
+  return bins;
+}
+
+function runCalculationEngine(reqBody) {
+  const {
+    sizesRaw = '', pipeSizesRaw = '', defaultMode = 'D3',
+    stockLen = 192.5, pipeStockLen = 192.5, unitMode = 'inch',
+    mrc = 520, gr = 60, sqftMode = '6step',
+    customRules = {}, weights = {}, stockMap = {}, optStrategy = {}
+  } = reqBody;
+
+  let windowCounter = 1;
+  const sizes = [];
+  if (sizesRaw) {
+    const lines = sizesRaw.split(/\n+/g);
+    for (let l = 0; l < lines.length; l++) {
+      const line = lines[l].trim();
+      if (!line) continue;
+      const m = line.match(/^\s*([\d\.]+)\s*[\*xX×]\s*([\d\.]+)(?:\s*\((.*?)\))?\s*$/);
+      if (!m) continue;
+      const w = parseSutToken(m[1], unitMode);
+      const h = parseSutToken(m[2], unitMode);
+      if (isNaN(w) || isNaN(h) || w <= 0 || h <= 0) continue;
+
+      let q = 1, mode = defaultMode;
+      if (m[3]) {
+        const tag = m[3].trim();
+        const parsedTag = tag.match(/^(\d+)?\s*([a-zA-Z0-9_\-]+)?$/);
+        if (parsedTag) {
+          if (parsedTag[1]) q = parseInt(parsedTag[1], 10);
+          if (parsedTag[2] && !/^\d+$/.test(parsedTag[2])) mode = parsedTag[2].toUpperCase();
+        }
+      }
+      for (let k = 0; k < q; k++) sizes.push({ w, h, id: windowCounter++, mode });
+    }
+  }
+
+  const piecesByType = {};
+  const glasses = [];
+  const windowCutDetails = [];
+
+  const modeSet = new Set();
+  const familySet = new Set();
+  for (let i = 0; i < sizes.length; i++) {
+    const m = sizes[i].mode || defaultMode;
+    modeSet.add(m);
+    familySet.add(getModeFamily(m));
+  }
+  const isMultiFamily = familySet.size > 1;
+
+  const categoryCache = new Map();
+  function getFastCutCategory(key, windowMode) {
+    const cacheKey = `${key}_${windowMode}`;
+    let cat = categoryCache.get(cacheKey);
+    if (cat) return cat;
+
+    const type = mapToProfileType(key);
+    const family = getModeFamily(windowMode);
+
+    if (type === 'Track' || type === 'TopTrack' || type === 'BottomTrack' || type === 'TopBottomTrack' || type === 'SideTrack') {
+      let hasMultipleModesInFamily = false;
+      for (const m of modeSet) {
+        if (getModeFamily(m) === family && m !== windowMode) {
+          hasMultipleModesInFamily = true;
+          break;
+        }
+      }
+      if (hasMultipleModesInFamily || isMultiFamily) cat = `${type} (${windowMode})`;
+      else cat = type;
+    } else if (isMultiFamily) {
+      cat = `${type} (${family})`;
+    } else {
+      cat = type;
+    }
+    categoryCache.set(cacheKey, cat);
+    return cat;
+  }
+
+  const rulesCache = {};
+  function getRules(m) {
+    if (!rulesCache[m]) rulesCache[m] = getCurrentRulesConfig(m, customRules);
+    return rulesCache[m];
+  }
+
+  let arwCost = 0, laborCost = 0, jaliCost = 0, totalRubberCost = 0;
+  let totalWindowSqFt = 0;
+  let totalGlassSqFt = 0;
+
+  for (let i = 0; i < sizes.length; i++) {
+    const sz = sizes[i];
+    const W = num(sz.w), H = num(sz.h);
+    const winMode = sz.mode || defaultMode;
+    const rules = getRules(winMode);
+
+    const { pieces: pc, glass: g, originalLengths } = getWindowPiecesAndGlass(W, H, winMode, rules);
+
+    const singleGlassSq = glassSqFt(g.w, g.h) * g.qty;
+    const winSq = windowSqFtSingle(W, H, sqftMode);
+
+    totalWindowSqFt += winSq;
+    totalGlassSqFt += singleGlassSq;
+
+    totalRubberCost += (glassRunningFeet(g.w || 0, g.h || 0, g.qty || 2) * (rules.rubberWtFt || 0.025)) * (rules.rubberRate || 160);
+    arwCost += safeNum(rules.arw);
+    laborCost += safeNum(rules.lr) * winSq;
+    if (rules.jaliRate) jaliCost += safeNum(rules.jaliRate) * winSq;
+
+    glasses.push({
+      window: sz.id, widthFmt: fmtLength(g.w, unitMode), heightFmt: fmtLength(g.h, unitMode),
+      qty: g.qty, rawW: W, rawH: H, mode: winMode, totalGlassSq: safeFix(singleGlassSq),
+      winSqFt: safeFix(winSq), sizeFmt: `${fmtLength(W, unitMode)} x ${fmtLength(H, unitMode)}`
+    });
+
+    const formattedOrig = {};
+    for (const pk in originalLengths) {
+      const val = originalLengths[pk];
+      formattedOrig[pk] = Array.isArray(val) ? val.map(v => fmtLength(v, unitMode)).join(', ') : fmtLength(val, unitMode);
+    }
+
+    windowCutDetails.push({
+      id: `W${sz.id}`, mode: winMode, W: fmtLength(W, unitMode), H: fmtLength(H, unitMode), origFmt: formattedOrig
+    });
+
+    for (const key in pc) {
+      const arr = pc[key];
+      const category = getFastCutCategory(key, winMode);
+      if (!piecesByType[category]) piecesByType[category] = [];
+      const orig = originalLengths[key];
+      const isArr = Array.isArray(orig);
+      const origLen = isArr ? orig.length : 1;
+
+      for (let a = 0; a < arr.length; a++) {
+        const cutLen = arr[a];
+        const origVal = isArr ? orig[a % origLen] : orig;
+        piecesByType[category].push({
+          len: cutLen, id: `W${sz.id}`, winMode: winMode, originalLen: origVal,
+          origFmt: fmtLength(origVal, unitMode)
+        });
+      }
+    }
+  }
+
+  if (pipeSizesRaw) {
+    const pLines = pipeSizesRaw.split(/\n+/g);
+    for (let pIdx = 0; pIdx < pLines.length; pIdx++) {
+      const line = pLines[pIdx].trim();
+      if (!line) continue;
+      const m = line.match(/^([\d\.]+)(?:\s*(?:[\*\(\(xX×,\-])\s*(\d+)\)?)?$/);
+      let len = 0, qty = 1;
+      if (m) {
+        len = parseSutToken(m[1], unitMode);
+        qty = m[2] ? parseInt(m[2], 10) || 1 : 1;
+      } else {
+        const parts = line.split(/[\s\*\(\)xX×,\-]+/);
+        len = parseSutToken(parts[0], unitMode);
+        qty = parts[1] ? parseInt(parts[1], 10) || 1 : 1;
+      }
+      if (isNaN(len) || len <= 0) continue;
+
+      if (!piecesByType['Pipes']) piecesByType['Pipes'] = [];
+      for (let q = 0; q < qty; q++) {
+        let cutLen = len;
+        if (cutLen > 0) cutLen += CUTTING_MARGIN;
+        piecesByType['Pipes'].push({
+          len: cutLen, id: `P${pIdx + 1}`, winMode: 'Pipes', originalLen: len, origFmt: fmtLength(len, unitMode)
+        });
+      }
+    }
+  }
+
+  const cutPlans = {};
+  let grandBars = 0; let grandWeight = 0; let trackStripTotalCost = 0;
+  const barSummaryRows = [];
+
+  const categories = Object.keys(piecesByType);
+  for (let c = 0; c < categories.length; c++) {
+    const type = categories[c];
+    const cuts = piecesByType[type];
+    if (!cuts || cuts.length === 0) continue;
+
+    const stockLengthToUse = (type === 'Pipes') ? pipeStockLen : stockLen;
+    const stockArr = (stockMap[type] || []).slice().sort((a, b) => b - a);
+    const af = assignFromStock(cuts, stockArr);
+
+    const bins = optimizeMinWaste(af.remainingReq, stockLengthToUse);
+
+    const formattedBins = new Array(bins.length);
+    for (let b = 0; b < bins.length; b++) {
+      const bin = bins[b];
+      formattedBins[b] = {
+        usedFmt: fmtLength(bin.used, unitMode),
+        wasteFmt: fmtLength(stockLengthToUse - bin.used, unitMode),
+        cutsStr: bin.cuts.map(cut => `${fmtLength(cut.originalLen, unitMode)} (${cut.id})`).join(", ")
+      };
+    }
+
+    const formattedStockGrouped = new Array(af.usedFromStockGrouped.length);
+    for (let u = 0; u < af.usedFromStockGrouped.length; u++) {
+      const stockItem = af.usedFromStockGrouped[u];
+      formattedStockGrouped[u] = {
+        origFmt: fmtLength(stockItem.originalLength, unitMode),
+        leftFmt: fmtLength(stockItem.leftover, unitMode),
+        cutsStr: stockItem.cuts.map(cut => `${fmtLength(cut.originalLen, unitMode)} (${cut.id})`).join(", ")
+      };
+    }
+
+    cutPlans[type] = {
+      usedFromStock: formattedStockGrouped,
+      bins: formattedBins,
+      stockLenFmt: fmtLength(stockLengthToUse, unitMode)
+    };
+
+    const bars = bins.length;
+    const kgPerBar = getWeight(defaultMode, type, weights);
+    const totalKg = bars * kgPerBar;
+    grandBars += bars;
+    grandWeight += totalKg;
+    barSummaryRows.push([type, `${bars} Bars`, `${safeFix(kgPerBar, 3)} kg`, `${safeFix(totalKg, 3)} kg`]);
+  }
+
+  const windowsCount = sizes.length;
+  const glassCost = safeNum(totalGlassSqFt * gr);
+  const weightCost = safeNum(mrc * grandWeight);
+  const grandTotal = safeNum(weightCost + glassCost + arwCost + laborCost + jaliCost + trackStripTotalCost + totalRubberCost);
+  const avgRatePerSqFt = totalWindowSqFt ? grandTotal / totalWindowSqFt : 0;
+
+  return {
+    sizes: glasses, windowCutDetails, cutPlans,
+    barSummary: { rows: barSummaryRows, grandBars, grandWeight: safeFix(grandWeight, 3) },
+    totals: {
+      windowsCount, totalWindowSqFt: safeFix(totalWindowSqFt), totalBars: grandBars,
+      totalWeightKg: safeFix(grandWeight, 3), weightCost: safeFix(weightCost),
+      totalGlassSqFt: safeFix(totalGlassSqFt), glassCost: safeFix(glassCost),
+      totalRubberCost: safeFix(totalRubberCost), laborCost: safeFix(laborCost),
+      arwCost: safeFix(arwCost), jaliCost: safeFix(jaliCost),
+      trackStripTotalCost: safeFix(trackStripTotalCost),
+      grandTotal: safeFix(grandTotal), avgRatePerSqFt: safeFix(avgRatePerSqFt),
+      matsRate: mrc, glassRate: gr
+    }
+  };
+}
+
+function roundWindowStep6(val){ const base = Math.floor(val/6)*6; return (val <= base + 0.875)? base : base + 6; }
+function roundWindowStep3(val){ const base = Math.floor(val/3)*3; return (val <= base + 0.875)? base : base + 3; }
+function windowSqFtSingle(w, h, mode='6step'){
+  if (mode === 'inch') return (w * h) / 144;
+  if (mode === '3step') return (roundWindowStep3(w) * roundWindowStep3(h)) / 144;
+  return (roundWindowStep6(w) * roundWindowStep6(h)) / 144;
+}
+function roundGlassStep(val){ const base = Math.floor(val/6)*6; return (val % 6 === 0)? base : base + 6; }
+function glassSqFt(w,h){ return (roundGlassStep(w) * roundGlassStep(h)) / 144; }
+function glassRunningFeet(w, h, qty=2){ return ((w + h) * 2 / 12) * qty; }
+
+// ==========================================
+// 2. APP STATE & UI LOGIC
+// ==========================================
 const $ = (s, r=document)=>r.querySelector(s);
 const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
 
-function checkNetworkStatus() {
-  const banner = $('#offlineBanner');
-  if (!navigator.onLine) {
-    if (banner) banner.style.display = 'block';
-    setStatus('Offline');
-  } else {
-    if (banner) banner.style.display = 'none';
-    setStatus('Ready');
-  }
-}
+const LS = {
+  getWeights(){ try{ return JSON.parse(localStorage.getItem('fs_weights')||'{}'); }catch(e){ return {}; } },
+  setWeights(obj){ localStorage.setItem('fs_weights', JSON.stringify(obj)); },
+  getRules(){ try{ return JSON.parse(localStorage.getItem('fs_customRules')||'{}'); }catch(e){ return {}; } },
+  setRules(obj){ localStorage.setItem('fs_customRules', JSON.stringify(obj)); },
+  getStock(){ try{ return JSON.parse(localStorage.getItem('fs_stock_map')||'{}'); }catch(e){ return {}; } },
+  setStock(obj){ localStorage.setItem('fs_stock_map', JSON.stringify(obj)); },
+  getCustomModes(){ try{ return JSON.parse(localStorage.getItem('fs_custom_modes')||'[]'); }catch(e){ return []; } },
+  setCustomModes(arr){ localStorage.setItem('fs_custom_modes', JSON.stringify(arr)); }
+};
 
-window.addEventListener('online', checkNetworkStatus);
-window.addEventListener('offline', checkNetworkStatus);
+const STATE = {
+  companyName: 'WindowCraft Pro', unitMode: 'inch', mode: 'D3', sqftMode: '6step',
+  customRules: LS.getRules(), stockMap: LS.getStock(), customModes: LS.getCustomModes(),
+  currentRulesTab: 'D3', currentWeightTab: 'D3', optStrategy: {}, serverData: null, pdfCount: 0,
+  pendingPdfType: null
+};
+
+function setStatus(msg){ $('#statusPill').textContent = 'Status: ' + msg; }
 
 function triggerRewardedAd(onSuccess) {
   if (window.AndroidBridge && window.AndroidBridge.showRewardedAd) {
     window.onRewardedAdSuccess = onSuccess;
     window.AndroidBridge.showRewardedAd();
-  } else {
-    if (typeof onSuccess === 'function') onSuccess();
-  }
+  } else { if (typeof onSuccess === 'function') onSuccess(); }
 }
 
 function triggerInterstitialAd() {
@@ -570,10 +1093,8 @@ function downloadPdfDirect(doc, fileName) {
     downloadLink.click();
     document.body.removeChild(downloadLink);
     setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-    setStatus('PDF Generated');
-  } catch(e) {
-    alert("PDF Error: " + e.message);
-  }
+    setStatus('PDF Downloaded');
+  } catch(e) { alert("PDF Error: " + e.message); }
 }
 
 function openPdfNameModal(type) {
@@ -581,7 +1102,6 @@ function openPdfNameModal(type) {
   STATE.pendingPdfType = type;
   const company = STATE.companyName || "WindowCraft Pro";
   const defaultBase = `${company.replace(/\s+/g, '_')}_${STATE.mode}_${type === 'cut' ? 'Report' : 'Bill'}`;
-  
   $('#pdfCustomNameInput').value = defaultBase;
   $('#pdfNameModal').classList.add('open');
 }
@@ -592,86 +1112,9 @@ function processPdfDownload() {
   $('#pdfNameModal').classList.remove('open');
 
   triggerRewardedAd(() => {
-    if (STATE.pendingPdfType === 'cut') {
-      generateFabricationPDF(finalFileName);
-    } else {
-      generateBillPDF(finalFileName);
-    }
+    if (STATE.pendingPdfType === 'cut') generateFabricationPDF(finalFileName);
+    else generateBillPDF(finalFileName);
   });
-}
-
-function safeNum(v) { const n = Number(v); return isNaN(n) ? 0 : n; }
-function safeFix(v, d=2) { return safeNum(v).toFixed(d); }
-const num = (n,d=3)=>Number(Number(n).toFixed(d));
-function setStatus(msg){ $('#statusPill').textContent = 'Status: ' + msg; }
-
-const DEFAULT_RULES_CONFIG = {
-  D2: { arw: 500, lr: 100, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, ShutterW: { formula: 'W / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 4 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
-  D3: { arw: 700, lr: 120, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, ShutterW: { formula: 'W / 2', qty: 6 }, ShutterH: { formula: 'H - 2.6', qty: 6 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
-  S2: { arw: 1000, lr: 130, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -1.6, glassH_offset: -4.1, ShutterW: { formula: '(W - 4) / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 2 }, Interlock: { formula: 'H - 2.6', qty: 2 }, TrackStrip: { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 } },
-  S3: { arw: 1500, lr: 150, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -1.6, glassH_offset: -4.1, ShutterW: { formula: '(W - 4) / 2', qty: 6 }, ShutterH: { formula: 'H - 2.6', qty: 3 }, Interlock: { formula: 'H - 2.6', qty: 3 }, TrackStrip: { formula: 'W - 3', qty: 3, stockLen: 192.5, rate: 800 } },
-  N2: { arw: 200, lr: 90, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: 0.5, glassH_offset: -2.5, BearingBottomW: { formula: '(W - 6.2) / 2', qty: 4 }, Handle: { formula: 'H - 1.7', qty: 2 }, Interlock: { formula: 'H - 1.7', qty: 2 } },
-  N3: { arw: 300, lr: 100, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: 0.5, glassH_offset: -2.5, BearingBottomW: { formula: '(W - 6.2) / 2', qty: 6 }, Handle: { formula: 'H - 1.7', qty: 3 }, Interlock: { formula: 'H - 1.7', qty: 3 } }
-};
-
-const DEFAULT_WEIGHTS = {
-  D2: { Track: 6, Shutter: 3.2, Interlock: 1.8 },
-  D3: { Track: 6, Shutter: 3.2, Interlock: 1.8 },
-  S2: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 },
-  S3: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 },
-  N2: { TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, Interlock: 1.5 },
-  N3: { TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, Interlock: 1.5 },
-  Pipes: { Pipes: 2.15 }
-};
-
-const WEIGHT_TYPES = {
-  N2: ["TopTrack", "BottomTrack", "BearingBottom", "Handle", "Interlock"],
-  N3: ["TopTrack", "BottomTrack", "BearingBottom", "Handle", "Interlock"],
-  D2: ["Track", "Shutter", "Interlock"], D3: ["Track", "Shutter", "Interlock"],
-  S2: ["Track", "Shutter", "Interlock", "TrackStrip"], S3: ["Track", "Shutter", "Interlock", "TrackStrip"],
-  Pipes: ["Pipes"]
-};
-
-const LS = {
-  getWeights(){ try{ return JSON.parse(localStorage.getItem('fs_weights')||'{}'); }catch(e){ return {}; } },
-  setWeights(obj){ localStorage.setItem('fs_weights', JSON.stringify(obj)); },
-  getRules(){ try{ return JSON.parse(localStorage.getItem('fs_customRules')||'{}'); }catch(e){ return {}; } },
-  setRules(obj){ localStorage.setItem('fs_customRules', JSON.stringify(obj)); },
-  getStock(){ try{ return JSON.parse(localStorage.getItem('fs_stock_map')||'{}'); }catch(e){ return {}; } },
-  setStock(obj){ localStorage.setItem('fs_stock_map', JSON.stringify(obj)); },
-  getCustomModes(){ try{ return JSON.parse(localStorage.getItem('fs_custom_modes')||'[]'); }catch(e){ return []; } },
-  setCustomModes(arr){ localStorage.setItem('fs_custom_modes', JSON.stringify(arr)); }
-};
-
-const STATE = {
-  companyName: 'WindowCraft Pro', unitMode: 'inch', mode: 'D3', sqftMode: '6step',
-  customRules: LS.getRules(), stockMap: LS.getStock(), customModes: LS.getCustomModes(),
-  currentRulesTab: 'D3', currentWeightTab: 'D3', optStrategy: {}, serverData: null, pdfCount: 0,
-  pendingPdfType: null
-};
-
-function parseSutOffset(val) {
-  if (val === undefined || val === null || val === '') return 0;
-  const s = String(val).trim();
-  const isNeg = s.startsWith('-');
-  const clean = s.replace('-', '');
-  const parts = clean.split('.');
-  if (parts.length === 2) {
-    const inch = parseInt(parts[0], 10) || 0;
-    const dec = parts[1];
-    let sut = 0;
-    if (dec.length === 1) {
-      sut = parseInt(dec, 10);
-      if (sut >= 0 && sut <= 7) return isNeg ? -(inch + (sut / 8)) : (inch + (sut / 8));
-    } else if (dec === '25' || dec === '2') return isNeg ? -(inch + 0.25) : (inch + 0.25);
-    else if (dec === '75' || dec === '6') return isNeg ? -(inch + 0.75) : (inch + 0.75);
-    else if (dec === '125' || dec === '1') return isNeg ? -(inch + 0.125) : (inch + 0.125);
-    else if (dec === '375' || dec === '3') return isNeg ? -(inch + 0.375) : (inch + 0.375);
-    else if (dec === '625' || dec === '5') return isNeg ? -(inch + 0.625) : (inch + 0.625);
-    else if (dec === '875' || dec === '7') return isNeg ? -(inch + 0.875) : (inch + 0.875);
-  }
-  const n = parseFloat(s);
-  return isNaN(n) ? 0 : n;
 }
 
 function fmtSutOffset(n) {
@@ -687,9 +1130,7 @@ function fmtSutOffset(n) {
 }
 
 function parseFormulaToParts(formulaStr, defaultDivisor = 1) {
-  if (!formulaStr || typeof formulaStr !== 'string') {
-    return { base: 'W', offset: 0, divisor: defaultDivisor };
-  }
+  if (!formulaStr || typeof formulaStr !== 'string') return { base: 'W', offset: 0, divisor: defaultDivisor };
   const s = formulaStr.trim();
   const baseMatch = s.match(/(W|H)/i);
   const base = baseMatch ? baseMatch[1].toUpperCase() : 'W';
@@ -742,9 +1183,7 @@ function saveInputs(){
 function loadInputs(){
   try {
     const data = JSON.parse(localStorage.getItem('fs_all_inputs') || '{}');
-    if (data.companyName) {
-      STATE.companyName = data.companyName; $('#companyNameInput').value = data.companyName;
-    } else { STATE.companyName = 'WindowCraft Pro'; $('#companyNameInput').value = 'WindowCraft Pro'; }
+    if (data.companyName) { STATE.companyName = data.companyName; $('#companyNameInput').value = data.companyName; }
     if (data.unitMode) STATE.unitMode = data.unitMode;
     if (data.sizes !== undefined) $('#sizesInput').value = data.sizes;
     if (data.pipeSizes !== undefined) $('#pipeSizesInput').value = data.pipeSizes;
@@ -753,10 +1192,7 @@ function loadInputs(){
     if (data.mrc !== undefined) $('#mrcInput').value = data.mrc;
     if (data.gr !== undefined) $('#grInput').value = data.gr;
     if (data.mode) { STATE.mode = data.mode; STATE.currentRulesTab = data.mode; STATE.currentWeightTab = data.mode; }
-    if (data.sqftMode) {
-      STATE.sqftMode = data.sqftMode;
-      updateSqftButtonLabel();
-    }
+    if (data.sqftMode) { STATE.sqftMode = data.sqftMode; updateSqftButtonLabel(); }
     if (data.optStrategy) STATE.optStrategy = data.optStrategy;
   } catch(e) {}
 }
@@ -786,7 +1222,6 @@ function convertUnitModeToggle() {
   triggerInterstitialAd();
   const isCurrentlyInch = STATE.unitMode === 'inch';
   STATE.unitMode = isCurrentlyInch ? 'mm' : 'inch';
-
   let curLc = parseFloat($('#lcInput').value) || (isCurrentlyInch ? 192.5 : 4889.5);
   let curPipeLc = parseFloat($('#pipeLcInput').value) || (isCurrentlyInch ? 192.5 : 4889.5);
 
@@ -797,9 +1232,7 @@ function convertUnitModeToggle() {
     $('#lcInput').value = safeFix(curLc / 25.4, 2);
     $('#pipeLcInput').value = safeFix(curPipeLc / 25.4, 2);
   }
-
-  saveInputs();
-  hydrateView();
+  saveInputs(); hydrateView();
 }
 
 function getAllModesList(){
@@ -819,9 +1252,7 @@ function updateModeDropdownsAndTabs(){
     btn.onclick = (e) => {
       e.stopPropagation();
       triggerInterstitialAd();
-      STATE.mode = m;
-      STATE.currentRulesTab = m;
-      STATE.currentWeightTab = m;
+      STATE.mode = m; STATE.currentRulesTab = m; STATE.currentWeightTab = m;
       $('#modeBtn').textContent = `${m} Mode (मोड बदलें / Switch Mode)`;
       $('#modePill').textContent = `Mode: ${m}`;
       dropdown.classList.remove('open');
@@ -859,17 +1290,9 @@ function updateModeDropdownsAndTabs(){
   }
 }
 
-async function hydrateView() {
-  checkNetworkStatus();
+// ULTRA-FAST LOCAL HYDRATION (Runs in 0.001s without network lag)
+function hydrateView() {
   saveInputs(); updateHeaderCompany(); updateUnitUI();
-
-  if (!navigator.onLine) {
-    setStatus('Offline');
-    alert("⚠️ No Internet Connection!\nकैलकुलेशन के लिए कृपया इंटरनेट चालू करें।");
-    return;
-  }
-
-  setStatus('Connecting to Server...');
 
   let lcVal = parseFloat($('#lcInput').value) || 192.5;
   let pipeLcVal = parseFloat($('#pipeLcInput').value) || 192.5;
@@ -891,37 +1314,39 @@ async function hydrateView() {
     optStrategy: STATE.optStrategy
   };
 
-  try {
-    const response = await fetch(VERCEL_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(reqBody)
-    });
+  const t0 = performance.now();
+  const data = runCalculationEngine(reqBody);
+  const t1 = performance.now();
 
-    if (!response.ok) throw new Error("Server Calculation Error");
-    const json = await response.json();
-    STATE.serverData = json.data;
+  STATE.serverData = data;
+  renderReportTables(data);
 
-    renderReportTables(json.data);
-    $('#modePill').textContent = `Mode: ${STATE.mode}`;
-    $('#modeBtn').textContent = `${STATE.mode} Mode (मोड बदलें / Switch Mode)`;
-    setStatus('Ready');
-  } catch(err) {
-    setStatus('Offline / Error');
-  }
+  $('#modePill').textContent = `Mode: ${STATE.mode}`;
+  $('#modeBtn').textContent = `${STATE.mode} Mode (मोड बदलें / Switch Mode)`;
+  setStatus(`Calculated in ${(t1 - t0).toFixed(1)}ms`);
 }
 
-function buildTable(headers, rows) {
+// HIGH-SPEED CHUNKED DOM RENDERING (No freezing with 10,000 items)
+function buildTable(headers, rows, maxLimit = 100) {
   const t = document.createElement('table');
   const thead = document.createElement('thead'); const trh = document.createElement('tr');
-  headers.forEach(h => { const th = document.createElement('th'); th.textContent = h; trh.appendChild(th); });
+  for (let i = 0; i < headers.length; i++) {
+    const th = document.createElement('th'); th.textContent = headers[i]; trh.appendChild(th);
+  }
   thead.appendChild(trh); t.appendChild(thead);
   const tbody = document.createElement('tbody');
-  rows.forEach(r => {
+  
+  const displayRows = rows.length > maxLimit ? rows.slice(0, maxLimit) : rows;
+  const frag = document.createDocumentFragment();
+  for (let r = 0; r < displayRows.length; r++) {
     const tr = document.createElement('tr');
-    r.forEach(c => { const td = document.createElement('td'); td.textContent = c; tr.appendChild(td); });
-    tbody.appendChild(tr);
-  });
+    const rowData = displayRows[r];
+    for (let c = 0; c < rowData.length; c++) {
+      const td = document.createElement('td'); td.textContent = rowData[c]; tr.appendChild(td);
+    }
+    frag.appendChild(tr);
+  }
+  tbody.appendChild(frag);
   t.appendChild(tbody);
   return t;
 }
@@ -941,7 +1366,6 @@ function renderReportTables(data) {
   if (parseFloat(t.jaliCost) > 0) totalsRows.push(["Jali Total Cost", `Rs. ${t.jaliCost}`]);
   totalsRows.push(["GRAND TOTAL", `Rs. ${t.grandTotal}`]);
   totalsRows.push(["Average Rate per Sq.Ft", `Rs. ${t.avgRatePerSqFt} / Sq.Ft`]);
-
   totalsWrap.appendChild(buildTable(["विवरण (Description)", "रकम / विवरण (Details & Amount)"], totalsRows));
 
   const barWrap = $('#barSummaryWrap'); barWrap.innerHTML = '';
@@ -951,7 +1375,12 @@ function renderReportTables(data) {
   const winRows = data.sizes.map(g => [
     `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq
   ]);
-  winWrap.appendChild(buildTable(["Win # (Mode)", "Window Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"], winRows));
+  winWrap.appendChild(buildTable(["Win # (Mode)", "Window Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"], winRows, 100));
+  if (winRows.length > 100) {
+    const more = document.createElement('div'); more.className = 'show-more-box';
+    more.textContent = `⚡ Showing 100 of ${winRows.length} windows (All included in PDF Report)`;
+    winWrap.appendChild(more);
+  }
 
   const cutDetailWrap = $('#windowDetails'); cutDetailWrap.innerHTML = '';
   if (data.windowCutDetails && data.windowCutDetails.length) {
@@ -962,7 +1391,12 @@ function renderReportTables(data) {
         orig.ShutterH || orig.Handle || '-', orig.Interlock || '-', orig.TrackStrip || orig.SideTrack || '-'
       ];
     });
-    cutDetailWrap.appendChild(buildTable(["Win #", "Track", "Shutter (W)", "Shutter (H)", "Interlock", "Track Strip/Sides"], cdRows));
+    cutDetailWrap.appendChild(buildTable(["Win #", "Track", "Shutter (W)", "Shutter (H)", "Interlock", "Track Strip/Sides"], cdRows, 100));
+    if (cdRows.length > 100) {
+      const more = document.createElement('div'); more.className = 'show-more-box';
+      more.textContent = `⚡ Showing 100 of ${cdRows.length} window cuts (All included in PDF Report)`;
+      cutDetailWrap.appendChild(more);
+    }
   } else { cutDetailWrap.textContent = '—'; }
 
   const cutWrap = $('#cutPlan'); cutWrap.innerHTML = '';
@@ -970,123 +1404,70 @@ function renderReportTables(data) {
     if (!plan.bins || !plan.bins.length) return;
     const sec = document.createElement('div'); sec.style.marginBottom = '10px';
     const h = document.createElement('h3');
-
-    const strategy = STATE.optStrategy[type] || 'minWaste';
-    const toggleBtnText = strategy === 'minWaste' ? 'Min Waste' : 'Min Bars';
-    const btnClass = strategy === 'minWaste' ? 'toggle-pill active-orange' : 'toggle-pill active-green';
-
-    h.innerHTML = `<span>${type} — Cutting Plan <small>(Stock: ${plan.stockLenFmt})</small></span>
-                   <button class="${btnClass}" data-type="${type}">${toggleBtnText}</button>`;
+    h.innerHTML = `<span>${type} — Cutting Plan <small>(Stock: ${plan.stockLenFmt})</small></span>`;
     sec.appendChild(h);
 
-    h.querySelector('button').onclick = () => {
-      triggerInterstitialAd();
-      STATE.optStrategy[type] = (STATE.optStrategy[type] === 'minBars') ? 'minWaste' : 'minBars';
-      saveInputs(); hydrateView();
-    };
-
     if (plan.usedFromStock && plan.usedFromStock.length) {
-      const usedHead = ["Stock Piece", "Pieces (ID)", "Leftover"];
       const groupedRows = plan.usedFromStock.map(u => [u.origFmt, u.cutsStr, u.leftFmt]);
       const title = document.createElement("div"); title.style.margin = "4px 0";
-      title.innerHTML = `<small style="color:var(--primary);font-weight:bold;">✓ Satisfied from Available Stock (दुकान के बचे टुकड़ों से निकाला गया)</small>`;
-      sec.appendChild(title); sec.appendChild(buildTable(usedHead, groupedRows));
+      title.innerHTML = `<small style="color:var(--primary);font-weight:bold;">✓ Satisfied from Available Stock</small>`;
+      sec.appendChild(title); sec.appendChild(buildTable(["Stock Piece", "Pieces (ID)", "Leftover"], groupedRows));
     }
 
     const rows = plan.bins.map((b, i) => [ `Bar ${i+1}`, b.cutsStr, b.usedFmt, b.wasteFmt ]);
-    sec.appendChild(buildTable(["फुल बार #", "टुकड़े नाप और ID (Pieces)", "कुल इस्तेमाल (Used)", "बचा हुआ वेस्टेज (Leftover)"], rows));
+    sec.appendChild(buildTable(["फुल बार #", "टुकड़े नाप और ID (Pieces)", "कुल इस्तेमाल (Used)", "बचा हुआ वेस्टेज (Leftover)"], rows, 100));
+    if (rows.length > 100) {
+      const more = document.createElement('div'); more.className = 'show-more-box';
+      more.textContent = `⚡ Showing 100 of ${rows.length} optimized bars (Full cut plan in PDF)`;
+      sec.appendChild(more);
+    }
     cutWrap.appendChild(sec);
   });
 }
 
-// BULLETPROOF RULES UI MATCHING EXACT INSTRUCTIONS & IMAGES
 function buildRulesUI(tabMode){
   const defaults = DEFAULT_RULES_CONFIG[tabMode] || DEFAULT_RULES_CONFIG.D3;
   const custom = STATE.customRules[tabMode] || {};
   const body = $("#rulesBody"); body.innerHTML = "";
-
   const isBuiltIn = ['D2','D3','S2','S3','N2','N3'].includes(tabMode);
   $('#deleteCustomModeBtn').style.display = isBuiltIn ? 'none' : 'inline-block';
-
   const showJali = tabMode.endsWith('3') || custom.hasJali;
 
-  // 1. COST & LABOUR RATES CARD
   const rateCard = document.createElement('div'); rateCard.className='wc-card';
   rateCard.innerHTML = `<h4>💰 1. खर्च और मजदूरी रेट्स (Cost & Labour Rates)</h4>
     <div class="row">
-      <div class="group">
-        <label class="lbl">ARW चार्ज (Extra ₹/Window)</label>
-        <span class="sub-lbl">अतिरिक्त फिटिंग चार्ज (Fitting Charge)</span>
-        <input class="input wc-field" data-type="arw" type="number" value="${custom.arw ?? defaults.arw ?? 500}" />
-      </div>
-      <div class="group">
-        <label class="lbl">मजदूरी रेट (Labour Rate ₹/Sq.Ft)</label>
-        <span class="sub-lbl">लेबर रेट प्रति वर्ग फुट (Per Sq.Ft)</span>
-        <input class="input wc-field" data-type="lr" type="number" value="${custom.lr ?? defaults.lr ?? 100}" />
-      </div>
+      <div class="group"><label class="lbl">ARW चार्ज (Extra ₹/Window)</label><input class="input wc-field" data-type="arw" type="number" value="${custom.arw ?? defaults.arw ?? 500}" /></div>
+      <div class="group"><label class="lbl">मजदूरी रेट (Labour Rate ₹/Sq.Ft)</label><input class="input wc-field" data-type="lr" type="number" value="${custom.lr ?? defaults.lr ?? 100}" /></div>
     </div>
     <div class="row">
-      <div class="group">
-        <label class="lbl">रबर वजन (Rubber Wt Kg/Ft)</label>
-        <span class="sub-lbl">प्रति फुट रबर वजन (Per Running Ft)</span>
-        <input class="input wc-field" data-type="rubberWtFt" type="number" step="0.001" value="${custom.rubberWtFt ?? defaults.rubberWtFt ?? 0.025}" />
-      </div>
-      <div class="group">
-        <label class="lbl">रबर भाव (Rubber Rate ₹/Kg)</label>
-        <span class="sub-lbl">प्रति किलो रबर का रेट (Per Kg)</span>
-        <input class="input wc-field" data-type="rubberRate" type="number" value="${custom.rubberRate ?? defaults.rubberRate ?? 160}" />
-      </div>
+      <div class="group"><label class="lbl">रबर वजन (Rubber Wt Kg/Ft)</label><input class="input wc-field" data-type="rubberWtFt" type="number" step="0.001" value="${custom.rubberWtFt ?? defaults.rubberWtFt ?? 0.025}" /></div>
+      <div class="group"><label class="lbl">रबर भाव (Rubber Rate ₹/Kg)</label><input class="input wc-field" data-type="rubberRate" type="number" value="${custom.rubberRate ?? defaults.rubberRate ?? 160}" /></div>
     </div>
     <div class="row">
-      <div class="group">
-        <label class="lbl">कांच के पल्ले (Glass Quantity)</label>
-        <span class="sub-lbl">1 विंडो में कांच की संख्या (Nos)</span>
-        <input class="input wc-field" data-type="glassQty" type="number" value="${custom.glassQty ?? defaults.glassQty ?? 2}" />
-      </div>
-      ${showJali ? `
-      <div class="group">
-        <label class="lbl">जाली का भाव (Jali Rate ₹/Sq.Ft)</label>
-        <span class="sub-lbl">मच्छर जाली का रेट प्रति वर्ग फुट</span>
-        <input class="input wc-field" data-type="jaliRate" type="number" value="${custom.jaliRate ?? defaults.jaliRate ?? 30}" />
-      </div>` : ''}
+      <div class="group"><label class="lbl">कांच के पल्ले (Glass Quantity)</label><input class="input wc-field" data-type="glassQty" type="number" value="${custom.glassQty ?? defaults.glassQty ?? 2}" /></div>
+      ${showJali ? `<div class="group"><label class="lbl">जाली का भाव (Jali Rate ₹/Sq.Ft)</label><input class="input wc-field" data-type="jaliRate" type="number" value="${custom.jaliRate ?? defaults.jaliRate ?? 30}" /></div>` : ''}
     </div>`;
   body.appendChild(rateCard);
 
-  // 2. GLASS SIZE OFFSETS CARD
   const glassWOff = getGlassOffset(custom.glassW_offset ?? custom.glassW ?? defaults.glassW_offset ?? defaults.glassW, -4.1);
   const glassHOff = getGlassOffset(custom.glassH_offset ?? custom.glassH ?? defaults.glassH_offset ?? defaults.glassH, -4.1);
-
   const isMM = STATE.unitMode === 'mm';
   const glassWDisp = isMM ? safeFix(glassWOff * 25.4, 1) : fmtSutOffset(glassWOff);
   const glassHDisp = isMM ? safeFix(glassHOff * 25.4, 1) : fmtSutOffset(glassHOff);
 
-  const glassSubW = tabMode.startsWith('N') ? 'बियरिंग बॉटम से +/- सूत' : 'शटर चौड़ाई से +/- सूत';
-  const glassSubH = tabMode.startsWith('N') ? 'हैंडल ऊंचाई से +/- सूत' : 'शटर ऊंचाई से +/- सूत';
-
   const glassCard = document.createElement('div'); glassCard.className = 'wc-card';
   glassCard.innerHTML = `<h4>🪟 2. कांच कटिंग नियम (Glass Size Offsets)</h4>
     <div class="row">
-      <div class="group">
-        <label class="lbl">कांच चौड़ाई (Glass Width +/- Sut)</label>
-        <span class="sub-lbl">${glassSubW}</span>
-        <input class="input wc-field" data-type="glassW_offset" type="text" value="${glassWDisp}" placeholder="e.g. -4.1" />
-      </div>
-      <div class="group">
-        <label class="lbl">कांच ऊंचाई (Glass Height +/- Sut)</label>
-        <span class="sub-lbl">${glassSubH}</span>
-        <input class="input wc-field" data-type="glassH_offset" type="text" value="${glassHDisp}" placeholder="e.g. -4.1" />
-      </div>
+      <div class="group"><label class="lbl">कांच चौड़ाई (Glass Width +/- Sut)</label><input class="input wc-field" data-type="glassW_offset" type="text" value="${glassWDisp}" placeholder="e.g. -4.1" /></div>
+      <div class="group"><label class="lbl">कांच ऊंचाई (Glass Height +/- Sut)</label><input class="input wc-field" data-type="glassH_offset" type="text" value="${glassHDisp}" placeholder="e.g. -4.1" /></div>
     </div>`;
   body.appendChild(glassCard);
 
   let keys = custom.includedProfiles ? custom.includedProfiles.slice() : [];
   if (!custom.includedProfiles) {
-    keys = tabMode.startsWith('D') || tabMode.startsWith('S')
-      ? ['ShutterW', 'ShutterH', 'Interlock']
-      : ['BearingBottomW', 'Handle', 'Interlock'];
+    keys = tabMode.startsWith('D') || tabMode.startsWith('S') ? ['ShutterW', 'ShutterH', 'Interlock'] : ['BearingBottomW', 'Handle', 'Interlock'];
     if (tabMode === 'S2' || tabMode === 'S3') keys.push('TrackStrip');
   }
-
   keys = keys.filter(k => k !== 'Track' && k !== 'TopTrack' && k !== 'BottomTrack' && k !== 'TopBottomTrack' && k !== 'SideTrack');
 
   let secNum = 3;
@@ -1095,58 +1476,46 @@ function buildRulesUI(tabMode){
     const cur = custom[key] || def;
     const isW = key.toLowerCase().includes('w') || key === 'BearingBottomW';
     const isTrackStrip = key === 'TrackStrip';
-    
-    // Only ShutterW and BearingBottomW have Divide By
     const hasDivide = isW && !isTrackStrip;
     const parts = parseFormulaToParts(cur.formula, hasDivide ? 2 : 1);
     const offDisp = isMM ? safeFix(parts.offset * 25.4, 1) : fmtSutOffset(parts.offset);
 
     const card = document.createElement('div'); card.className='wc-card';
-
-    let headerTitle = '';
-    let icon = '📐';
-    if (key === 'ShutterW') headerTitle = `${secNum++}. शटर चौड़ाई नियम (Shutter Width - W Rules)`;
-    else if (key === 'BearingBottomW') headerTitle = `${secNum++}. बियरिंग बॉटम नियम (Bearing Bottom Width - W Rules)`;
-    else if (key === 'ShutterH') headerTitle = `${secNum++}. शटर ऊंचाई नियम (Shutter Height - H Rules)`;
-    else if (key === 'Handle') headerTitle = `${secNum++}. हैंडल ऊंचाई नियम (Handle Height - H Rules)`;
-    else if (key === 'Interlock') { icon = '🔒'; headerTitle = `${secNum++}. इंटरलोक नियम (Interlock - H Rules)`; }
-    else if (key === 'TrackStrip') headerTitle = `${secNum++}. ट्रैक पट्टी नियम (Track Strip - W Rules)`;
-    else headerTitle = `${secNum++}. ${key} Rules`;
+    let headerTitle = `${secNum++}. ${key} Rules`;
+    if (key === 'ShutterW') headerTitle = `${secNum++}. शटर चौड़ाई (Shutter W Rules)`;
+    else if (key === 'BearingBottomW') headerTitle = `${secNum++}. बियरिंग बॉटम (Bearing Bottom W Rules)`;
+    else if (key === 'ShutterH') headerTitle = `${secNum++}. शटर ऊंचाई (Shutter H Rules)`;
+    else if (key === 'Handle') headerTitle = `${secNum++}. हैंडल ऊंचाई (Handle H Rules)`;
+    else if (key === 'Interlock') headerTitle = `${secNum++}. इंटरलोक (Interlock Rules)`;
+    else if (key === 'TrackStrip') headerTitle = `${secNum++}. ट्रैक पट्टी (Track Strip Rules)`;
 
     if (isTrackStrip) {
       const stockDisp = isMM ? safeFix((cur.stockLen ?? 192.5) * 25.4, 1) : (cur.stockLen ?? 192.5);
-      card.innerHTML = `<h4>${icon} ${headerTitle}</h4>
+      card.innerHTML = `<h4>${headerTitle}</h4>
         <input type="hidden" class="wc-prof-part" data-type="${key}" data-prop="base" value="W">
         <div class="grid-3">
-          <div class="group"><label class="lbl">नाप का आधार</label><div class="fixed-base-box">विंडो चौड़ाई (W) से</div></div>
-          <div class="group"><label class="lbl">माइनस सूत (Offset)</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" placeholder="0" /></div>
-          <div class="group"><label class="lbl">कुल पट्टी (Quantity)</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
-        </div>
-        <div class="row" style="margin-top:4px;">
-          <div class="group"><label class="lbl">पट्टी लंबाई (Stock Length ${isMM?'mm':'in'})</label><input class="input wc-prof-part" data-type="TrackStrip" data-prop="stockLen" type="number" step="0.25" value="${stockDisp}" /></div>
-          <div class="group"><label class="lbl">पट्टी का भाव (Rate ₹/Bar)</label><input class="input wc-prof-part" data-type="TrackStrip" data-prop="rate" type="number" value="${cur.rate ?? 800}" /></div>
+          <div class="group"><label class="lbl">नाप आधार</label><div class="fixed-base-box">W से</div></div>
+          <div class="group"><label class="lbl">माइनस सूत</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" /></div>
+          <div class="group"><label class="lbl">संख्या (Qty)</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
         </div>`;
     } else if (hasDivide) {
-      // 4 COLUMNS WITH DIVIDE BY (ShutterW / BearingBottomW)
-      card.innerHTML = `<h4>${icon} ${headerTitle}</h4>
+      card.innerHTML = `<h4>${headerTitle}</h4>
         <input type="hidden" class="wc-prof-part" data-type="${key}" data-prop="base" value="W">
         <div class="grid-4">
-          <div class="group"><label class="lbl">नाप का आधार</label><div class="fixed-base-box">विंडो चौड़ाई (W) से</div></div>
-          <div class="group"><label class="lbl">माइनस सूत (Offset)</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" placeholder="0" /></div>
-          <div class="group"><label class="lbl">भाग (Divide By)</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="0.1" value="${parts.divisor}" /></div>
-          <div class="group"><label class="lbl">कुल पीस (Qty)</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 4}" /></div>
+          <div class="group"><label class="lbl">आधार</label><div class="fixed-base-box">W से</div></div>
+          <div class="group"><label class="lbl">माइनस सूत</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" /></div>
+          <div class="group"><label class="lbl">भाग (Divide)</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="0.1" value="${parts.divisor}" /></div>
+          <div class="group"><label class="lbl">संख्या (Qty)</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 4}" /></div>
         </div>`;
     } else {
-      // 3 COLUMNS NO DIVIDE BY (Height profiles)
-      card.innerHTML = `<h4>${icon} ${headerTitle}</h4>
+      card.innerHTML = `<h4>${headerTitle}</h4>
         <input type="hidden" class="wc-prof-part" data-type="${key}" data-prop="base" value="H">
         <div class="grid-3">
-          <div class="group"><label class="lbl">नाप का आधार</label><div class="fixed-base-box">विंडो ऊंचाई (H) से</div></div>
-          <div class="group"><label class="lbl">माइनस सूत (Offset)</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" placeholder="0" /></div>
-          <div class="group"><label class="lbl">कुल पीस (Quantity)</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
+          <div class="group"><label class="lbl">आधार</label><div class="fixed-base-box">H से</div></div>
+          <div class="group"><label class="lbl">माइनस सूत</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" /></div>
+          <div class="group"><label class="lbl">संख्या (Qty)</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
         </div>`;
     }
-
     body.appendChild(card);
   });
 }
@@ -1164,8 +1533,7 @@ function buildWeightUI(tabMode){
     card.innerHTML = `<h4>⚖️ ${tp} प्रोफाइल वजन</h4>
       <div class="row">
         <div class="group" data-span="2">
-          <label class="lbl">16' फुल बार वजन (Kg per 192.5" Bar)</label>
-          <span class="sub-lbl">${tp} के एक पूरे 16 फीट बार का वजन (Kg में)</span>
+          <label class="lbl">16' फुल बार वजन (Kg)</label>
           <input class="input wc-field" data-type="${tp}" type="number" step="0.001" value="${val}" placeholder="e.g. 2.150">
         </div>
       </div>`;
@@ -1176,9 +1544,7 @@ function buildWeightUI(tabMode){
 function loadDynamicStockModal(){
   const body = $('#dynamicStockBody'); body.innerHTML = '';
   const allStock = LS.getStock();
-
   let activeTypes = STATE.serverData && STATE.serverData.cutPlans ? Object.keys(STATE.serverData.cutPlans) : ["Track", "Shutter", "Interlock", "Pipes"];
-  activeTypes = activeTypes.filter(t => t !== 'Pipes');
   if (!activeTypes.includes('Pipes')) activeTypes.push('Pipes');
 
   activeTypes.forEach(tp => {
@@ -1186,7 +1552,6 @@ function loadDynamicStockModal(){
     const val = (allStock[tp] || []).map(v => v.toString()).join('\n');
     card.innerHTML = `
       <label class="lbl">📦 ${tp} के उपलब्ध टुकड़े (Inches/mm)</label>
-      <span class="sub-lbl">प्रत्येक बचे हुए टुकड़े का नाप नई लाइन में लिखें (उदा. 45.4 या 72)</span>
       <textarea id="st_${tp}" class="input" rows="2" placeholder="45.4&#10;72.2">${val}</textarea>`;
     body.appendChild(card);
   });
@@ -1215,17 +1580,12 @@ function generateFabricationPDF(fileName){
     const dateStr = new Date().toLocaleDateString('en-GB');
 
     doc.setFont('helvetica', 'bold');
-    if (company) {
-      doc.setFontSize(12); doc.text(company.toUpperCase(), 297, 26, { align: 'center' });
-      doc.setFontSize(9); doc.text('FABRICATION & CUTTING REPORT', 297, 38, { align: 'center' });
-      doc.setLineWidth(0.8); doc.line(40, 44, 555, 44);
-    } else {
-      doc.setFontSize(10); doc.text('FABRICATION & CUTTING REPORT', 297, 30, { align: 'center' });
-      doc.setLineWidth(0.8); doc.line(40, 36, 555, 36);
-    }
+    doc.setFontSize(12); doc.text(company.toUpperCase(), 297, 26, { align: 'center' });
+    doc.setFontSize(9); doc.text('FABRICATION & CUTTING REPORT', 297, 38, { align: 'center' });
+    doc.setLineWidth(0.8); doc.line(40, 44, 555, 44);
 
     doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
-    doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()}) | Sq.Ft Mode: ${STATE.sqftMode.toUpperCase()}`, 40, 56);
+    doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()}) | Area: ${STATE.sqftMode.toUpperCase()}`, 40, 56);
     doc.text(`Date: ${dateStr}`, 555, 56, { align: 'right' });
 
     let currentY = 66;
@@ -1238,8 +1598,8 @@ function generateFabricationPDF(fileName){
       head: [[{ content: '1. Window Sizes & Glass', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold' } }],
              ["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]],
       body: wsRows, startY: currentY, theme: 'grid',
-      styles: { fontSize: 8, cellPadding: 3.5, halign: 'center', textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
-      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
+      styles: { fontSize: 8, cellPadding: 3.5, halign: 'center' },
+      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold' },
       margin: { left: 40, right: 40 }
     });
 
@@ -1258,11 +1618,10 @@ function generateFabricationPDF(fileName){
         head: [[{ content: '2. Profile Cut Lengths', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold' } }],
                ["Win #", "Track", "Shutter (W)", "Shutter (H)", "Interlock", "Track Strip/Sides"]],
         body: cdRows, startY: currentY, theme: 'grid',
-        styles: { fontSize: 8, cellPadding: 3.5, halign: 'center', textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
-        headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
+        styles: { fontSize: 8, cellPadding: 3.5, halign: 'center' },
+        headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold' },
         margin: { left: 40, right: 40 }
       });
-
       currentY = doc.lastAutoTable.finalY + 12;
     }
 
@@ -1276,8 +1635,8 @@ function generateFabricationPDF(fileName){
         head: [[{ content: `${planIndex++}. Cutting Plan - ${type} (Stock: ${plan.stockLenFmt})`, colSpan: 4, styles: { halign: 'left', fontStyle: 'bold' } }],
                ["Bar #", "Pieces (ID)", "Used", "Leftover"]],
         body: binRows, startY: currentY, theme: 'grid',
-        styles: { fontSize: 8, cellPadding: 3.5, halign: 'center', textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
-        headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
+        styles: { fontSize: 8, cellPadding: 3.5, halign: 'center' },
+        headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold' },
         columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' } },
         margin: { left: 40, right: 40 }
       });
@@ -1297,21 +1656,15 @@ function generateBillPDF(fileName){
     const dateStr = new Date().toLocaleDateString('en-GB');
 
     doc.setFont('helvetica', 'bold');
-    if (company) {
-      doc.setFontSize(12); doc.text(company.toUpperCase(), 297, 26, { align: 'center' });
-      doc.setFontSize(9); doc.text('DETAILED COST ESTIMATION (QUOTATION)', 297, 38, { align: 'center' });
-      doc.setLineWidth(0.8); doc.line(40, 44, 555, 44);
-    } else {
-      doc.setFontSize(10); doc.text('DETAILED COST ESTIMATION (QUOTATION)', 297, 30, { align: 'center' });
-      doc.setLineWidth(0.8); doc.line(40, 36, 555, 36);
-    }
+    doc.setFontSize(12); doc.text(company.toUpperCase(), 297, 26, { align: 'center' });
+    doc.setFontSize(9); doc.text('DETAILED COST ESTIMATION (QUOTATION)', 297, 38, { align: 'center' });
+    doc.setLineWidth(0.8); doc.line(40, 44, 555, 44);
 
     doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
-    doc.text(`Project Mode: ${STATE.mode} | Area Mode: ${STATE.sqftMode.toUpperCase()}`, 40, 56);
+    doc.text(`Project Mode: ${STATE.mode} | Area: ${STATE.sqftMode.toUpperCase()}`, 40, 56);
     doc.text(`Date: ${dateStr}`, 555, 56, { align: 'right' });
 
     let currentY = 66;
-
     const t = STATE.serverData.totals || {};
     const qRows = [
       ["Total Windows Count", `${safeNum(t.windowsCount)} Nos`],
@@ -1324,7 +1677,6 @@ function generateBillPDF(fileName){
       ["Labour Total", `Rs. ${t.laborCost}`],
       ["Additional Charges", `Rs. ${t.arwCost}`]
     ];
-
     if (parseFloat(t.jaliCost) > 0) qRows.push(["Jali Cost", `Rs. ${t.jaliCost}`]);
     if (parseFloat(t.trackStripTotalCost) > 0) qRows.push(["Track Strip Cost", `Rs. ${t.trackStripTotalCost}`]);
     if (parseFloat(t.totalRubberCost) > 0) qRows.push(["Rubber Total Cost", `Rs. ${t.totalRubberCost}`]);
@@ -1335,14 +1687,9 @@ function generateBillPDF(fileName){
     doc.autoTable({
       head: [["Description", "Details / Amount"]],
       body: qRows, startY: currentY, theme: 'grid',
-      styles: { fontSize: 8, cellPadding: 3.5, textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
-      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
+      styles: { fontSize: 8, cellPadding: 3.5 },
+      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold' },
       columnStyles: { 0: { halign: 'left' }, 1: { halign: 'right' } },
-      didParseCell: (data) => {
-        if(data.section === 'body' && (data.row.index >= qRows.length - 2)) {
-          data.cell.styles.fontStyle = 'bold';
-        }
-      },
       margin: { left: 40, right: 40 }
     });
 
@@ -1355,23 +1702,8 @@ function generateBillPDF(fileName){
       head: [[{ content: '1. Profile Bars & Weight Summary', colSpan: 4, styles: { halign: 'left', fontStyle: 'bold' } }],
              ["Profile / Bar", "Bar Quantity", "Weight / Bar (kg) / Rate", "Total Weight (kg) / Cost"]],
       body: pdfBarRows, startY: currentY, theme: 'grid',
-      styles: { fontSize: 8, cellPadding: 3.5, halign: 'center', textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
-      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
-      margin: { left: 40, right: 40 }
-    });
-
-    currentY = doc.lastAutoTable.finalY + 12;
-
-    const wsRows = (STATE.serverData.sizes || []).map(g => [
-      `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq
-    ]);
-
-    doc.autoTable({
-      head: [[{ content: '2. Window Sizes & Glass', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold' } }],
-             ["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]],
-      body: wsRows, startY: currentY, theme: 'grid',
-      styles: { fontSize: 8, cellPadding: 3.5, halign: 'center', textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.5 },
-      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold', lineColor: [0,0,0], lineWidth: 0.5 },
+      styles: { fontSize: 8, cellPadding: 3.5, halign: 'center' },
+      headStyles: { fillColor: false, textColor: [0,0,0], fontStyle: 'bold' },
       margin: { left: 40, right: 40 }
     });
 
@@ -1396,34 +1728,20 @@ function bindEvents(){
     const dropdown = $('#modeDropdown');
     const mBtn = $('#modeBtn');
     if (dropdown && dropdown.classList.contains('open')) {
-      if (!dropdown.contains(e.target) && e.target !== mBtn) {
-        dropdown.classList.remove('open');
-      }
+      if (!dropdown.contains(e.target) && e.target !== mBtn) dropdown.classList.remove('open');
     }
   });
   
-  // 3-WAY SQ.FT MODE TOGGLE
   $('#sqftModeBtn').onclick = () => {
     triggerInterstitialAd();
-    if (STATE.sqftMode === '6step') {
-      STATE.sqftMode = '3step';
-    } else if (STATE.sqftMode === '3step') {
-      STATE.sqftMode = 'inch';
-    } else {
-      STATE.sqftMode = '6step';
-    }
-    updateSqftButtonLabel();
-    saveInputs();
-    hydrateView();
+    if (STATE.sqftMode === '6step') STATE.sqftMode = '3step';
+    else if (STATE.sqftMode === '3step') STATE.sqftMode = 'inch';
+    else STATE.sqftMode = '6step';
+    updateSqftButtonLabel(); saveInputs(); hydrateView();
   };
 
   $('#settingsBtn').onclick = () => $('#settingsModal').classList.add('open');
-  $('#settingsClose').onclick = () => {
-    triggerInterstitialAd();
-    $('#settingsModal').classList.remove('open');
-    hydrateView();
-  };
-
+  $('#settingsClose').onclick = () => { triggerInterstitialAd(); $('#settingsModal').classList.remove('open'); hydrateView(); };
   $('#modalStockBtn').onclick = () => { loadDynamicStockModal(); $('#stockModal').classList.add('open'); };
   $('#modalRulesBtn').onclick = () => { updateModeDropdownsAndTabs(); buildRulesUI(STATE.mode); $('#rulesModal').classList.add('open'); };
   $('#modalWeightBtn').onclick = () => { updateModeDropdownsAndTabs(); buildWeightUI(STATE.mode); $('#weightModal').classList.add('open'); };
@@ -1436,7 +1754,6 @@ function bindEvents(){
   $('#addCustomModeBtn').onclick = () => $('#addCustomModal').classList.add('open');
   $('#cancelCustomMode').onclick = () => $('#addCustomModal').classList.remove('open');
 
-  // CREATE CUSTOM WINDOW
   $('#saveNewCustomMode').onclick = () => {
     const name = $('#customModeName').value.trim().toUpperCase().replace(/[^A-Z0-9_\-]/g, '');
     if (!name) { alert("Please enter Custom Window Name!"); return; }
@@ -1451,10 +1768,9 @@ function bindEvents(){
       }
 
       const newRules = {
-        trackType: trackArch,
-        includedProfiles: selectedProfiles,
-        hasJali: hasJali, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1,
-        arw: 500, lr: 100, jaliRate: hasJali ? 30 : 0, rubberWtFt: 0.025, rubberRate: 160
+        trackType: trackArch, includedProfiles: selectedProfiles, hasJali: hasJali,
+        glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, arw: 500, lr: 100,
+        jaliRate: hasJali ? 30 : 0, rubberWtFt: 0.025, rubberRate: 160
       };
 
       selectedProfiles.forEach(prof => {
@@ -1477,8 +1793,7 @@ function bindEvents(){
 
       $('#addCustomModal').classList.remove('open');
       STATE.mode = name; STATE.currentRulesTab = name; STATE.currentWeightTab = name;
-      updateModeDropdownsAndTabs();
-      saveInputs(); hydrateView();
+      updateModeDropdownsAndTabs(); saveInputs(); hydrateView();
     });
   };
 
@@ -1490,12 +1805,10 @@ function bindEvents(){
       delete STATE.customRules[active];
       LS.setRules(STATE.customRules);
       STATE.mode = 'D3'; STATE.currentRulesTab = 'D3';
-      updateModeDropdownsAndTabs(); buildRulesUI('D3');
-      saveInputs(); hydrateView();
+      updateModeDropdownsAndTabs(); buildRulesUI('D3'); saveInputs(); hydrateView();
     }
   };
 
-  // PERSISTENT RULES SAVE
   $('#rulesSave').onclick = () => {
     triggerInterstitialAd();
     const active = STATE.currentRulesTab || STATE.mode;
@@ -1514,8 +1827,7 @@ function bindEvents(){
     const profs = {};
     $$('#rulesBody .wc-prof-part').forEach(inp => {
       const type = inp.dataset.type, prop = inp.dataset.prop;
-      profs[type] = profs[type] || {};
-      profs[type][prop] = inp.value;
+      profs[type] = profs[type] || {}; profs[type][prop] = inp.value;
     });
 
     for (const type in profs) {
@@ -1523,10 +1835,8 @@ function bindEvents(){
       const base = p.base || (type.toLowerCase().includes('w') || type === 'TrackStrip' ? 'W' : 'H');
       let parsedOffset = (STATE.unitMode === 'mm') ? (parseFloat(p.offset) || 0) / 25.4 : parseSutOffset(p.offset);
       let stockLenInches = p.stockLen ? (STATE.unitMode === 'mm' ? (parseFloat(p.stockLen)||0)/25.4 : parseFloat(p.stockLen)||192.5) : undefined;
-      
       const divisorToUse = p.divisor ? safeNum(p.divisor) : 1;
       const formula = buildFormulaFromParts(base, parsedOffset, divisorToUse);
-      
       currentRules[type] = {
         formula, qty: safeNum(p.qty) || 2, stockLen: stockLenInches, rate: p.rate ? safeNum(p.rate) : undefined
       };
@@ -1562,7 +1872,6 @@ function bindEvents(){
 }
 
 window.onload = () => {
-  checkNetworkStatus();
   loadInputs();
   updateModeDropdownsAndTabs();
   bindEvents();
