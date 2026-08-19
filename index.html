@@ -1975,7 +1975,7 @@ function renderReportTables(data) {
   t3Box.appendChild(buildTable(qHeaders, qRows));
   totalsWrap.appendChild(t3Box);
 
-  // 2. PROFILE BARS & WEIGHT SUMMARY TABLE (INCLUDES FULL RAW BAR WEIGHT)
+  // 2. DETAILED PROFILE BARS & WEIGHT SUMMARY TABLE (INCLUDES FULL RAW BAR WEIGHT)
   const barWrap = $('#barSummaryWrap'); barWrap.innerHTML = '';
   const barRows = data.barSummary.rows.map(r => [...r]);
   const totTitle = l === 'hi' ? 'कुल सारांश (Total)' : (l === 'en' ? 'TOTAL SUMMARY' : 'कुल सारांश (TOTAL)');
