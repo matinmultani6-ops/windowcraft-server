@@ -233,13 +233,13 @@ tr:nth-child(even) td{ background:#f9fbfd }
           <div id="totalsWrap" style="display: flex; flex-direction: column; gap: 8px;">—</div>
         </div>
 
-        <!-- 2. BARS & WEIGHT SUMMARY WITH 3-WAY TOGGLE -->
+        <!-- 2. BARS & WEIGHT SUMMARY (INCLUDES FULL RAW BAR WEIGHT) -->
         <div>
           <h3>
             <span id="sec2Title">2. प्रोफाइल बार और वजन सारांश (Profile Bars & Weight Summary)</span>
             <button id="weightModeBtn" class="toggle-pill active-blue" title="वजन गणना मोड बदलें">वजन: 4 फीट स्लैब</button>
           </h3>
-          <div class="section-guide" id="sec2Guide">💡 हर सेक्शन के आवश्यक 16' बार, इस्तेमाल वजन, बिलिंग वजन व मेटल लागत (Kg)</div>
+          <div class="section-guide" id="sec2Guide">💡 कुल नई बार वजन (गोदाम से उठा माल), इस्तेमाल वजन, बिलिंग वजन व मेटल लागत (Kg)</div>
           <div id="barSummaryWrap" class="table-wrap muted">—</div>
         </div>
 
@@ -610,7 +610,7 @@ function applySutRounding(valInInches, profileType, isWidth) {
   return Math.round(totalSut) / 8;
 }
 
-// DEFAULT HARDWARE CONFIG (INCLUDES RUBBER & WOOLPILE)
+// DEFAULT HARDWARE CONFIG
 const DEFAULT_HARDWARE_CONFIG = {
   D2: { bearingRate: 80, bearingQty: 4, lockRate: 150, lockQty: 2, lCornerRate: 20, lCornerQty: 8, fittingCost: 150, woolpileRate: 2, rubberWtFt: 0.025, rubberRate: 160 },
   D3: { bearingRate: 80, bearingQty: 6, lockRate: 150, lockQty: 2, lCornerRate: 20, lCornerQty: 12, fittingCost: 200, woolpileRate: 2, rubberWtFt: 0.025, rubberRate: 160 },
@@ -963,7 +963,7 @@ function optimizeMinBars(cuts, stockLen) {
   return bins;
 }
 
-// CALCULATION ENGINE WITH CLASSIFIED SCRAP (<24") & USABLE OFFCUTS (>=24")
+// CALCULATION ENGINE WITH CLASSIFIED SCRAP (<24") & FULL RAW BAR WEIGHT
 function runCalculationEngine(reqBody) {
   const {
     sizesRaw = '', pipeSizesRaw = '', defaultMode = 'D3',
@@ -1160,9 +1160,9 @@ function runCalculationEngine(reqBody) {
     }
   }
 
-  // 4. CUT PLANS & SEPARATED SCRAP (<24") vs USEFUL (>=24")
+  // 4. CUT PLANS & SEPARATED SCRAP (<24") vs USEFUL (>=24") & FULL RAW BAR WEIGHT
   const cutPlans = {};
-  let grandBars = 0, grandUsedWeight = 0, grandBilledWeight = 0, trackStripTotalCost = 0;
+  let grandBars = 0, grandFullBarWeight = 0, grandUsedWeight = 0, grandBilledWeight = 0, trackStripTotalCost = 0;
   let grandUsefulWeight = 0, grandScrapWeight = 0, grandScrapValue = 0;
   const barSummaryRows = [];
   const scrapSummaryRows = [];
@@ -1194,7 +1194,6 @@ function runCalculationEngine(reqBody) {
       profUsedInches += u;
       const remnant = Math.max(0, stockLengthToUse - u);
 
-      // CLASSIFY SCRAP (<24") vs USEFUL (>=24")
       if (remnant >= 24) {
         profUsefulInches += remnant;
         profUsefulPcs++;
@@ -1244,6 +1243,7 @@ function runCalculationEngine(reqBody) {
     const kgPerBar = getWeight(defaultMode, type, weights);
     const kgPerInch = stockLengthToUse > 0 ? (kgPerBar / stockLengthToUse) : 0;
 
+    const profFullBarKg = bars * kgPerBar;
     const profUsedKg = profUsedInches * kgPerInch;
     const profBilledKg = profBilledInches * kgPerInch;
     const profUsefulKg = profUsefulInches * kgPerInch;
@@ -1252,22 +1252,24 @@ function runCalculationEngine(reqBody) {
     const profCost = profBilledKg * mrc;
 
     grandBars += bars;
+    grandFullBarWeight += profFullBarKg;
     grandUsedWeight += profUsedKg;
     grandBilledWeight += profBilledKg;
     grandUsefulWeight += profUsefulKg;
     grandScrapWeight += profScrapKg;
     grandScrapValue += profScrapVal;
 
-    // Table 2: Profile Bar & Weight Summary
+    // Table 2: Profile Bar & Weight Summary (Includes Full Bar Wt)
     barSummaryRows.push([
       type,
       `${bars} Bars`,
+      `${safeFix(profFullBarKg, 3)} kg`,
       `${safeFix(profUsedKg, 3)} kg`,
       `${safeFix(profBilledKg, 3)} kg`,
       `Rs. ${safeFix(profCost)}`
     ]);
 
-    // Table 3: Dedicated Scrap & Useful Table
+    // Table 3: Dedicated Separate Scrap & Useful Table
     scrapSummaryRows.push([
       type,
       `${profUsefulPcs} Pcs (${safeFix(profUsefulInches, 1)}")`,
@@ -1291,6 +1293,7 @@ function runCalculationEngine(reqBody) {
     barSummary: {
       rows: barSummaryRows,
       grandBars,
+      grandFullBarWeight: safeFix(grandFullBarWeight, 3),
       grandUsedWeight: safeFix(grandUsedWeight, 3),
       grandWeight: safeFix(grandBilledWeight, 3),
       totalCost: safeFix(weightCost)
@@ -1303,6 +1306,7 @@ function runCalculationEngine(reqBody) {
     },
     totals: {
       windowsCount, totalWindowSqFt: safeFix(totalWindowSqFt), totalBars: grandBars,
+      totalFullBarWeightKg: safeFix(grandFullBarWeight, 3),
       totalUsedWeightKg: safeFix(grandUsedWeight, 3),
       totalUsefulWeightKg: safeFix(grandUsefulWeight, 3),
       totalScrapWeightKg: safeFix(grandScrapWeight, 3),
@@ -1393,7 +1397,7 @@ function applyLanguageUI() {
     $('#sec1Title').textContent = '1. प्रोजेक्ट माप, खर्च एवं कोटेशन सारांश';
     $('#sec1Guide').textContent = '💡 माप, सामग्री मात्रा, अलग-अलग खर्च और कुल फाइनल बिल का विवरण';
     $('#sec2Title').textContent = '2. प्रोफाइल बार और वजन सारांश';
-    $('#sec2Guide').textContent = '💡 आवश्यक 16\' बार, इस्तेमाल वजन, बिलिंग वजन व मेटल लागत';
+    $('#sec2Guide').textContent = '💡 कुल नई बार वजन (गोदाम से उठा माल), इस्तेमाल वजन, बिलिंग वजन व मेटल लागत';
     $('#sec3ScrapTitle').textContent = '3. ♻️ स्क्रैप एवं उपयोगी टुकड़े विवरण';
     $('#sec3ScrapGuide').textContent = '💡 24" से बड़े टुकड़े उपयोगी (Usable Offcuts) हैं और 24" से छोटे टुकड़े असली स्क्रैप (Pure Scrap) हैं।';
     $('#sec4Title').textContent = '4. विंडो साइज और कांच नाप';
@@ -1439,7 +1443,7 @@ function applyLanguageUI() {
     $('#sec1Title').textContent = '1. Project Measurements, Expenses & Quotation';
     $('#sec1Guide').textContent = '💡 Measurements, material breakdown, detailed expenses and grand total quotation';
     $('#sec2Title').textContent = '2. Profile Bars & Weight Summary';
-    $('#sec2Guide').textContent = '💡 Required 16\' bars, actual used weight, billed weight and total metal cost (Kg)';
+    $('#sec2Guide').textContent = '💡 Full raw bar weight, actual used weight, billed weight and total metal cost (Kg)';
     $('#sec3ScrapTitle').textContent = '3. ♻️ Scrap & Usable Offcuts Analysis';
     $('#sec3ScrapGuide').textContent = '💡 Remnants >= 24" are Usable Offcuts, while remnants < 24" are Pure Scrap.';
     $('#sec4Title').textContent = '4. Window Sizes & Glass Cut Sizes';
@@ -1485,7 +1489,7 @@ function applyLanguageUI() {
     $('#sec1Title').textContent = '1. प्रोजेक्ट माप, खर्च एवं कोटेशन सारांश (Project Summary & Quotation)';
     $('#sec1Guide').textContent = '💡 माप, सामग्री मात्रा, अलग-अलग खर्च और कुल फाइनल बिल का विवरण';
     $('#sec2Title').textContent = '2. प्रोफाइल बार और वजन सारांश (Profile Bars & Weight Summary)';
-    $('#sec2Guide').textContent = '💡 आवश्यक 16\' बार, इस्तेमाल वजन, बिलिंग वजन व मेटल लागत';
+    $('#sec2Guide').textContent = '💡 कुल नई बार वजन (गोदाम से उठा माल), इस्तेमाल वजन, बिलिंग वजन व मेटल लागत';
     $('#sec3ScrapTitle').textContent = '3. ♻️ स्क्रैप एवं उपयोगी टुकड़े विवरण (Scrap & Usable Offcuts Analysis)';
     $('#sec3ScrapGuide').textContent = '💡 24" से बड़े टुकड़े उपयोगी (Usable Offcuts) हैं और 24" से छोटे टुकड़े असली स्क्रैप (Pure Scrap) हैं।';
     $('#sec4Title').textContent = '4. विंडो साइज और कांच नाप (Window Sizes & Glass)';
@@ -1812,7 +1816,7 @@ function hydrateView() {
   setStatus(`Calculated in ${(t1 - t0).toFixed(1)}ms`);
 }
 
-// HIGH-SPEED CHUNKED DOM RENDERING (LEFT-ALIGNED CLEAN TYPOGRAPHY)
+// HIGH-SPEED CHUNKED DOM RENDERING
 function buildTable(headers, rows, maxLimit = 100) {
   const t = document.createElement('table');
   const thead = document.createElement('thead'); const trh = document.createElement('tr');
@@ -1864,6 +1868,7 @@ function renderReportTables(data) {
       ["कुल विंडो संख्या (Windows)", `${t.windowsCount} Nos`],
       ["कुल विंडो क्षेत्रफल (Area)", `${t.totalWindowSqFt} वर्ग फुट (${STATE.sqftMode})`],
       ["कुल आवश्यक 16' बार (Bars)", `${t.totalBars} बार`],
+      ["कुल नई बार वजन (Full Raw Bars)", `${t.totalFullBarWeightKg} kg`],
       ["वास्तविक इस्तेमाल वजन (Used Wt)", `${t.totalUsedWeightKg} kg`],
       ["बिलिंग मेटल वजन (Billed Wt)", `${t.totalWeightKg} kg`],
       ["कुल कांच क्षेत्रफल (Glass Area)", `${t.totalGlassSqFt} वर्ग फुट`],
@@ -1874,6 +1879,7 @@ function renderReportTables(data) {
       ["Total Windows Count", `${t.windowsCount} Nos`],
       ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft (${STATE.sqftMode})`],
       ["Total Required 16' Bars", `${t.totalBars} Bars`],
+      ["Total Full Raw Bar Weight", `${t.totalFullBarWeightKg} kg`],
       ["Actual Used Weight", `${t.totalUsedWeightKg} kg`],
       ["Billed Metal Weight", `${t.totalWeightKg} kg`],
       ["Total Glass Area", `${t.totalGlassSqFt} Sq.Ft`],
@@ -1884,6 +1890,7 @@ function renderReportTables(data) {
       ["कुल विंडो संख्या (Total Windows)", `${t.windowsCount} Nos`],
       ["कुल विंडो क्षेत्रफल (Total Area)", `${t.totalWindowSqFt} Sq.Ft (${STATE.sqftMode})`],
       ["कुल 16' प्रोफाइल बार (Total Bars)", `${t.totalBars} Bars`],
+      ["कुल नई बार वजन (Full Bar Weight)", `${t.totalFullBarWeightKg} kg`],
       ["वास्तविक इस्तेमाल वजन (Used Weight)", `${t.totalUsedWeightKg} kg`],
       ["बिलिंग मेटल वजन (Billed Metal Wt)", `${t.totalWeightKg} kg`],
       ["कुल कांच क्षेत्रफल (Total Glass Area)", `${t.totalGlassSqFt} Sq.Ft`],
@@ -1968,20 +1975,21 @@ function renderReportTables(data) {
   t3Box.appendChild(buildTable(qHeaders, qRows));
   totalsWrap.appendChild(t3Box);
 
-  // 2. DETAILED PROFILE BARS & WEIGHT SUMMARY TABLE
+  // 2. PROFILE BARS & WEIGHT SUMMARY TABLE (INCLUDES FULL RAW BAR WEIGHT)
   const barWrap = $('#barSummaryWrap'); barWrap.innerHTML = '';
   const barRows = data.barSummary.rows.map(r => [...r]);
   const totTitle = l === 'hi' ? 'कुल सारांश (Total)' : (l === 'en' ? 'TOTAL SUMMARY' : 'कुल सारांश (TOTAL)');
   barRows.push([
     `<strong>${totTitle}</strong>`,
     `<strong>${data.barSummary.grandBars} Bars</strong>`,
+    `<strong>${data.barSummary.grandFullBarWeight} kg</strong>`,
     `<strong>${data.barSummary.grandUsedWeight} kg</strong>`,
     `<strong>${data.barSummary.grandWeight} kg</strong>`,
     `<strong>Rs. ${data.barSummary.totalCost}</strong>`
   ]);
-  const barHeaders = l === 'hi' ? ["प्रोफाइल / बार", "बार संख्या", "इस्तेमाल वजन", "बिलिंग वजन", "मेटल लागत"]
-                   : (l === 'en' ? ["Profile / Bar", "Bars", "Used Wt", "Billed Wt", "Metal Cost"]
-                   : ["Profile / Bar", "Bars", "Used Wt (kg)", "Billed Wt (kg)", "Cost (₹)"]);
+  const barHeaders = l === 'hi' ? ["प्रोफाइल / बार", "बार संख्या", "कुल बार वजन", "इस्तेमाल वजन", "बिलिंग वजन", "मेटल लागत"]
+                   : (l === 'en' ? ["Profile / Bar", "Bars", "Full Bar Wt", "Used Wt", "Billed Wt", "Metal Cost"]
+                   : ["Profile / Bar", "Bars", "Full Bar Wt (कुल)", "Used Wt (इस्तेमाल)", "Billed Wt (बिलिंग)", "Cost (लागत ₹)"]);
   barWrap.appendChild(buildTable(barHeaders, barRows));
 
   // 3. DEDICATED SEPARATE SCRAP & USEFUL OFFCUTS TABLE (STANDALONE SECTION)
@@ -2390,6 +2398,7 @@ function generateBillPDF(fileName) {
       ["Total Windows Count", `${safeNum(t.windowsCount)} Nos`],
       ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft`],
       ["Total Profile Bars", `${t.totalBars} Bars`],
+      ["Total Full Raw Bar Weight", `${t.totalFullBarWeightKg} kg`],
       ["Actual Used Weight", `${t.totalUsedWeightKg} kg`],
       ["Billed Metal Weight (@ Rs. " + t.matsRate + "/kg)", `${t.totalWeightKg} kg ➔ Rs. ${t.weightCost}`],
       ["Total Glass Area", `${t.totalGlassSqFt} Sq.Ft`],
@@ -2420,10 +2429,11 @@ function generateBillPDF(fileName) {
     currentY = doc.lastAutoTable.finalY + 8;
 
     // 2. PROFILE BARS & WEIGHT SUMMARY TABLE
-    const pdfBarRows = (STATE.serverData.barSummary?.rows || []).map(r => [r[0], r[1], r[2], r[3], r[4]]);
+    const pdfBarRows = (STATE.serverData.barSummary?.rows || []).map(r => [r[0], r[1], r[2], r[3], r[4], r[5]]);
     pdfBarRows.push([
       "TOTAL SUMMARY",
       `${STATE.serverData.barSummary?.grandBars} Bars`,
+      `${STATE.serverData.barSummary?.grandFullBarWeight} kg`,
       `${STATE.serverData.barSummary?.grandUsedWeight} kg`,
       `${STATE.serverData.barSummary?.grandWeight} kg`,
       `Rs. ${STATE.serverData.barSummary?.totalCost}`
@@ -2432,13 +2442,13 @@ function generateBillPDF(fileName) {
     doc.autoTable({
       ...tableBaseStyles,
       head: [
-        [{ content: '1. Profile Bars & Weight Summary', colSpan: 5, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
-        ["Profile / Bar", "Bars", "Used Wt", "Billed Wt", "Metal Cost"]
+        [{ content: '1. Profile Bars & Weight Summary', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+        ["Profile / Bar", "Bars", "Full Bar Wt", "Used Wt", "Billed Wt", "Metal Cost"]
       ],
       body: pdfBarRows,
       startY: currentY,
       styles: { ...tableBaseStyles.styles, halign: 'left' },
-      columnStyles: { 4: { halign: 'right' } },
+      columnStyles: { 5: { halign: 'right' } },
       didParseCell: (data) => {
         if (data.section === 'body' && data.row.index === pdfBarRows.length - 1) {
           data.cell.styles.fontStyle = 'bold';
