@@ -102,7 +102,7 @@ textarea.input[rows="2"] { min-height: 110px; padding: 6px; font-size: 0.82rem; 
 table{ width: 100%; min-width: 440px; border-collapse: collapse; border-spacing: 0; border-radius: 4px; }
 
 /* LEFT-ALIGNED CLEAN TYPOGRAPHY */
-th, td{ border:1px solid var(--border); padding:4px 6px; text-align:left; background:var(--bg); white-space:nowrap; font-size:0.72rem; }
+th, td{ border:1px solid var(--border); padding:5px 6px; text-align:left; background:var(--bg); white-space:nowrap; font-size:0.72rem; }
 th{ background:var(--panel); font-weight:700; color:var(--text); text-align:left; }
 td{ font-weight:500; color:#333; }
 td.text-right, th.text-right { text-align: right !important; }
@@ -1259,7 +1259,7 @@ function runCalculationEngine(reqBody) {
     grandScrapWeight += profScrapKg;
     grandScrapValue += profScrapVal;
 
-    // Table 2: Profile Bar & Weight Summary (Includes Full Bar Wt)
+    // Table 2: Profile Bar & Weight Summary
     barSummaryRows.push([
       type,
       `${bars} Bars`,
@@ -2343,7 +2343,7 @@ function saveStockModal(){
 }
 
 // ==========================================
-// 3. SEPARATED PDF GENERATORS (EXACT MATCH)
+// 3. SEPARATED PDF GENERATORS (SIDE-BY-SIDE + SHARP BLACK/WHITE)
 // ==========================================
 
 // BUTTON 1: QUOTATION & BILL SUMMARY
@@ -2353,23 +2353,27 @@ function generateBillPDF(fileName) {
     const company = STATE.companyName || "WindowCraft Pro";
     const jsPDFConstructor = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
     const doc = new jsPDFConstructor({ unit: 'pt', format: 'a4' });
+    const pageHeight = doc.internal.pageSize.getHeight();
     const dateStr = new Date().toLocaleDateString('en-GB');
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.text(company.toUpperCase(), 297, 24, { align: 'center' });
-    doc.setFontSize(8.5);
-    doc.text('DETAILED COST ESTIMATION (QUOTATION)', 297, 35, { align: 'center' });
-    doc.setLineWidth(0.6);
-    doc.setDrawColor(0, 0, 0);
-    doc.line(35, 41, 560, 41);
+    function drawPdfHeader(doc, pageNum) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(company.toUpperCase(), 297, 24, { align: 'center' });
+      doc.setFontSize(8.5);
+      doc.text('DETAILED COST ESTIMATION (QUOTATION)', 297, 36, { align: 'center' });
+      doc.setLineWidth(0.7);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(35, 42, 560, 42);
 
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Project Mode: ${STATE.mode}`, 35, 51);
-    doc.text(`Date: ${dateStr}`, 560, 51, { align: 'right' });
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()}) | Area: ${STATE.sqftMode.toUpperCase()}`, 35, 52);
+      doc.text(`Date: ${dateStr}  |  Page ${pageNum}`, 560, 52, { align: 'right' });
+    }
 
-    let currentY = 57;
+    drawPdfHeader(doc, 1);
+    let currentY = 60;
 
     const tableBaseStyles = {
       theme: 'grid',
@@ -2377,58 +2381,99 @@ function generateBillPDF(fileName) {
         fontSize: 7.2,
         cellPadding: 2.8,
         textColor: [0, 0, 0],
-        lineColor: [100, 100, 100],
+        lineColor: [0, 0, 0],
         lineWidth: 0.5,
         font: 'helvetica',
         halign: 'left'
       },
       headStyles: {
-        fillColor: [248, 248, 248],
+        fillColor: [240, 240, 240],
         textColor: [0, 0, 0],
         fontStyle: 'bold',
-        lineColor: [100, 100, 100],
+        lineColor: [0, 0, 0],
         lineWidth: 0.5,
         halign: 'left'
       },
-      margin: { left: 35, right: 35 }
+      margin: { left: 35, right: 35, top: 62, bottom: 35 }
     };
 
     const t = STATE.serverData.totals || {};
-    const qRows = [
+
+    // 1. MEASUREMENTS & QUANTITIES TABLE (LEFT COLUMN - WIDTH: 255)
+    const mRows = [
       ["Total Windows Count", `${safeNum(t.windowsCount)} Nos`],
-      ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft`],
-      ["Total Profile Bars", `${t.totalBars} Bars`],
+      ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft (${STATE.sqftMode})`],
+      ["Total Required 16' Bars", `${t.totalBars} Bars`],
       ["Total Full Raw Bar Weight", `${t.totalFullBarWeightKg} kg`],
       ["Actual Used Weight", `${t.totalUsedWeightKg} kg`],
-      ["Billed Metal Weight (@ Rs. " + t.matsRate + "/kg)", `${t.totalWeightKg} kg ➔ Rs. ${t.weightCost}`],
+      ["Billed Metal Weight", `${t.totalWeightKg} kg`],
       ["Total Glass Area", `${t.totalGlassSqFt} Sq.Ft`],
-      [`Glass Cost (@ Rs. ${t.glassRate}/sq.ft)`, `Rs. ${t.glassCost}`],
-      [`Hardware & Fitting Accessories Cost`, `Rs. ${t.totalHardwareCost}`],
-      [`Woolpile Cost (${t.totalWoolpileFt} Ft @ Rs. ${t.woolpileRate}/Ft)`, `Rs. ${t.totalWoolpileCost}`],
-      [`Labour Total (@ Rs. ${t.labourRate}/sq.ft)`, `Rs. ${t.laborCost}`]
+      ["Total Woolpile Length", `${t.totalWoolpileFt} Running Ft`]
     ];
-    if (parseFloat(t.jaliCost) > 0) qRows.push([`Jali Cost (@ Rs. ${t.jaliRate}/sq.ft)`, `Rs. ${t.jaliCost}`]);
-    if (parseFloat(t.trackStripTotalCost) > 0) qRows.push(["Track Strip Cost", `Rs. ${t.trackStripTotalCost}`]);
-    if (parseFloat(t.totalRubberCost) > 0) qRows.push([`Rubber Total Cost (@ Rs. ${t.rubberRate}/kg)`, `Rs. ${t.totalRubberCost}`]);
-
-    qRows.push(["GRAND TOTAL", `Rs. ${t.grandTotal}`]);
-    qRows.push(["Average Rate per Sq.Ft", `Rs. ${t.avgRatePerSqFt} / Sq.Ft`]);
 
     doc.autoTable({
       ...tableBaseStyles,
-      head: [["Description", "Details / Amount"]],
-      body: qRows,
       startY: currentY,
-      columnStyles: { 0: { halign: 'left' }, 1: { halign: 'right' } },
-      didParseCell: (data) => {
-        if (data.section === 'body' && data.row.index >= qRows.length - 2) {
-          data.cell.styles.fontStyle = 'bold';
-        }
-      }
+      tableWidth: 255,
+      margin: { left: 35 },
+      head: [
+        [{ content: '1. Project Measurements & Quantities', colSpan: 2, styles: { halign: 'left', fontStyle: 'bold', fillColor: [230, 230, 230] } }],
+        ["Measurement / Material", "Quantity / Dimensions"]
+      ],
+      body: mRows,
+      columnStyles: { 0: { cellWidth: 145, halign: 'left' }, 1: { cellWidth: 110, halign: 'right' } }
     });
-    currentY = doc.lastAutoTable.finalY + 8;
+    const finalY1 = doc.lastAutoTable.finalY;
 
-    // 2. PROFILE BARS & WEIGHT SUMMARY TABLE
+    // 2. DETAILED EXPENSE BREAKDOWN (RIGHT COLUMN - WIDTH: 255, X: 305)
+    const eRows = [
+      [`Metal Material Cost (@ Rs. ${t.matsRate}/kg)`, `Rs. ${t.weightCost}`],
+      [`Glass Cost (@ Rs. ${t.glassRate}/sq.ft)`, `Rs. ${t.glassCost}`],
+      [`Hardware & Fitting Accessories`, `Rs. ${t.totalHardwareCost}`],
+      [`Woolpile Cost (@ Rs. ${t.woolpileRate}/Ft)`, `Rs. ${t.totalWoolpileCost}`],
+      [`Rubber Gasket Cost (@ Rs. ${t.rubberRate}/kg)`, `Rs. ${t.totalRubberCost}`],
+      [`Labour Total (@ Rs. ${t.labourRate}/sq.ft)`, `Rs. ${t.laborCost}`]
+    ];
+    if (parseFloat(t.jaliCost) > 0) eRows.push([`Jali Cost (@ Rs. ${t.jaliRate}/sq.ft)`, `Rs. ${t.jaliCost}`]);
+    if (parseFloat(t.trackStripTotalCost) > 0) eRows.push(["Track Strip Cost", `Rs. ${t.trackStripTotalCost}`]);
+
+    doc.autoTable({
+      ...tableBaseStyles,
+      startY: currentY,
+      tableWidth: 255,
+      margin: { left: 305 },
+      head: [
+        [{ content: '2. Detailed Expense Breakdown (Rs.)', colSpan: 2, styles: { halign: 'left', fontStyle: 'bold', fillColor: [230, 230, 230] } }],
+        ["Expense Description", "Amount (Rs.)"]
+      ],
+      body: eRows,
+      columnStyles: { 0: { cellWidth: 165, halign: 'left' }, 1: { cellWidth: 90, halign: 'right' } }
+    });
+    const finalY2 = doc.lastAutoTable.finalY;
+
+    // Advance Y under both side-by-side tables with ample gap
+    currentY = Math.max(finalY1, finalY2) + 12;
+
+    // 3. FINAL QUOTATION & GRAND TOTAL TABLE (FULL WIDTH)
+    const qRows = [
+      ["GRAND TOTAL BILL", `Rs. ${t.grandTotal}`],
+      ["Average Rate per Sq.Ft", `Rs. ${t.avgRatePerSqFt} / Sq.Ft`]
+    ];
+
+    doc.autoTable({
+      ...tableBaseStyles,
+      startY: currentY,
+      margin: { left: 35, right: 35 },
+      head: [
+        [{ content: '3. Final Quotation & Grand Total', colSpan: 2, styles: { halign: 'left', fontStyle: 'bold', fillColor: [230, 230, 230] } }],
+        ["Quotation Summary", "Final Amount"]
+      ],
+      body: qRows,
+      columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'right', fontStyle: 'bold' } }
+    });
+    currentY = doc.lastAutoTable.finalY + 12;
+
+    // 4. PROFILE BARS & WEIGHT SUMMARY TABLE
     const pdfBarRows = (STATE.serverData.barSummary?.rows || []).map(r => [r[0], r[1], r[2], r[3], r[4], r[5]]);
     pdfBarRows.push([
       "TOTAL SUMMARY",
@@ -2439,45 +2484,97 @@ function generateBillPDF(fileName) {
       `Rs. ${STATE.serverData.barSummary?.totalCost}`
     ]);
 
+    if (currentY + 80 > pageHeight - 35) {
+      doc.addPage();
+      drawPdfHeader(doc, doc.internal.getNumberOfPages());
+      currentY = 62;
+    }
+
     doc.autoTable({
       ...tableBaseStyles,
+      startY: currentY,
       head: [
-        [{ content: '1. Profile Bars & Weight Summary', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+        [{ content: '4. Profile Bars & Weight Summary', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [230, 230, 230] } }],
         ["Profile / Bar", "Bars", "Full Bar Wt", "Used Wt", "Billed Wt", "Metal Cost"]
       ],
       body: pdfBarRows,
-      startY: currentY,
-      styles: { ...tableBaseStyles.styles, halign: 'left' },
-      columnStyles: { 5: { halign: 'right' } },
+      columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } },
       didParseCell: (data) => {
         if (data.section === 'body' && data.row.index === pdfBarRows.length - 1) {
           data.cell.styles.fontStyle = 'bold';
         }
       }
     });
-    currentY = doc.lastAutoTable.finalY + 8;
+    currentY = doc.lastAutoTable.finalY + 12;
 
-    // 3. WINDOW SIZES & GLASS TABLE
+    // 5. SCRAP & USABLE OFFCUTS ANALYSIS TABLE
+    const pdfScrapRows = (STATE.serverData.scrapSummary?.rows || []).map(r => [r[0], r[1], r[2], r[3], r[4], r[5]]);
+    pdfScrapRows.push([
+      "TOTAL SUMMARY",
+      "—",
+      `${STATE.serverData.scrapSummary?.grandUsefulWeight} kg`,
+      "—",
+      `${STATE.serverData.scrapSummary?.grandScrapWeight} kg`,
+      `Rs. ${STATE.serverData.scrapSummary?.grandScrapValue}`
+    ]);
+
+    if (currentY + 80 > pageHeight - 35) {
+      doc.addPage();
+      drawPdfHeader(doc, doc.internal.getNumberOfPages());
+      currentY = 62;
+    }
+
+    doc.autoTable({
+      ...tableBaseStyles,
+      startY: currentY,
+      head: [
+        [{ content: '5. Scrap & Usable Offcuts Analysis', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [230, 230, 230] } }],
+        ["Profile / Bar", "Useful Pcs (>=24\")", "Useful Wt", "Scrap Pcs (<24\")", "Scrap Wt", "Scrap Value"]
+      ],
+      body: pdfScrapRows,
+      columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' }, 2: { halign: 'right' }, 3: { halign: 'left' }, 4: { halign: 'right' }, 5: { halign: 'right' } },
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.row.index === pdfScrapRows.length - 1) {
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    });
+    currentY = doc.lastAutoTable.finalY + 12;
+
+    // 6. WINDOW SIZES & GLASS TABLE
     const wsRows = (STATE.serverData.sizes || []).map(g => [
       `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq
     ]);
 
+    if (currentY + 80 > pageHeight - 35) {
+      doc.addPage();
+      drawPdfHeader(doc, doc.internal.getNumberOfPages());
+      currentY = 62;
+    }
+
     doc.autoTable({
       ...tableBaseStyles,
+      startY: currentY,
       head: [
-        [{ content: '2. Window Sizes & Glass', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+        [{ content: '6. Window Sizes & Glass Cut Sizes', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [230, 230, 230] } }],
         ["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]
       ],
       body: wsRows,
-      startY: currentY,
-      styles: { ...tableBaseStyles.styles, halign: 'left' }
+      columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' }, 2: { halign: 'right' }, 3: { halign: 'left' }, 4: { halign: 'center' }, 5: { halign: 'right' } }
     });
+
+    // Ensure header on every generated page
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      drawPdfHeader(doc, p);
+    }
 
     downloadPdfDirect(doc, fileName);
   } catch (e) { alert("PDF Error: " + e.message); }
 }
 
-// BUTTON 2: FABRICATION & CUT REPORT
+// BUTTON 2: FABRICATION & CUT REPORT (WITH HEADER ON EVERY PAGE & SPACIOUS ROWS)
 function generateFabricationPDF(fileName) {
   try {
     if (!STATE.serverData) { alert("Please click Calculate first!"); return; }
@@ -2487,53 +2584,45 @@ function generateFabricationPDF(fileName) {
     const pageHeight = doc.internal.pageSize.getHeight();
     const dateStr = new Date().toLocaleDateString('en-GB');
 
-    function drawHeader(isFirstPage = true) {
+    function drawPdfHeader(doc, pageNum) {
       doc.setFont('helvetica', 'bold');
-      if (isFirstPage) {
-        doc.setFontSize(11);
-        doc.text(company.toUpperCase(), 297, 24, { align: 'center' });
-        doc.setFontSize(8.5);
-        doc.text('FABRICATION & CUTTING REPORT', 297, 35, { align: 'center' });
-        doc.setLineWidth(0.6);
-        doc.setDrawColor(0, 0, 0);
-        doc.line(35, 41, 560, 41);
+      doc.setFontSize(12);
+      doc.text(company.toUpperCase(), 297, 24, { align: 'center' });
+      doc.setFontSize(8.5);
+      doc.text('FABRICATION & CUTTING REPORT', 297, 36, { align: 'center' });
+      doc.setLineWidth(0.7);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(35, 42, 560, 42);
 
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()})`, 35, 51);
-        doc.text(`Date: ${dateStr}`, 560, 51, { align: 'right' });
-      } else {
-        doc.setFontSize(10.5);
-        doc.text(company.toUpperCase(), 297, 22, { align: 'center' });
-        doc.setLineWidth(0.6);
-        doc.setDrawColor(0, 0, 0);
-        doc.line(35, 27, 560, 27);
-      }
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()}) | Area: ${STATE.sqftMode.toUpperCase()}`, 35, 52);
+      doc.text(`Date: ${dateStr}  |  Page ${pageNum}`, 560, 52, { align: 'right' });
     }
 
-    drawHeader(true);
-    let currentY = 57;
+    drawPdfHeader(doc, 1);
+    let currentY = 60;
 
     const tableBaseStyles = {
       theme: 'grid',
       styles: {
-        fontSize: 7.2,
-        cellPadding: 2.8,
+        fontSize: 7.5,
+        cellPadding: 3.5,
         textColor: [0, 0, 0],
-        lineColor: [100, 100, 100],
+        lineColor: [0, 0, 0],
         lineWidth: 0.5,
         font: 'helvetica',
         halign: 'left'
       },
       headStyles: {
-        fillColor: [248, 248, 248],
+        fillColor: [240, 240, 240],
         textColor: [0, 0, 0],
         fontStyle: 'bold',
-        lineColor: [100, 100, 100],
+        lineColor: [0, 0, 0],
         lineWidth: 0.5,
         halign: 'left'
       },
-      margin: { left: 35, right: 35 }
+      margin: { left: 35, right: 35, top: 62, bottom: 35 }
     };
 
     // 1. WINDOW SIZES & GLASS TABLE
@@ -2543,15 +2632,15 @@ function generateFabricationPDF(fileName) {
 
     doc.autoTable({
       ...tableBaseStyles,
+      startY: currentY,
       head: [
-        [{ content: '1. Window Sizes & Glass', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+        [{ content: '1. Window Sizes & Glass', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [230, 230, 230] } }],
         ["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]
       ],
       body: wsRows,
-      startY: currentY,
-      styles: { ...tableBaseStyles.styles, halign: 'left' }
+      columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' }, 2: { halign: 'right' }, 3: { halign: 'left' }, 4: { halign: 'center' }, 5: { halign: 'right' } }
     });
-    currentY = doc.lastAutoTable.finalY + 8;
+    currentY = doc.lastAutoTable.finalY + 12;
 
     // 2. PROFILE CUT LENGTHS TABLE
     if (STATE.serverData.windowCutDetails && STATE.serverData.windowCutDetails.length) {
@@ -2575,44 +2664,57 @@ function generateFabricationPDF(fileName) {
         return [cd.id, trackW, trackH, sW, sH, iH];
       });
 
+      if (currentY + 80 > pageHeight - 35) {
+        doc.addPage();
+        drawPdfHeader(doc, doc.internal.getNumberOfPages());
+        currentY = 62;
+      }
+
       doc.autoTable({
         ...tableBaseStyles,
+        startY: currentY,
         head: [
-          [{ content: '2. Profile Cut Lengths', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+          [{ content: '2. Profile Cut Lengths', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [230, 230, 230] } }],
           ["Win #", "Track (W)", "Track (H)", "Shutter (W)", "Shutter (H)", "Interlock (H)"]
         ],
         body: cdRows,
-        startY: currentY,
-        styles: { ...tableBaseStyles.styles, halign: 'left' }
+        columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' }, 2: { halign: 'left' }, 3: { halign: 'left' }, 4: { halign: 'left' }, 5: { halign: 'left' } }
       });
-      currentY = doc.lastAutoTable.finalY + 8;
+      currentY = doc.lastAutoTable.finalY + 12;
     }
 
-    // 3. CUTTING PLANS (LEFT-ALIGNED PIECES)
+    // 3. CUTTING PLANS (LEFT-ALIGNED PIECES & SPACIOUS CELL PADDING)
     let planIndex = 3;
     Object.entries(STATE.serverData.cutPlans || {}).forEach(([type, plan]) => {
       if (!plan.bins || !plan.bins.length) return;
       const binRows = plan.bins.map((b, i) => [`Bar ${i + 1}`, b.cutsStr, b.usedFmt, b.wasteFmt]);
 
-      if (currentY + 50 > pageHeight - 35) {
+      if (currentY + 70 > pageHeight - 35) {
         doc.addPage();
-        drawHeader(false);
-        currentY = 36;
+        drawPdfHeader(doc, doc.internal.getNumberOfPages());
+        currentY = 62;
       }
 
       doc.autoTable({
         ...tableBaseStyles,
+        styles: { ...tableBaseStyles.styles, cellPadding: 4.5, fontSize: 7.5 },
+        startY: currentY,
         head: [
-          [{ content: `${planIndex++}. Cutting Plan - ${type} (New Stock)`, colSpan: 4, styles: { halign: 'left', fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+          [{ content: `${planIndex++}. Cutting Plan - ${type} (New Stock: ${plan.stockLenFmt})`, colSpan: 4, styles: { halign: 'left', fontStyle: 'bold', fillColor: [230, 230, 230] } }],
           ["Bar #", "Pieces (ID)", "Used", "Leftover"]
         ],
         body: binRows,
-        startY: currentY,
-        styles: { ...tableBaseStyles.styles, halign: 'left' },
         columnStyles: { 0: { halign: 'left', cellWidth: 45 }, 1: { halign: 'left' }, 2: { halign: 'center', cellWidth: 50 }, 3: { halign: 'center', cellWidth: 50 } }
       });
-      currentY = doc.lastAutoTable.finalY + 8;
+      currentY = doc.lastAutoTable.finalY + 12;
     });
+
+    // Ensure header on every generated page
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      drawPdfHeader(doc, p);
+    }
 
     downloadPdfDirect(doc, fileName);
   } catch (e) { alert("PDF Error: " + e.message); }
