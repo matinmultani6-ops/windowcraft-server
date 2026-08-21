@@ -12,18 +12,20 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<!-- SERVICE WORKER CACHE KILLER -->
+<!-- SERVICE WORKER CACHE KILLER (SAFELY WRAPPED FOR CODEPEN) -->
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for (let registration of registrations) { registration.unregister(); }
-    });
-  }
-  if ('caches' in window) {
-    caches.keys().then(function(names) {
-      for (let name of names) { caches.delete(name); }
-    });
-  }
+  try {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) { registration.unregister(); }
+      }).catch(function(){});
+    }
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        for (let name of names) { caches.delete(name); }
+      }).catch(function(){});
+    }
+  } catch(e) {}
 </script>
 
 <style>
@@ -726,7 +728,6 @@ function getCurrentRulesConfig(mode, customRules = {}) {
   res.arw = safeNum(res.arw ?? defaults.arw ?? 500);
   res.lr = safeNum(res.lr ?? defaults.lr ?? 100);
 
-  // ACCURATE JALI DETECTION: Only 3-track or custom with hasJali=true gets Jali
   const is3TrackOrJali = mode.endsWith('3') || !!res.hasJali || !!defaults.hasJali;
   res.hasJali = is3TrackOrJali;
   res.jaliRate = is3TrackOrJali ? safeNum(res.jaliRate ?? defaults.jaliRate ?? 30) : 0;
@@ -1421,17 +1422,17 @@ const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
 
 const LS = {
   getWeights(){ try{ return JSON.parse(localStorage.getItem('fs_weights')||'{}'); }catch(e){ return {}; } },
-  setWeights(obj){ localStorage.setItem('fs_weights', JSON.stringify(obj)); },
+  setWeights(obj){ try{ localStorage.setItem('fs_weights', JSON.stringify(obj)); }catch(e){} },
   getRules(){ try{ return JSON.parse(localStorage.getItem('fs_customRules')||'{}'); }catch(e){ return {}; } },
-  setRules(obj){ localStorage.setItem('fs_customRules', JSON.stringify(obj)); },
+  setRules(obj){ try{ localStorage.setItem('fs_customRules', JSON.stringify(obj)); }catch(e){} },
   getStock(){ try{ return JSON.parse(localStorage.getItem('fs_stock_map')||'{}'); }catch(e){ return {}; } },
-  setStock(obj){ localStorage.setItem('fs_stock_map', JSON.stringify(obj)); },
+  setStock(obj){ try{ localStorage.setItem('fs_stock_map', JSON.stringify(obj)); }catch(e){} },
   getCustomModes(){ try{ return JSON.parse(localStorage.getItem('fs_custom_modes')||'[]'); }catch(e){ return []; } },
-  setCustomModes(arr){ localStorage.setItem('fs_custom_modes', JSON.stringify(arr)); },
-  getLang(){ return localStorage.getItem('fs_app_lang') || 'hi_en'; },
-  setLang(v){ localStorage.setItem('fs_app_lang', v); },
-  getZoom(){ return parseInt(localStorage.getItem('fs_ui_zoom')||'100', 10); },
-  setZoom(v){ localStorage.setItem('fs_ui_zoom', v); }
+  setCustomModes(arr){ try{ localStorage.setItem('fs_custom_modes', JSON.stringify(arr)); }catch(e){} },
+  getLang(){ try{ return localStorage.getItem('fs_app_lang') || 'hi_en'; }catch(e){ return 'hi_en'; } },
+  setLang(v){ try{ localStorage.setItem('fs_app_lang', v); }catch(e){} },
+  getZoom(){ try{ return parseInt(localStorage.getItem('fs_ui_zoom')||'100', 10); }catch(e){ return 100; } },
+  setZoom(v){ try{ localStorage.setItem('fs_ui_zoom', v); }catch(e){} }
 };
 
 const STATE = {
@@ -2113,6 +2114,7 @@ function renderReportTables(data) {
   });
 }
 
+// 100% ORIGINAL RULES UI WITH ALL SECTIONS INTACT
 function buildRulesUI(tabMode){
   const defaults = DEFAULT_RULES_CONFIG[tabMode] || DEFAULT_RULES_CONFIG.D3;
   const custom = STATE.customRules[tabMode] || {};
@@ -2298,8 +2300,42 @@ function hydrateView() {
   setStatus(`Calculated in ${(t1 - t0).toFixed(1)}ms`);
 }
 
+// 100% CODEPEN-SAFE & FAST 1-CLICK PDF DOWNLOAD (NO PROMPT LOOP)
+function downloadPdfDirect(doc, fileName) {
+  try {
+    if (window.AndroidBridge && window.AndroidBridge.savePdfFile) {
+      const base64Data = doc.output('datauristring').split(',')[1];
+      window.AndroidBridge.savePdfFile(base64Data, fileName);
+      setStatus('PDF Saved via App');
+      return;
+    }
+
+    // CodePen and Browser safe Blob Download
+    const blob = doc.output('blob');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 500);
+    setStatus('PDF Downloaded');
+  } catch (e) {
+    try {
+      doc.save(fileName);
+      setStatus('PDF Downloaded');
+    } catch(err) {
+      alert("PDF Error: " + err.message);
+    }
+  }
+}
+
 // ==========================================
-// 3. ULTRA-CRISP PURE BLACK & WHITE PDF GENERATORS (WITH SPACIOUS HINDI+ENG 12.5 NOTE)
+// 3. ULTRA-CRISP PURE BLACK & WHITE PDF GENERATORS
 // ==========================================
 
 // BUTTON 1: QUOTATION & BILL SUMMARY
@@ -2520,7 +2556,7 @@ function generateBillPDF(fileName) {
       });
       currentY = doc.lastAutoTable.finalY + 8;
 
-      // HINDI + ENGLISH 12.5 SQ.FT CLEAN SPACING NOTE (NO OVERLAPPING / WRAPPED CLEANLY)
+      // HINDI + ENGLISH 12.5 SQ.FT CLEAN SPACING NOTE (NO OVERLAPPING)
       if (t.hasMinLabourApplied) {
         if (currentY + 25 > pageHeight - 35) {
           doc.addPage();
@@ -2616,8 +2652,7 @@ function generateBillPDF(fileName) {
       drawPdfHeader(doc, p);
     }
 
-    doc.save(fileName);
-    setStatus('PDF Downloaded');
+    downloadPdfDirect(doc, fileName);
   } catch (e) { alert("PDF Error: " + e.message); }
 }
 
@@ -2761,8 +2796,7 @@ function generateFabricationPDF(fileName) {
       drawPdfHeader(doc, p);
     }
 
-    doc.save(fileName);
-    setStatus('PDF Downloaded');
+    downloadPdfDirect(doc, fileName);
   } catch (e) { alert("PDF Error: " + e.message); }
 }
 
