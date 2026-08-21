@@ -337,7 +337,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
           <div id="windowDetails" class="table-wrap muted">—</div>
         </div>
 
-        <!-- 6. CUTTING PLAN -->
+        <!-- 6. CUTTING PLAN WITH MIN WASTE / MIN BARS TOGGLE -->
         <div>
           <h3 id="sec6Title">6. कटिंग प्लान - बार ऑप्टिमाइजेशन (Cutting Plan - Optimized)</h3>
           <div class="section-guide" id="sec6Guide">💡 16 फीट बार से न्यूनतम वेस्टेज में कटिंग लेआउट (Min Waste / Min Bars स्विच करें)</div>
@@ -2076,14 +2076,33 @@ function renderReportTables(data) {
     cutDetailWrap.appendChild(buildTable(cutHeaders, cdRows, 100));
   }
 
-  // 6. CUTTING PLAN
+  // 6. CUTTING PLAN WITH MIN WASTE / MIN BARS TOGGLE BUTTON (100% PRESERVED)
   const cutWrap = $('#cutPlan'); cutWrap.innerHTML = '';
   Object.entries(data.cutPlans).forEach(([type, plan]) => {
     if (!plan.bins || !plan.bins.length) return;
     const sec = document.createElement('div'); sec.style.marginBottom = '10px';
     const h = document.createElement('h3');
-    h.innerHTML = `<span>${type} — Cutting Plan <small>(Stock: ${plan.stockLenFmt})</small></span>`;
+
+    const strategy = STATE.optStrategy[type] || 'minWaste';
+    const toggleBtnText = strategy === 'minWaste' ? 'Min Waste' : 'Min Bars';
+    const btnClass = strategy === 'minWaste' ? 'toggle-pill active-orange' : 'toggle-pill active-green';
+
+    h.innerHTML = `<span>${type} — Cutting Plan <small>(Stock: ${plan.stockLenFmt})</small></span>
+                   <button class="${btnClass}" data-type="${type}" type="button">${toggleBtnText}</button>`;
     sec.appendChild(h);
+
+    h.querySelector('button').onclick = () => {
+      STATE.optStrategy[type] = (STATE.optStrategy[type] === 'minBars') ? 'minWaste' : 'minBars';
+      saveInputs();
+      hydrateView();
+    };
+
+    if (plan.usedFromStock && plan.usedFromStock.length) {
+      const groupedRows = plan.usedFromStock.map(u => [u.origFmt, u.cutsStr, u.leftFmt]);
+      const title = document.createElement("div"); title.style.margin = "4px 0";
+      title.innerHTML = `<small style="color:var(--primary);font-weight:bold;">✓ Satisfied from Available Stock</small>`;
+      sec.appendChild(title); sec.appendChild(buildTable(["Stock Piece", "Pieces (ID)", "Leftover"], groupedRows));
+    }
 
     const rows = plan.bins.map((b, i) => [ `Bar ${i+1}`, b.cutsStr, b.usedFmt, b.wasteFmt ]);
     const planTableHeaders = l === 'hi' ? ["फुल बार #", "टुकड़े नाप और ID", "कुल इस्तेमाल", "बचा हुआ वेस्टेज"]
@@ -2501,7 +2520,7 @@ function generateBillPDF(fileName) {
       });
       currentY = doc.lastAutoTable.finalY + 8;
 
-      // HINDI + ENGLISH 12.5 SQ.FT CLEAN SPACING NOTE (NO CUTTING / NO OVERLAPPING)
+      // HINDI + ENGLISH 12.5 SQ.FT CLEAN SPACING NOTE (NO OVERLAPPING / WRAPPED CLEANLY)
       if (t.hasMinLabourApplied) {
         if (currentY + 25 > pageHeight - 35) {
           doc.addPage();
