@@ -676,11 +676,11 @@ function applySutRounding(valInInches, profileType, isWidth) {
 }
 
 const DEFAULT_RULES_CONFIG = {
-  D2: { arw: 500, lr: 100, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, ShutterW: { formula: 'W / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 4 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
+  D2: { arw: 500, lr: 100, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, ShutterW: { formula: 'W / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 4 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
   D3: { arw: 700, lr: 120, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 3, glassW_offset: -4.125, glassH_offset: -4.125, ShutterW: { formula: 'W / 2', qty: 6 }, ShutterH: { formula: 'H - 2.6', qty: 6 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
-  S2: { arw: 1000, lr: 130, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -1.6, glassH_offset: -4.1, ShutterW: { formula: '(W - 4) / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 4 }, Interlock: { formula: 'H - 2.6', qty: 2 }, TrackStrip: { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 } },
+  S2: { arw: 1000, lr: 130, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -1.6, glassH_offset: -4.1, ShutterW: { formula: '(W - 4) / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 4 }, Interlock: { formula: 'H - 2.6', qty: 2 }, TrackStrip: { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 } },
   S3: { arw: 1500, lr: 120, jaliRate: 25, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -1.6, glassH_offset: -4.1, ShutterW: { formula: '(W - 4) / 2', qty: 6 }, ShutterH: { formula: 'H - 2.6', qty: 3 }, Interlock: { formula: 'H - 2.6', qty: 2 }, TrackStrip: { formula: 'W - 3', qty: 3, stockLen: 192.5, rate: 800 } },
-  N2: { arw: 200, lr: 80, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: 0.625, glassH_offset: -2.5, BearingBottomW: { formula: '(W - 6.2) / 2', qty: 4 }, Handle: { formula: 'H - 1.7', qty: 2 }, Interlock: { formula: 'H - 1.7', qty: 2 } },
+  N2: { arw: 200, lr: 80, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: 0.625, glassH_offset: -2.5, BearingBottomW: { formula: '(W - 6.2) / 2', qty: 4 }, Handle: { formula: 'H - 1.7', qty: 2 }, Interlock: { formula: 'H - 1.7', qty: 2 } },
   N3: { arw: 300, lr: 80, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 3, glassW_offset: 0.625, glassH_offset: -2.5, BearingBottomW: { formula: '(W - 6.2) / 2', qty: 6 }, Handle: { formula: 'H - 1.7', qty: 3 }, Interlock: { formula: 'H - 1.7', qty: 3 } }
 };
 
@@ -725,7 +725,12 @@ function getCurrentRulesConfig(mode, customRules = {}) {
   }
   res.arw = safeNum(res.arw ?? defaults.arw ?? 500);
   res.lr = safeNum(res.lr ?? defaults.lr ?? 100);
-  res.jaliRate = safeNum(res.jaliRate ?? defaults.jaliRate ?? 30);
+
+  // ACCURATE JALI DETECTION: Only 3-track or custom with hasJali=true gets Jali
+  const is3TrackOrJali = mode.endsWith('3') || !!res.hasJali || !!defaults.hasJali;
+  res.hasJali = is3TrackOrJali;
+  res.jaliRate = is3TrackOrJali ? safeNum(res.jaliRate ?? defaults.jaliRate ?? 30) : 0;
+
   res.rubberWtFt = safeNum(res.rubberWtFt ?? defaults.rubberWtFt ?? 0.025) || 0.025;
   res.rubberRate = safeNum(res.rubberRate ?? defaults.rubberRate ?? 160) || 160;
   res.glassQty = safeNum(res.glassQty ?? defaults.glassQty) || 2;
@@ -1004,7 +1009,7 @@ function optimizeMinBars(cuts, stockLen) {
   return bins;
 }
 
-// CALCULATION ENGINE WITH PER-WINDOW ALLOCATED BREAKDOWN & 12.5 SQ.FT LABOUR RULE
+// CALCULATION ENGINE WITH PRECISE PER-WINDOW JALI & BREAKDOWN
 function runCalculationEngine(reqBody) {
   const {
     sizesRaw = '', pipeSizesRaw = '', defaultMode = 'D3',
@@ -1112,7 +1117,9 @@ function runCalculationEngine(reqBody) {
 
     const singleRubberCost = (glassRunningFeet(g.w || 0, g.h || 0, g.qty || 2) * (rules.rubberWtFt || 0.025)) * (rules.rubberRate || 160);
     const singleLabourCost = safeNum(rules.lr) * labourSqFt;
-    const singleJaliCost = rules.jaliRate ? safeNum(rules.jaliRate) * winSq : 0;
+    
+    // ONLY CHARGE JALI IF WINDOW ACTUALLY HAS JALI (hasJali is true)
+    const singleJaliCost = (rules.hasJali && rules.jaliRate > 0) ? safeNum(rules.jaliRate) * winSq : 0;
     const singleHwCost = safeNum(rules.arw);
     const singleGlassCost = singleGlassSq * gr;
 
@@ -1168,6 +1175,7 @@ function runCalculationEngine(reqBody) {
       hwCost: safeFix(singleHwCost),
       rubberCost: safeFix(singleRubberCost),
       woolpileCost: safeFix(singleWoolpileCost),
+      jaliCost: safeFix(singleJaliCost),
       otherAccCost: safeFix(singleHwCost + singleRubberCost + singleWoolpileCost + singleJaliCost),
       metalWeight: safeFix(winMetalWeight, 3),
       metalCost: safeFix(singleMetalCost),
@@ -1440,7 +1448,6 @@ function applyScreenZoom(scale) {
   LS.setZoom(scale);
   $('#zoomSlider').value = scale;
   $('#zoomBadge').textContent = scale + '%';
-  
   if ('zoom' in document.body.style) {
     document.body.style.zoom = (scale / 100);
   } else {
@@ -1461,7 +1468,6 @@ function render48DemoBox() {
   const { pieces, glass, originalLengths } = getWindowPiecesAndGlass(W, H, mode, rules);
 
   grid.innerHTML = '';
-
   const glassDiv = document.createElement('div');
   glassDiv.className = 'demo-item';
   glassDiv.style.gridColumn = 'span 2';
@@ -2274,7 +2280,7 @@ function hydrateView() {
 }
 
 // ==========================================
-// 3. ULTRA-CRISP PURE BLACK & WHITE PDF GENERATORS (WITH HINDI+ENG 12.5 NOTE)
+// 3. ULTRA-CRISP PURE BLACK & WHITE PDF GENERATORS (WITH SPACIOUS HINDI+ENG 12.5 NOTE)
 // ==========================================
 
 // BUTTON 1: QUOTATION & BILL SUMMARY
@@ -2493,15 +2499,22 @@ function generateBillPDF(fileName) {
           }
         }
       });
-      currentY = doc.lastAutoTable.finalY + 6;
+      currentY = doc.lastAutoTable.finalY + 8;
 
-      // HINDI + ENGLISH 12.5 SQ.FT NOTE
+      // HINDI + ENGLISH 12.5 SQ.FT CLEAN SPACING NOTE (NO CUTTING / NO OVERLAPPING)
       if (t.hasMinLabourApplied) {
-        doc.setFontSize(7.2);
+        if (currentY + 25 > pageHeight - 35) {
+          doc.addPage();
+          drawPdfHeader(doc, doc.internal.getNumberOfPages());
+          currentY = 65;
+        }
+        doc.setFontSize(8.0);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 0, 0);
-        doc.text('* Note: 12.5 Sq.Ft se chhoti window par minimum 12.5 Sq.Ft standard labour jodi gayi hai (* Min 12.5 Sq.Ft standard labour applied).', 35, currentY);
-        currentY += 12;
+        const noteStr = "* Note: 12.5 Sq.Ft se chhoti window par minimum 12.5 Sq.Ft standard labour jodi gayi hai (* Min 12.5 Sq.Ft standard labour applied on small windows).";
+        const splitNote = doc.splitTextToSize(noteStr, 525);
+        doc.text(splitNote, 35, currentY);
+        currentY += (splitNote.length * 11) + 8;
       } else {
         currentY += 6;
       }
