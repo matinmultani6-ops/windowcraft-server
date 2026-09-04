@@ -2027,7 +2027,7 @@ function renderReportTables(data) {
   t1Box.appendChild(buildTable(mHeaders, mRows));
   totalsWrap.appendChild(t1Box);
 
-  // TABLE 2: EXPENSES (FIXED labourDesc ERROR)
+  // TABLE 2: EXPENSES
   const t2Box = document.createElement('div');
   const t2Title = document.createElement('div');
   t2Title.className = 'sub-table-title';
@@ -2379,6 +2379,20 @@ function hydrateView() {
 // 3. ULTRA-CRISP PURE BLACK & WHITE PDF GENERATORS
 // ==========================================
 
+// Helper to save PDF directly in Android or fallback to browser download
+function saveOrDownloadPdf(doc, fileName) {
+  try {
+    if (window.AndroidBridge && window.AndroidBridge.saveBase64Pdf) {
+      const base64Uri = doc.output('datauristring');
+      window.AndroidBridge.saveBase64Pdf(base64Uri, fileName);
+    } else {
+      doc.save(fileName);
+    }
+  } catch(e) {
+    doc.save(fileName);
+  }
+}
+
 // BUTTON 1: QUOTATION & BILL SUMMARY
 function generateBillPDF(fileName) {
   try {
@@ -2692,7 +2706,7 @@ function generateBillPDF(fileName) {
       drawPdfHeader(doc, p);
     }
 
-    doc.save(fileName);
+    saveOrDownloadPdf(doc, fileName);
     setStatus('PDF Downloaded');
   } catch (e) { alert("PDF Error: " + e.message); }
 }
@@ -2837,7 +2851,7 @@ function generateFabricationPDF(fileName) {
       drawPdfHeader(doc, p);
     }
 
-    doc.save(fileName);
+    saveOrDownloadPdf(doc, fileName);
     setStatus('PDF Downloaded');
   } catch (e) { alert("PDF Error: " + e.message); }
 }
@@ -3026,6 +3040,7 @@ function bindEvents(){
   $('#pdfCutBtn').onclick = () => { STATE.pendingPdfType = 'cut'; $('#pdfCustomNameInput').value = `${STATE.companyName}_CutReport.pdf`; $('#pdfNameModal').classList.add('open'); };
   $('#pdfBillBtn').onclick = () => { STATE.pendingPdfType = 'bill'; $('#pdfCustomNameInput').value = `${STATE.companyName}_Quotation.pdf`; $('#pdfNameModal').classList.add('open'); };
   
+  // 2. PDF CONFIRM BUTTON (REWARDED AD TRIGGER)
   $('#pdfConfirmBtn').onclick = () => {
     const val = $('#pdfCustomNameInput').value || "WindowCraft_Report.pdf";
     $('#pdfNameModal').classList.remove('open');
