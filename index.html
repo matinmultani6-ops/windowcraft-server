@@ -546,7 +546,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
 
 <script>
 // ==========================================
-// ADMOB CONFIGURATION & NATIVE BRIDGE
+// ADMOB CONFIGURATION & ROBUST NATIVE BRIDGE
 // ==========================================
 const ADMOB_CONFIG = {
   appId: "ca-app-pub-7546176089076400~4241275099",
@@ -585,7 +585,8 @@ const AdMobBridge = {
     try {
       if (window.AndroidBridge && window.AndroidBridge.showInterstitialAd) {
         window.onInterstitialClosed = triggerNext;
-        setTimeout(triggerNext, 3000);
+        window.onInterstitialFailed = triggerNext;
+        setTimeout(triggerNext, 4000);
         window.AndroidBridge.showInterstitialAd(ADMOB_CONFIG.interstitial);
       } else {
         triggerNext();
@@ -595,6 +596,7 @@ const AdMobBridge = {
     }
   },
 
+  // FIXED REWARDED: Removed premature 4-second timeout, handles all native callbacks
   showRewarded(onRewardSuccess, onDismissed) {
     let finished = false;
     const triggerSuccess = () => {
@@ -613,9 +615,15 @@ const AdMobBridge = {
 
     try {
       if (window.AndroidBridge && window.AndroidBridge.showRewardedAd) {
+        // Multi-event handlers for varied Android WebView implementations
         window.onRewardSuccess = triggerSuccess;
+        window.onRewarded = triggerSuccess;
+        window.onRewardClosed = triggerSuccess;
+        window.onRewardedAdClosed = triggerSuccess;
         window.onRewardFailed = triggerFail;
-        setTimeout(triggerSuccess, 4000);
+
+        // 45 seconds long fallback so user is never permanently blocked
+        setTimeout(triggerSuccess, 45000);
         window.AndroidBridge.showRewardedAd(ADMOB_CONFIG.rewarded);
       } else {
         triggerSuccess();
@@ -756,22 +764,62 @@ function applySutRounding(valInInches, profileType, isWidth) {
   return Math.round(totalSut) / 8;
 }
 
+// EXACT DEFAULTS MATCHING USER SCREENSHOTS
 const DEFAULT_RULES_CONFIG = {
-  D2: { arw: 500, lr: 100, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -4.1, glassH_offset: -4.1, ShutterW: { formula: 'W / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 4 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
-  D3: { arw: 700, lr: 120, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 3, glassW_offset: -4.125, glassH_offset: -4.125, ShutterW: { formula: 'W / 2', qty: 6 }, ShutterH: { formula: 'H - 2.6', qty: 6 }, Interlock: { formula: 'H - 2.6', qty: 2 } },
-  S2: { arw: 1000, lr: 130, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -1.6, glassH_offset: -4.1, ShutterW: { formula: '(W - 4) / 2', qty: 4 }, ShutterH: { formula: 'H - 2.6', qty: 4 }, Interlock: { formula: 'H - 2.6', qty: 2 }, TrackStrip: { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 } },
-  S3: { arw: 1500, lr: 120, jaliRate: 25, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: -1.6, glassH_offset: -4.1, ShutterW: { formula: '(W - 4) / 2', qty: 6 }, ShutterH: { formula: 'H - 2.6', qty: 3 }, Interlock: { formula: 'H - 2.6', qty: 2 }, TrackStrip: { formula: 'W - 3', qty: 3, stockLen: 192.5, rate: 800 } },
-  N2: { arw: 200, lr: 80, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, glassW_offset: 0.625, glassH_offset: -2.5, BearingBottomW: { formula: '(W - 6.2) / 2', qty: 4 }, Handle: { formula: 'H - 1.7', qty: 2 }, Interlock: { formula: 'H - 1.7', qty: 2 } },
-  N3: { arw: 300, lr: 80, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 3, glassW_offset: 0.625, glassH_offset: -2.5, BearingBottomW: { formula: '(W - 6.2) / 2', qty: 6 }, Handle: { formula: 'H - 1.7', qty: 3 }, Interlock: { formula: 'H - 1.7', qty: 3 } }
+  D2: { 
+    arw: 500, lr: 100, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
+    glassW_offset: -4.1, glassH_offset: -4.1, 
+    ShutterW: { formula: 'W / 2', qty: 4 }, 
+    ShutterH: { formula: 'H - 2.5', qty: 4 }, 
+    Interlock: { formula: 'H - 2.5', qty: 2 } 
+  },
+  D3: { 
+    arw: 700, lr: 120, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
+    glassW_offset: -4.1, glassH_offset: -4.1, 
+    ShutterW: { formula: 'W / 2', qty: 6 }, 
+    ShutterH: { formula: 'H - 2.5', qty: 6 }, 
+    Interlock: { formula: 'H - 2.5', qty: 2 } 
+  },
+  S2: { 
+    arw: 1000, lr: 130, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
+    glassW_offset: -1.5, glassH_offset: -4.1, 
+    ShutterW: { formula: '(W - 4) / 2', qty: 4 }, 
+    ShutterH: { formula: 'H - 2.5', qty: 4 }, 
+    Interlock: { formula: 'H - 2.5', qty: 2 }, 
+    TrackStrip: { formula: 'W - 3.5', qty: 2, stockLen: 192.5, rate: 800 } 
+  },
+  S3: { 
+    arw: 1500, lr: 150, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
+    glassW_offset: -1.5, glassH_offset: -4.1, 
+    ShutterW: { formula: '(W - 4) / 2', qty: 6 }, 
+    ShutterH: { formula: 'H - 2.5', qty: 3 }, 
+    Interlock: { formula: 'H - 2.5', qty: 3 }, 
+    TrackStrip: { formula: 'W - 3.5', qty: 3, stockLen: 192.5, rate: 800 } 
+  },
+  N2: { 
+    arw: 200, lr: 80, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
+    glassW_offset: 0.5, glassH_offset: -2.4, 
+    BearingBottomW: { formula: '(W - 6.2) / 2', qty: 4 }, 
+    Handle: { formula: 'H - 1.4', qty: 2 }, 
+    Interlock: { formula: 'H - 1.4', qty: 2 } 
+  },
+  N3: { 
+    arw: 300, lr: 80, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
+    glassW_offset: 0.5, glassH_offset: -2.4, 
+    BearingBottomW: { formula: '(W - 6.2) / 2', qty: 6 }, 
+    Handle: { formula: 'H - 1.4', qty: 3 }, 
+    Interlock: { formula: 'H - 1.4', qty: 3 } 
+  }
 };
 
+// EXACT WEIGHTS MATCHING USER SCREENSHOTS
 const DEFAULT_WEIGHTS = {
-  D2: { Track: 6, Shutter: 3.2, Interlock: 1.8 },
-  D3: { Track: 6, Shutter: 3.2, Interlock: 1.8 },
-  S2: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 },
-  S3: { Track: 6, Shutter: 3.2, Interlock: 1.8, TrackStrip: 1.5 },
-  N2: { TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, Interlock: 1.5 },
-  N3: { TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 2, Handle: 1.5, Interlock: 1.5 },
+  D2: { Track: 4.0, Shutter: 3.2, Interlock: 1.8 },
+  D3: { Track: 6.0, Shutter: 3.2, Interlock: 1.8 },
+  S2: { Track: 5.0, Shutter: 4.5, Interlock: 3.5, TrackStrip: 1.5 },
+  S3: { Track: 7.0, Shutter: 4.5, Interlock: 3.5, TrackStrip: 1.5 },
+  N2: { TopTrack: 2.8, BottomTrack: 2.5, BearingBottom: 1.5, Handle: 1.5, Interlock: 1.5 },
+  N3: { TopTrack: 3.25, BottomTrack: 3.5, BearingBottom: 1.5, Handle: 1.5, Interlock: 1.5 },
   Pipes: { Pipes: 2.15 }
 };
 
@@ -813,7 +861,7 @@ function getCurrentRulesConfig(mode, customRules = {}) {
 
   res.rubberWtFt = safeNum(res.rubberWtFt ?? defaults.rubberWtFt ?? 0.025) || 0.025;
   res.rubberRate = safeNum(res.rubberRate ?? defaults.rubberRate ?? 160) || 160;
-  res.glassQty = safeNum(res.glassQty ?? defaults.glassQty) || 2;
+  res.glassQty = safeNum(res.glassQty ?? defaults.glassQty ?? 2) || 2;
   return res;
 }
 
@@ -909,7 +957,7 @@ function getWindowPiecesAndGlass(W, H, mode, rules) {
   const g = {
     w: applySutRounding(rawGlassW, 'Glass', true),
     h: applySutRounding(rawGlassH, 'Glass', false),
-    qty: rules.glassQty || 2
+    qty: safeNum(rules.glassQty) || 2
   };
   return { pieces, glass: g, originalLengths };
 }
@@ -940,7 +988,6 @@ function assignFromStock(required, stockPieces){
   return { usedFromStockGrouped, remainingReq: remaining.sort((a,b)=>b.len-a.len) };
 }
 
-// 1. ULTRA-FAST SEGMENT TREE BIN PACKING (MIN WASTE)
 function optimizeMinWaste(cuts, stockLen){
   if (!cuts || cuts.length === 0) return [];
   const SCALE = 1000;
@@ -1007,7 +1054,6 @@ function optimizeMinWaste(cuts, stockLen){
   return bins;
 }
 
-// 2. ULTRA-FAST SUBSET-SUM DP ALGORITHM (MIN BARS)
 let SHARED_DP_BUFFER = null;
 let SHARED_DP_CAPACITY = 0;
 function getSharedDpBuffer(size) {
@@ -1089,7 +1135,6 @@ function optimizeMinBars(cuts, stockLen) {
   return bins;
 }
 
-// CALCULATION ENGINE WITH PRECISE PER-WINDOW JALI & BREAKDOWN
 function runCalculationEngine(reqBody) {
   const {
     sizesRaw = '', pipeSizesRaw = '', defaultMode = 'D3',
@@ -1322,7 +1367,7 @@ function runCalculationEngine(reqBody) {
     }
   }
 
-  // 4. CUT PLANS & SUMMARY
+  // CUT PLANS & SUMMARY
   const cutPlans = {};
   let grandBars = 0, grandFullBarWeight = 0, grandPurchaseCost = 0, grandUsedWeight = 0, grandBilledWeight = 0, trackStripTotalCost = 0;
   let grandUsefulWeight = 0, grandScrapWeight = 0;
@@ -1495,6 +1540,14 @@ function glassRunningFeet(w, h, qty=2){ return ((w + h) * 2 / 12) * qty; }
 // ==========================================
 const $ = (s, r=document)=>r.querySelector(s);
 const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+
+// AUTO-RESET OLD CACHED DEFAULTS TO SCREENSHOT DEFAULTS
+const SETTINGS_VERSION = 'v3_defaults_screenshot_synced';
+if (localStorage.getItem('fs_app_version') !== SETTINGS_VERSION) {
+  localStorage.removeItem('fs_customRules');
+  localStorage.removeItem('fs_weights');
+  localStorage.setItem('fs_app_version', SETTINGS_VERSION);
+}
 
 const LS = {
   getWeights(){ try{ return JSON.parse(localStorage.getItem('fs_weights')||'{}'); }catch(e){ return {}; } },
@@ -2153,7 +2206,7 @@ function renderReportTables(data) {
     cutDetailWrap.appendChild(buildTable(cutHeaders, cdRows, 100));
   }
 
-  // 6. CUTTING PLAN WITH MIN WASTE / MIN BARS TOGGLE BUTTON
+  // 6. CUTTING PLAN
   const cutWrap = $('#cutPlan'); cutWrap.innerHTML = '';
   Object.entries(data.cutPlans).forEach(([type, plan]) => {
     if (!plan.bins || !plan.bins.length) return;
@@ -2376,19 +2429,56 @@ function hydrateView() {
 }
 
 // ==========================================
-// 3. ULTRA-CRISP PURE BLACK & WHITE PDF GENERATORS
+// 3. ULTRA-CRISP PDF GENERATORS & NATIVE DOWNLOAD FIX
 // ==========================================
 
-// Helper to save PDF directly in Android or fallback to browser download
 function saveOrDownloadPdf(doc, fileName) {
   try {
-    if (window.AndroidBridge && window.AndroidBridge.saveBase64Pdf) {
-      const base64Uri = doc.output('datauristring');
-      window.AndroidBridge.saveBase64Pdf(base64Uri, fileName);
-    } else {
+    if (!fileName.toLowerCase().endsWith('.pdf')) {
+      fileName += '.pdf';
+    }
+
+    // Get both data URI and clean Base64 string
+    let dataUri = '';
+    try {
+      dataUri = doc.output('dataurlstring');
+    } catch(e) {
+      dataUri = doc.output('datauristring');
+    }
+    
+    // Pure base64 stripped of prefix (avoids Android Base64.decode crash)
+    const pureBase64 = dataUri.indexOf(',') !== -1 ? dataUri.split(',')[1] : dataUri;
+
+    // 1. Android Bridge Check (Tries native file writing)
+    if (window.AndroidBridge) {
+      if (typeof window.AndroidBridge.saveBase64Pdf === 'function') {
+        window.AndroidBridge.saveBase64Pdf(pureBase64, fileName);
+        return;
+      } else if (typeof window.AndroidBridge.savePdf === 'function') {
+        window.AndroidBridge.savePdf(pureBase64, fileName);
+        return;
+      } else if (typeof window.AndroidBridge.downloadPdf === 'function') {
+        window.AndroidBridge.downloadPdf(pureBase64, fileName);
+        return;
+      }
+    }
+
+    // 2. Web Browser & Blob Fallback
+    try {
       doc.save(fileName);
+    } catch(err) {
+      const blob = doc.output('blob');
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
     }
   } catch(e) {
+    console.error("PDF Download error:", e);
     doc.save(fileName);
   }
 }
@@ -2396,7 +2486,7 @@ function saveOrDownloadPdf(doc, fileName) {
 // BUTTON 1: QUOTATION & BILL SUMMARY
 function generateBillPDF(fileName) {
   try {
-    if (!STATE.serverData) { alert("Please click Calculate first!"); return; }
+    if (!STATE.serverData) { hydrateView(); }
     const company = STATE.companyName || "WindowCraft Pro";
     const jsPDFConstructor = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
     const doc = new jsPDFConstructor({ unit: 'pt', format: 'a4' });
@@ -2453,7 +2543,7 @@ function generateBillPDF(fileName) {
 
     const t = STATE.serverData.totals || {};
 
-    // 1. MEASUREMENTS & QUANTITIES (LEFT)
+    // 1. MEASUREMENTS & QUANTITIES
     const mRows = [
       ["Total Windows Count", `${safeNum(t.windowsCount)} Nos`],
       ["Total Window Area", `${t.totalWindowSqFt} Sq.Ft (${STATE.sqftMode})`],
@@ -2479,7 +2569,7 @@ function generateBillPDF(fileName) {
     });
     const finalY1 = doc.lastAutoTable.finalY;
 
-    // 2. EXPENSE BREAKDOWN (RIGHT)
+    // 2. EXPENSE BREAKDOWN
     const labourDesc = t.hasMinLabourApplied
       ? `Labour Total (@ Rs. ${t.labourRate}/sq.ft)* [Min 12.5]`
       : `Labour Total (@ Rs. ${t.labourRate}/sq.ft)`;
@@ -2714,7 +2804,7 @@ function generateBillPDF(fileName) {
 // BUTTON 2: FABRICATION & CUT REPORT
 function generateFabricationPDF(fileName) {
   try {
-    if (!STATE.serverData) { alert("Please click Calculate first!"); return; }
+    if (!STATE.serverData) { hydrateView(); }
     const company = STATE.companyName || "WindowCraft Pro";
     const jsPDFConstructor = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
     const doc = new jsPDFConstructor({ unit: 'pt', format: 'a4' });
@@ -2950,11 +3040,11 @@ function bindEvents(){
 
     selectedProfiles.forEach(prof => {
       if (prof === 'ShutterW') newRules.ShutterW = { formula: 'W / 2', qty: 4 };
-      else if (prof === 'ShutterH') newRules.ShutterH = { formula: 'H - 2.6', qty: 4 };
-      else if (prof === 'Interlock') newRules.Interlock = { formula: 'H - 2.6', qty: 2 };
+      else if (prof === 'ShutterH') newRules.ShutterH = { formula: 'H - 2.5', qty: 4 };
+      else if (prof === 'Interlock') newRules.Interlock = { formula: 'H - 2.5', qty: 2 };
       else if (prof === 'BearingBottomW') newRules.BearingBottomW = { formula: '(W - 6.2) / 2', qty: 4 };
-      else if (prof === 'Handle') newRules.Handle = { formula: 'H - 1.7', qty: 2 };
-      else if (prof === 'TrackStrip') newRules.TrackStrip = { formula: 'W - 3', qty: 2, stockLen: 192.5, rate: 800 };
+      else if (prof === 'Handle') newRules.Handle = { formula: 'H - 1.4', qty: 2 };
+      else if (prof === 'TrackStrip') newRules.TrackStrip = { formula: 'W - 3.5', qty: 2, stockLen: 192.5, rate: 800 };
     });
 
     STATE.customRules[name] = newRules;
@@ -2962,7 +3052,7 @@ function bindEvents(){
 
     const weightsAll = LS.getWeights();
     weightsAll[name] = weightsAll[name] || {
-      Track: 6, Shutter: 3.2, Interlock: 1.8, TopTrack: 2.8, BottomTrack: 2.5, TopBottomTrack: 5.5, SideTrack: 2.5, BearingBottom: 2, Handle: 1.5, TrackStrip: 1.5
+      Track: 6, Shutter: 3.2, Interlock: 1.8, TopTrack: 2.8, BottomTrack: 2.5, TopBottomTrack: 5.5, SideTrack: 2.5, BearingBottom: 1.5, Handle: 1.5, TrackStrip: 1.5
     };
     LS.setWeights(weightsAll);
 
@@ -3040,14 +3130,17 @@ function bindEvents(){
   $('#pdfCutBtn').onclick = () => { STATE.pendingPdfType = 'cut'; $('#pdfCustomNameInput').value = `${STATE.companyName}_CutReport.pdf`; $('#pdfNameModal').classList.add('open'); };
   $('#pdfBillBtn').onclick = () => { STATE.pendingPdfType = 'bill'; $('#pdfCustomNameInput').value = `${STATE.companyName}_Quotation.pdf`; $('#pdfNameModal').classList.add('open'); };
   
-  // 2. PDF CONFIRM BUTTON (REWARDED AD TRIGGER)
+  // 2. PDF CONFIRM BUTTON WITH NATIVE REWARD AD TRANSITION DELAY
   $('#pdfConfirmBtn').onclick = () => {
-    const val = $('#pdfCustomNameInput').value || "WindowCraft_Report.pdf";
+    const val = $('#pdfCustomNameInput').value.trim() || "WindowCraft_Report.pdf";
     $('#pdfNameModal').classList.remove('open');
     
     AdMobBridge.showRewarded(() => {
-      if (STATE.pendingPdfType === 'cut') generateFabricationPDF(val);
-      else generateBillPDF(val);
+      // 350ms delay lets Android close the fullscreen video activity and return focus to WebView
+      setTimeout(() => {
+        if (STATE.pendingPdfType === 'cut') generateFabricationPDF(val);
+        else generateBillPDF(val);
+      }, 350);
     });
   };
 
