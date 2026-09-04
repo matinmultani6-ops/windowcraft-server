@@ -546,6 +546,87 @@ tr:nth-child(even) td{ background:#f9fbfd }
 
 <script>
 // ==========================================
+// ADMOB CONFIGURATION & NATIVE BRIDGE
+// ==========================================
+const ADMOB_CONFIG = {
+  appId: "ca-app-pub-7546176089076400~4241275099",
+  appOpen: "ca-app-pub-7546176089076400/4081598194",
+  banner: "ca-app-pub-7546176089076400/8435776179",
+  interstitial: "ca-app-pub-7546176089076400/5670012030",
+  rewarded: "ca-app-pub-7546176089076400/3275677784"
+};
+
+const AdMobBridge = {
+  showAppOpen() {
+    try {
+      if (window.AndroidBridge && window.AndroidBridge.showAppOpenAd) {
+        window.AndroidBridge.showAppOpenAd(ADMOB_CONFIG.appOpen);
+      }
+    } catch(e) {}
+  },
+
+  showBanner() {
+    try {
+      if (window.AndroidBridge && window.AndroidBridge.showBanner) {
+        window.AndroidBridge.showBanner(ADMOB_CONFIG.banner);
+      }
+    } catch(e) {}
+  },
+
+  showInterstitial(onComplete) {
+    let finished = false;
+    const triggerNext = () => {
+      if (!finished) {
+        finished = true;
+        if (onComplete) onComplete();
+      }
+    };
+
+    try {
+      if (window.AndroidBridge && window.AndroidBridge.showInterstitialAd) {
+        window.onInterstitialClosed = triggerNext;
+        setTimeout(triggerNext, 3000);
+        window.AndroidBridge.showInterstitialAd(ADMOB_CONFIG.interstitial);
+      } else {
+        triggerNext();
+      }
+    } catch (e) {
+      triggerNext();
+    }
+  },
+
+  showRewarded(onRewardSuccess, onDismissed) {
+    let finished = false;
+    const triggerSuccess = () => {
+      if (!finished) {
+        finished = true;
+        if (onRewardSuccess) onRewardSuccess();
+      }
+    };
+    const triggerFail = () => {
+      if (!finished) {
+        finished = true;
+        if (onDismissed) onDismissed();
+        else if (onRewardSuccess) onRewardSuccess();
+      }
+    };
+
+    try {
+      if (window.AndroidBridge && window.AndroidBridge.showRewardedAd) {
+        window.onRewardSuccess = triggerSuccess;
+        window.onRewardFailed = triggerFail;
+        setTimeout(triggerSuccess, 4000);
+        window.AndroidBridge.showRewardedAd(ADMOB_CONFIG.rewarded);
+      } else {
+        triggerSuccess();
+      }
+    } catch (e) {
+      triggerSuccess();
+    }
+  }
+};
+
+// ==========================================
 // 1. EMBEDDED HIGH-SPEED ENGINE (0.001s Instant Calc)
 // ==========================================
 function safeNum(v) { const n = Number(v); return isNaN(n) ? 0 : n; }
@@ -726,7 +807,6 @@ function getCurrentRulesConfig(mode, customRules = {}) {
   res.arw = safeNum(res.arw ?? defaults.arw ?? 500);
   res.lr = safeNum(res.lr ?? defaults.lr ?? 100);
 
-  // ACCURATE JALI DETECTION: Only 3-track or custom with hasJali=true gets Jali
   const is3TrackOrJali = mode.endsWith('3') || !!res.hasJali || !!defaults.hasJali;
   res.hasJali = is3TrackOrJali;
   res.jaliRate = is3TrackOrJali ? safeNum(res.jaliRate ?? defaults.jaliRate ?? 30) : 0;
@@ -1107,7 +1187,6 @@ function runCalculationEngine(reqBody) {
     const singleGlassSq = glassSqFt(g.w, g.h) * g.qty;
     const winSq = windowSqFtSingle(W, H, sqftMode);
 
-    // 12.5 SQ.FT MINIMUM LABOUR RULE
     const isMinLabour = winSq < 12.5;
     if (isMinLabour) hasMinLabourApplied = true;
     const labourSqFt = Math.max(12.5, winSq);
@@ -1118,7 +1197,6 @@ function runCalculationEngine(reqBody) {
     const singleRubberCost = (glassRunningFeet(g.w || 0, g.h || 0, g.qty || 2) * (rules.rubberWtFt || 0.025)) * (rules.rubberRate || 160);
     const singleLabourCost = safeNum(rules.lr) * labourSqFt;
     
-    // ONLY CHARGE JALI IF WINDOW ACTUALLY HAS JALI (hasJali is true)
     const singleJaliCost = (rules.hasJali && rules.jaliRate > 0) ? safeNum(rules.jaliRate) * winSq : 0;
     const singleHwCost = safeNum(rules.arw);
     const singleGlassCost = singleGlassSq * gr;
@@ -1147,7 +1225,6 @@ function runCalculationEngine(reqBody) {
     totalWoolpileFt += winWoolpileFt;
     totalWoolpileCost += singleWoolpileCost;
 
-    // Metal weight allocation per window
     let winMetalWeight = 0;
     for (const key in pc) {
       const arr = pc[key];
@@ -1950,7 +2027,7 @@ function renderReportTables(data) {
   t1Box.appendChild(buildTable(mHeaders, mRows));
   totalsWrap.appendChild(t1Box);
 
-  // TABLE 2: EXPENSES
+  // TABLE 2: EXPENSES (FIXED labourDesc ERROR)
   const t2Box = document.createElement('div');
   const t2Title = document.createElement('div');
   t2Title.className = 'sub-table-title';
@@ -2076,7 +2153,7 @@ function renderReportTables(data) {
     cutDetailWrap.appendChild(buildTable(cutHeaders, cdRows, 100));
   }
 
-  // 6. CUTTING PLAN WITH MIN WASTE / MIN BARS TOGGLE BUTTON (100% PRESERVED)
+  // 6. CUTTING PLAN WITH MIN WASTE / MIN BARS TOGGLE BUTTON
   const cutWrap = $('#cutPlan'); cutWrap.innerHTML = '';
   Object.entries(data.cutPlans).forEach(([type, plan]) => {
     if (!plan.bins || !plan.bins.length) return;
@@ -2299,7 +2376,7 @@ function hydrateView() {
 }
 
 // ==========================================
-// 3. ULTRA-CRISP PURE BLACK & WHITE PDF GENERATORS (WITH SPACIOUS HINDI+ENG 12.5 NOTE)
+// 3. ULTRA-CRISP PURE BLACK & WHITE PDF GENERATORS
 // ==========================================
 
 // BUTTON 1: QUOTATION & BILL SUMMARY
@@ -2520,7 +2597,6 @@ function generateBillPDF(fileName) {
       });
       currentY = doc.lastAutoTable.finalY + 8;
 
-      // HINDI + ENGLISH 12.5 SQ.FT CLEAN SPACING NOTE (NO OVERLAPPING / WRAPPED CLEANLY)
       if (t.hasMinLabourApplied) {
         if (currentY + 25 > pageHeight - 35) {
           doc.addPage();
@@ -2770,7 +2846,12 @@ function generateFabricationPDF(fileName) {
 // 4. EVENT BINDINGS & INIT
 // ==========================================
 function bindEvents(){
-  $('#calculateBtn').onclick = () => { hydrateView(); };
+  $('#calculateBtn').onclick = () => {
+    AdMobBridge.showInterstitial(() => {
+      hydrateView();
+    });
+  };
+
   $('#clearAllBtn').onclick = () => { $('#sizesInput').value = ''; $('#pipeSizesInput').value = ''; hydrateView(); };
   $('#unitModeBtn').onclick = () => { convertUnitModeToggle(); };
 
@@ -2948,9 +3029,13 @@ function bindEvents(){
   $('#pdfConfirmBtn').onclick = () => {
     const val = $('#pdfCustomNameInput').value || "WindowCraft_Report.pdf";
     $('#pdfNameModal').classList.remove('open');
-    if (STATE.pendingPdfType === 'cut') generateFabricationPDF(val);
-    else generateBillPDF(val);
+    
+    AdMobBridge.showRewarded(() => {
+      if (STATE.pendingPdfType === 'cut') generateFabricationPDF(val);
+      else generateBillPDF(val);
+    });
   };
+
   $('#pdfCancelBtn').onclick = () => { $('#pdfNameModal').classList.remove('open'); };
 }
 
@@ -2959,6 +3044,9 @@ window.onload = () => {
   updateModeDropdownsAndTabs();
   bindEvents();
   hydrateView();
+
+  AdMobBridge.showAppOpen();
+  AdMobBridge.showBanner();
 };
 </script>
 </body>
