@@ -59,15 +59,9 @@ header.top{
   font-weight: 700; font-size: 0.78rem; cursor: pointer; color: #1e293b; display: flex; align-items: center; justify-content: center;
 }
 .zoom-btn:active { transform: scale(0.95); background: #e2e8f0; }
-.zoom-slider {
-  width: 110px; max-width: 30vw; cursor: pointer; height: 4px; accent-color: var(--primary);
-}
-.zoom-badge {
-  background: var(--primary); color: #ffffff; border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 0.72rem; min-width: 42px; text-align: center;
-}
-.zoom-reset-btn {
-  background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 7px; font-size: 0.70rem; font-weight: 600; cursor: pointer; color: #475569;
-}
+.zoom-slider { width: 110px; max-width: 30vw; cursor: pointer; height: 4px; accent-color: var(--primary); }
+.zoom-badge { background: var(--primary); color: #ffffff; border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 0.72rem; min-width: 42px; text-align: center; }
+.zoom-reset-btn { background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 7px; font-size: 0.70rem; font-weight: 600; cursor: pointer; color: #475569; }
 
 .wrap{ max-width: 1200px; width: 100%; margin: 0 auto; padding: 8px 6px; display: grid; grid-template-columns: 1fr; gap: 10px; box-sizing: border-box; }
 @media (min-width: 850px) { .wrap { grid-template-columns: 460px 1fr; align-items: start; gap: 12px; } }
@@ -721,6 +715,7 @@ function applySutRounding(valInInches, profileType, isWidth) {
   return Math.round(totalSut) / 8;
 }
 
+// SCREENSHOT DEFAULTS (ONLY APPLIED AS FALLBACK FOR NEW USERS)
 const DEFAULT_RULES_CONFIG = {
   D2: { 
     arw: 500, lr: 100, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
@@ -813,14 +808,17 @@ function getWeightTypesForMode(mode) {
   return types;
 }
 
+// SAFE MERGE: CUSTOM RULES SETTINGS ARE 100% PRESERVED
 function getCurrentRulesConfig(mode, customRules = {}) {
   const isBuiltIn = ['D2','D3','S2','S3','N2','N3'].includes(mode);
   const defaults = isBuiltIn ? (DEFAULT_RULES_CONFIG[mode] || DEFAULT_RULES_CONFIG.D3) : {};
   const custom = customRules[mode] || {};
   const res = { ...defaults };
+
   for (const key in defaults) {
     if (typeof defaults[key] === 'object' && defaults[key] !== null) res[key] = { ...defaults[key] };
   }
+  // User's custom settings ALWAYS override defaults
   for (const key in custom) {
     if (typeof custom[key] === 'object' && custom[key] !== null && !Array.isArray(custom[key])) res[key] = { ...(res[key] || {}), ...custom[key] };
     else res[key] = custom[key];
@@ -1513,14 +1511,30 @@ function glassRunningFeet(w, h, qty=2){ return ((w + h) * 2 / 12) * qty; }
 const $ = (s, r=document)=>r.querySelector(s);
 const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
 
-const SETTINGS_VERSION = 'v5_clip_and_editable';
-try {
-  if (localStorage.getItem('fs_app_version') !== SETTINGS_VERSION) {
-    localStorage.removeItem('fs_customRules');
-    localStorage.removeItem('fs_weights');
-    localStorage.setItem('fs_app_version', SETTINGS_VERSION);
-  }
-} catch(e) {}
+// SAFE DATA MIGRATION: NEVER REMOVE USER RULES OR WEIGHTS
+(function safeDataMigration() {
+  try {
+    const existingRules = JSON.parse(localStorage.getItem('fs_customRules') || '{}');
+    let rulesModified = false;
+    for (const mode in DEFAULT_RULES_CONFIG) {
+      if (!existingRules[mode]) {
+        existingRules[mode] = { ...DEFAULT_RULES_CONFIG[mode] };
+        rulesModified = true;
+      }
+    }
+    if (rulesModified) localStorage.setItem('fs_customRules', JSON.stringify(existingRules));
+
+    const existingWeights = JSON.parse(localStorage.getItem('fs_weights') || '{}');
+    let weightsModified = false;
+    for (const mode in DEFAULT_WEIGHTS) {
+      if (!existingWeights[mode]) {
+        existingWeights[mode] = { ...DEFAULT_WEIGHTS[mode] };
+        weightsModified = true;
+      }
+    }
+    if (weightsModified) localStorage.setItem('fs_weights', JSON.stringify(existingWeights));
+  } catch(e) {}
+})();
 
 const LS = {
   getWeights(){ try{ return JSON.parse(localStorage.getItem('fs_weights')||'{}'); }catch(e){ return {}; } },
@@ -2612,6 +2626,7 @@ function bindEvents(){
 
   $('#modalStockBtn').onclick = () => { loadDynamicStockModal(); $('#stockModal').classList.add('open'); };
   
+  // SINGLE-CLICK RULES TAB FIX
   $('#modalRulesBtn').onclick = () => {
     STATE.currentRulesTab = STATE.mode;
     updateModeDropdownsAndTabs();
@@ -2619,6 +2634,7 @@ function bindEvents(){
     $('#rulesModal').classList.add('open');
   };
 
+  // SINGLE-CLICK WEIGHT TAB FIX
   $('#modalWeightBtn').onclick = () => {
     STATE.currentWeightTab = STATE.mode;
     updateModeDropdownsAndTabs();
@@ -2634,6 +2650,7 @@ function bindEvents(){
   $('#addCustomModeBtn').onclick = () => $('#addCustomModal').classList.add('open');
   $('#cancelCustomMode').onclick = () => $('#addCustomModal').classList.remove('open');
 
+  // CUSTOM WINDOW WITH CLIP (W & H) INTEGRATION
   $('#saveNewCustomMode').onclick = () => {
     const name = $('#customModeName').value.trim().toUpperCase().replace(/[^A-Z0-9_\-]/g, '');
     if (!name) { alert("Please enter Custom Window Name!"); return; }
@@ -2698,6 +2715,7 @@ function bindEvents(){
     }
   };
 
+  // RULES SAVE: SAVES BASE, OFFSET, DIVISOR, QTY SAFELY
   $('#rulesSave').onclick = () => {
     const active = STATE.currentRulesTab || STATE.mode;
     const currentRules = STATE.customRules[active] || {};
@@ -2785,3 +2803,4 @@ window.onload = () => {
 </script>
 </body>
 </html>
+
