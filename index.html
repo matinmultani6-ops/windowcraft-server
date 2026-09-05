@@ -434,14 +434,14 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
-<!-- RULES MODAL (WITH 100% EDITABLE INPUTS & SINGLE-CLICK TABS) -->
+<!-- RULES MODAL (WITH 100% EDITABLE INPUTS & DIVISOR: 0, 1, 2, 3...) -->
 <div id="rulesModal" class="modal">
   <div class="box" style="max-width: 580px;">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--border); padding-bottom: 4px; margin-bottom: 4px;">
       <h4 id="rulesModalHeader" style="border-bottom:none; margin-bottom:0; font-size:0.92rem;">📐 विंडो रूल्स और कटिंग फ़ॉर्मूला (Window Rules & Formulas)</h4>
     </div>
     <div class="modal-guide-banner" id="rulesModalBanner">
-      💡 <strong>निर्देश:</strong> यहाँ हर सेक्शन का नाप आधार (W/H), सूत offset, Divide By और संख्या पूरी तरह बदल सकते हैं।
+      💡 <strong>निर्देश:</strong> भाग (Divide By) में 0, 1, 2, 3... अपनी पसंद से लिखें। (0 या 1 = पूरा पीस, 2 = 2 टुकड़ों में divide).
     </div>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap: 6px; flex-wrap: wrap;">
@@ -504,7 +504,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </div>
 
-<!-- WEIGHT MODAL (WITH SINGLE CLICK TABS) -->
+<!-- WEIGHT MODAL -->
 <div id="weightModal" class="modal">
   <div class="box">
     <h4 id="weightModalHeader">⚖️ प्रोफाइल बार वजन (Bar Weight - Kg per 16 Ft Bar)</h4>
@@ -659,7 +659,7 @@ function parseSutOffset(val) {
     else if (dec === '875' || dec === '7') return isNeg ? -(inch + 0.875) : (inch + 0.875);
   }
   const n = parseFloat(s);
-  return isNaN(n) ? 0 : n;
+  return isNaN(n) ? 0 : (isNeg ? -Math.abs(n) : n);
 }
 
 function fmtEighthDigits(n){
@@ -715,51 +715,51 @@ function applySutRounding(valInInches, profileType, isWidth) {
   return Math.round(totalSut) / 8;
 }
 
-// SCREENSHOT DEFAULTS (ONLY APPLIED AS FALLBACK FOR NEW USERS)
+// SCREENSHOT DEFAULTS
 const DEFAULT_RULES_CONFIG = {
   D2: { 
     arw: 500, lr: 100, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
     glassW_offset: -4.1, glassH_offset: -4.1, 
-    ShutterW: { formula: 'W / 2', qty: 4 }, 
-    ShutterH: { formula: 'H - 2.5', qty: 4 }, 
-    Interlock: { formula: 'H - 2.5', qty: 2 } 
+    ShutterW: { formula: 'W / 2', qty: 4, divisor: 2, base: 'W' }, 
+    ShutterH: { formula: 'H - 2.5', qty: 4, divisor: 0, base: 'H' }, 
+    Interlock: { formula: 'H - 2.5', qty: 2, divisor: 0, base: 'H' } 
   },
   D3: { 
     arw: 700, lr: 120, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
     glassW_offset: -4.1, glassH_offset: -4.1, 
-    ShutterW: { formula: 'W / 2', qty: 6 }, 
-    ShutterH: { formula: 'H - 2.5', qty: 6 }, 
-    Interlock: { formula: 'H - 2.5', qty: 2 } 
+    ShutterW: { formula: 'W / 2', qty: 6, divisor: 2, base: 'W' }, 
+    ShutterH: { formula: 'H - 2.5', qty: 6, divisor: 0, base: 'H' }, 
+    Interlock: { formula: 'H - 2.5', qty: 2, divisor: 0, base: 'H' } 
   },
   S2: { 
     arw: 1000, lr: 130, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
     glassW_offset: -1.5, glassH_offset: -4.1, 
-    ShutterW: { formula: '(W - 4) / 2', qty: 4 }, 
-    ShutterH: { formula: 'H - 2.5', qty: 4 }, 
-    Interlock: { formula: 'H - 2.5', qty: 2 }, 
-    TrackStrip: { formula: 'W - 3.5', qty: 2, stockLen: 192.5, rate: 800 } 
+    ShutterW: { formula: '(W - 4) / 2', qty: 4, divisor: 2, base: 'W' }, 
+    ShutterH: { formula: 'H - 2.5', qty: 4, divisor: 0, base: 'H' }, 
+    Interlock: { formula: 'H - 2.5', qty: 2, divisor: 0, base: 'H' }, 
+    TrackStrip: { formula: 'W - 3.5', qty: 2, divisor: 0, base: 'W', stockLen: 192.5, rate: 800 } 
   },
   S3: { 
     arw: 1500, lr: 150, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
     glassW_offset: -1.5, glassH_offset: -4.1, 
-    ShutterW: { formula: '(W - 4) / 2', qty: 6 }, 
-    ShutterH: { formula: 'H - 2.5', qty: 3 }, 
-    Interlock: { formula: 'H - 2.5', qty: 3 }, 
-    TrackStrip: { formula: 'W - 3.5', qty: 3, stockLen: 192.5, rate: 800 } 
+    ShutterW: { formula: '(W - 4) / 2', qty: 6, divisor: 2, base: 'W' }, 
+    ShutterH: { formula: 'H - 2.5', qty: 3, divisor: 0, base: 'H' }, 
+    Interlock: { formula: 'H - 2.5', qty: 3, divisor: 0, base: 'H' }, 
+    TrackStrip: { formula: 'W - 3.5', qty: 3, divisor: 0, base: 'W', stockLen: 192.5, rate: 800 } 
   },
   N2: { 
     arw: 200, lr: 80, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
     glassW_offset: 0.5, glassH_offset: -2.4, 
-    BearingBottomW: { formula: '(W - 6.2) / 2', qty: 4 }, 
-    Handle: { formula: 'H - 1.4', qty: 2 }, 
-    Interlock: { formula: 'H - 1.4', qty: 2 } 
+    BearingBottomW: { formula: '(W - 6.2) / 2', qty: 4, divisor: 2, base: 'W' }, 
+    Handle: { formula: 'H - 1.4', qty: 2, divisor: 0, base: 'H' }, 
+    Interlock: { formula: 'H - 1.4', qty: 2, divisor: 0, base: 'H' } 
   },
   N3: { 
     arw: 300, lr: 80, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
     glassW_offset: 0.5, glassH_offset: -2.4, 
-    BearingBottomW: { formula: '(W - 6.2) / 2', qty: 6 }, 
-    Handle: { formula: 'H - 1.4', qty: 3 }, 
-    Interlock: { formula: 'H - 1.4', qty: 3 } 
+    BearingBottomW: { formula: '(W - 6.2) / 2', qty: 6, divisor: 2, base: 'W' }, 
+    Handle: { formula: 'H - 1.4', qty: 3, divisor: 0, base: 'H' }, 
+    Interlock: { formula: 'H - 1.4', qty: 3, divisor: 0, base: 'H' } 
   }
 };
 
@@ -808,7 +808,7 @@ function getWeightTypesForMode(mode) {
   return types;
 }
 
-// SAFE MERGE: CUSTOM RULES SETTINGS ARE 100% PRESERVED
+// SAFE MERGE: CUSTOM RULES ARE 100% PRESERVED
 function getCurrentRulesConfig(mode, customRules = {}) {
   const isBuiltIn = ['D2','D3','S2','S3','N2','N3'].includes(mode);
   const defaults = isBuiltIn ? (DEFAULT_RULES_CONFIG[mode] || DEFAULT_RULES_CONFIG.D3) : {};
@@ -818,7 +818,6 @@ function getCurrentRulesConfig(mode, customRules = {}) {
   for (const key in defaults) {
     if (typeof defaults[key] === 'object' && defaults[key] !== null) res[key] = { ...defaults[key] };
   }
-  // User's custom settings ALWAYS override defaults
   for (const key in custom) {
     if (typeof custom[key] === 'object' && custom[key] !== null && !Array.isArray(custom[key])) res[key] = { ...(res[key] || {}), ...custom[key] };
     else res[key] = custom[key];
@@ -866,6 +865,7 @@ function getWeight(mode, category, storedWeights = {}) {
   return safeNum(defObj[mapped] || 2.5);
 }
 
+// GLASS CALCULATION: IF ONLY TRACK & CLIP EXIST, GLASS USES FULL TRACK OUTER (W & H) DIRECTLY!
 function getWindowPiecesAndGlass(W, H, mode, rules) {
   const pieces = {}; const originalLengths = {};
   const W_shutter = applySutRounding(W, 'non-track', true);
@@ -919,8 +919,30 @@ function getWindowPiecesAndGlass(W, H, mode, rules) {
     pieces[key] = lenArr;
   }
 
-  let shutterW_val = evaluateFormula(rules.ShutterW?.formula || rules.BearingBottomW?.formula || 'W / 2', W_shutter, H_shutter);
-  let shutterH_val = evaluateFormula(rules.ShutterH?.formula || rules.Handle?.formula || 'H', W_shutter, H_shutter);
+  // CHECK IF SHUTTER / SASH PROFILES EXIST
+  let hasSashW = false;
+  let hasSashH = false;
+
+  if (isBuiltIn) {
+    hasSashW = true;
+    hasSashH = true;
+  } else if (Array.isArray(included)) {
+    hasSashW = included.some(p => p === 'ShutterW' || p === 'BearingBottomW');
+    hasSashH = included.some(p => p === 'ShutterH' || p === 'Handle');
+  } else {
+    hasSashW = !!(rules.ShutterW || rules.BearingBottomW);
+    hasSashH = !!(rules.ShutterH || rules.Handle);
+  }
+
+  // If only Track + Clip (no Shutter/Sash): Glass base is Track Outer (W and H)!
+  // If Shutter/Sash exists: Glass base is Shutter/Sash as usual!
+  let shutterW_val = hasSashW 
+    ? evaluateFormula(rules.ShutterW?.formula || rules.BearingBottomW?.formula || 'W / 2', W_shutter, H_shutter)
+    : W_shutter;
+
+  let shutterH_val = hasSashH
+    ? evaluateFormula(rules.ShutterH?.formula || rules.Handle?.formula || 'H', W_shutter, H_shutter)
+    : H_shutter;
 
   const rawGlassW = safeNum(shutterW_val) + parseSutOffset(rules.glassW_offset ?? -4.1);
   const rawGlassH = safeNum(shutterH_val) + parseSutOffset(rules.glassH_offset ?? -4.1);
@@ -1511,7 +1533,7 @@ function glassRunningFeet(w, h, qty=2){ return ((w + h) * 2 / 12) * qty; }
 const $ = (s, r=document)=>r.querySelector(s);
 const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
 
-// SAFE DATA MIGRATION: NEVER REMOVE USER RULES OR WEIGHTS
+// SAFE DATA MIGRATION: USER CUSTOM DATA IS NEVER DELETED
 (function safeDataMigration() {
   try {
     const existingRules = JSON.parse(localStorage.getItem('fs_customRules') || '{}');
@@ -1724,6 +1746,7 @@ function getAllModesList(){
   return [...builtIn, ...(STATE.customModes || [])];
 }
 
+// SINGLE-CLICK TABS
 function updateModeDropdownsAndTabs(){
   const modes = getAllModesList();
   const dropdown = $('#modeDropdown');
@@ -1797,14 +1820,17 @@ function fmtSutOffset(n) {
   return isNeg ? `-${sutStr}` : sutStr;
 }
 
-function parseFormulaToParts(formulaStr, defaultBase = 'W', defaultDivisor = 1) {
+// GENERIC FORMULA PARSER: NEVER DEFAULTS TO 2 UNLESS EXPLICITLY SET
+function parseFormulaToParts(formulaStr, defaultBase = 'W', defaultDivisor = 0) {
   if (!formulaStr || typeof formulaStr !== 'string') return { base: defaultBase, offset: 0, divisor: defaultDivisor };
   const s = formulaStr.trim();
   const baseMatch = s.match(/(W|H)/i);
   const base = baseMatch ? baseMatch[1].toUpperCase() : defaultBase;
+  
   let divisor = defaultDivisor;
   const divMatch = s.match(/\/\s*([\d\.]+)/);
-  if (divMatch) divisor = parseFloat(divMatch[1]) || defaultDivisor;
+  if (divMatch) divisor = parseFloat(divMatch[1]);
+  else divisor = defaultDivisor;
   
   let offset = 0;
   const target = s.split('/')[0];
@@ -1818,17 +1844,23 @@ function parseFormulaToParts(formulaStr, defaultBase = 'W', defaultDivisor = 1) 
   return { base, offset: num(offset, 4), divisor };
 }
 
+// FORMULA BUILDER: DIVISOR 0 OR 1 MEANS NO DIVISION, >1 DIVIDES EXACTLY
 function buildFormulaFromParts(base, offset, divisor) {
   const b = base.toUpperCase();
   const offNum = safeNum(offset);
-  const divNum = safeNum(divisor) > 0 ? safeNum(divisor) : 1;
+  const divNum = safeNum(divisor);
   let offStr = '';
   if (offNum > 0) offStr = ` + ${offNum}`;
   else if (offNum < 0) offStr = ` - ${Math.abs(offNum)}`;
   
-  if (offNum !== 0 && divNum > 1) return `(${b}${offStr}) / ${divNum}`;
-  else if (divNum > 1) return `${b} / ${divNum}`;
-  else return `${b}${offStr}`;
+  if (divNum > 1) {
+    if (offNum !== 0) return `(${b}${offStr}) / ${divNum}`;
+    else return `${b} / ${divNum}`;
+  } else {
+    // 0 or 1 = Full piece (no division)
+    if (offNum !== 0) return `${b}${offStr}`;
+    else return `${b}`;
+  }
 }
 
 function getGlassOffset(ruleVal, defaultVal = -4.1) {
@@ -2031,6 +2063,7 @@ function renderReportTables(data) {
   });
 }
 
+// 100% FREELY EDITABLE DIVISOR (0, 1, 2, 3...) & BASE (W/H)
 function buildRulesUI(tabMode){
   STATE.currentRulesTab = tabMode;
   $$('#rulesTabContainer .tab').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === tabMode));
@@ -2064,20 +2097,23 @@ function buildRulesUI(tabMode){
   const glassWDisp = isMM ? safeFix(glassWOff * 25.4, 1) : fmtSutOffset(glassWOff);
   const glassHDisp = isMM ? safeFix(glassHOff * 25.4, 1) : fmtSutOffset(glassHOff);
 
-  const glassCard = document.createElement('div'); glassCard.className = 'wc-card';
-  glassCard.innerHTML = `<h4>🪟 2. कांच कटिंग नियम (Glass Size Offsets)</h4>
-    <div class="row">
-      <div class="group"><label class="lbl">कांच चौड़ाई (Glass Width +/- Sut)</label><input class="input wc-field" data-type="glassW_offset" type="text" value="${glassWDisp}" placeholder="e.g. -4.1" /></div>
-      <div class="group"><label class="lbl">कांच ऊंचाई (Glass Height +/- Sut)</label><input class="input wc-field" data-type="glassH_offset" type="text" value="${glassHDisp}" placeholder="e.g. -4.1" /></div>
-    </div>`;
-  body.appendChild(glassCard);
-
   let keys = custom.includedProfiles ? custom.includedProfiles.slice() : [];
   if (!custom.includedProfiles) {
     keys = tabMode.startsWith('D') || tabMode.startsWith('S') ? ['ShutterW', 'ShutterH', 'Interlock'] : ['BearingBottomW', 'Handle', 'Interlock'];
     if (tabMode === 'S2' || tabMode === 'S3') keys.push('TrackStrip');
   }
   keys = keys.filter(k => k !== 'Track' && k !== 'TopTrack' && k !== 'BottomTrack' && k !== 'TopBottomTrack' && k !== 'SideTrack');
+
+  const isOnlyTrackClip = !isBuiltIn && Array.isArray(keys) && !keys.some(k => k.startsWith('Shutter') || k.startsWith('BearingBottom') || k.startsWith('Handle'));
+  const glassHeaderGuide = isOnlyTrackClip ? ' (Track Outer आधार)' : ' (Glass Size Offsets)';
+
+  const glassCard = document.createElement('div'); glassCard.className = 'wc-card';
+  glassCard.innerHTML = `<h4>🪟 2. कांच कटिंग नियम${glassHeaderGuide}</h4>
+    <div class="row">
+      <div class="group"><label class="lbl">कांच चौड़ाई (Glass Width +/- Sut)</label><input class="input wc-field" data-type="glassW_offset" type="text" value="${glassWDisp}" placeholder="e.g. -4.1" /></div>
+      <div class="group"><label class="lbl">कांच ऊंचाई (Glass Height +/- Sut)</label><input class="input wc-field" data-type="glassH_offset" type="text" value="${glassHDisp}" placeholder="e.g. -4.1" /></div>
+    </div>`;
+  body.appendChild(glassCard);
 
   let secNum = 3;
   keys.forEach(key => {
@@ -2086,8 +2122,16 @@ function buildRulesUI(tabMode){
     const isW = key.toLowerCase().includes('w') || key === 'BearingBottomW';
     const isTrackStrip = key === 'TrackStrip';
     const defaultBase = isW ? 'W' : 'H';
-    const parts = parseFormulaToParts(cur.formula, defaultBase, isW && !isTrackStrip ? 2 : 1);
-    const offDisp = isMM ? safeFix(parts.offset * 25.4, 1) : fmtSutOffset(parts.offset);
+    
+    // Read directly saved values, or parse safely without defaulting to 2
+    const parts = parseFormulaToParts(cur.formula, defaultBase, 0);
+    const chosenBase = cur.base || parts.base || defaultBase;
+    const chosenDivisor = (cur.divisor !== undefined && cur.divisor !== null && cur.divisor !== '')
+      ? cur.divisor
+      : (parts.divisor !== undefined ? parts.divisor : 0);
+    
+    const chosenOffset = (cur.offset !== undefined && cur.offset !== null) ? cur.offset : parts.offset;
+    const offDisp = isMM ? safeFix(chosenOffset * 25.4, 1) : fmtSutOffset(chosenOffset);
 
     const card = document.createElement('div'); card.className='wc-card';
     let headerTitle = `📐 ${secNum++}. ${key} नियम`;
@@ -2107,12 +2151,12 @@ function buildRulesUI(tabMode){
           <div class="group">
             <label class="lbl">नाप का आधार</label>
             <select class="input wc-prof-part" data-type="${key}" data-prop="base">
-              <option value="W" ${parts.base === 'W' ? 'selected' : ''}>चौड़ाई (W)</option>
-              <option value="H" ${parts.base === 'H' ? 'selected' : ''}>ऊंचाई (H)</option>
+              <option value="W" ${chosenBase === 'W' ? 'selected' : ''}>चौड़ाई (W)</option>
+              <option value="H" ${chosenBase === 'H' ? 'selected' : ''}>ऊंचाई (H)</option>
             </select>
           </div>
           <div class="group"><label class="lbl">माइनस सूत (Offset)</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" /></div>
-          <div class="group"><label class="lbl">भाग (Divide By)</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="0.1" min="1" value="${parts.divisor || 1}" /></div>
+          <div class="group"><label class="lbl">भाग (Divide By)</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="any" min="0" value="${chosenDivisor}" placeholder="0, 1, 2, 3..." /></div>
           <div class="group"><label class="lbl">कुल पट्टी (Qty)</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
         </div>
         <div class="row" style="margin-top:4px;">
@@ -2125,12 +2169,12 @@ function buildRulesUI(tabMode){
           <div class="group">
             <label class="lbl">नाप का आधार</label>
             <select class="input wc-prof-part" data-type="${key}" data-prop="base">
-              <option value="W" ${parts.base === 'W' ? 'selected' : ''}>चौड़ाई (W)</option>
-              <option value="H" ${parts.base === 'H' ? 'selected' : ''}>ऊंचाई (H)</option>
+              <option value="W" ${chosenBase === 'W' ? 'selected' : ''}>चौड़ाई (W)</option>
+              <option value="H" ${chosenBase === 'H' ? 'selected' : ''}>ऊंचाई (H)</option>
             </select>
           </div>
           <div class="group"><label class="lbl">माइनस सूत (Offset)</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" /></div>
-          <div class="group"><label class="lbl">भाग (Divide By)</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="0.1" min="1" value="${parts.divisor || 1}" /></div>
+          <div class="group"><label class="lbl">भाग (Divide By)</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="any" min="0" value="${chosenDivisor}" placeholder="0, 1, 2, 3..." /></div>
           <div class="group"><label class="lbl">कुल पीस (Qty)</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
         </div>`;
     }
@@ -2626,7 +2670,7 @@ function bindEvents(){
 
   $('#modalStockBtn').onclick = () => { loadDynamicStockModal(); $('#stockModal').classList.add('open'); };
   
-  // SINGLE-CLICK RULES TAB FIX
+  // SINGLE-CLICK RULES TAB
   $('#modalRulesBtn').onclick = () => {
     STATE.currentRulesTab = STATE.mode;
     updateModeDropdownsAndTabs();
@@ -2634,7 +2678,7 @@ function bindEvents(){
     $('#rulesModal').classList.add('open');
   };
 
-  // SINGLE-CLICK WEIGHT TAB FIX
+  // SINGLE-CLICK WEIGHT TAB
   $('#modalWeightBtn').onclick = () => {
     STATE.currentWeightTab = STATE.mode;
     updateModeDropdownsAndTabs();
@@ -2679,14 +2723,14 @@ function bindEvents(){
     };
 
     actualProfiles.forEach(prof => {
-      if (prof === 'ShutterW') newRules.ShutterW = { formula: 'W / 2', qty: 4 };
-      else if (prof === 'ShutterH') newRules.ShutterH = { formula: 'H - 2.5', qty: 4 };
-      else if (prof === 'ClipW') newRules.ClipW = { formula: 'W / 2', qty: 4 };
-      else if (prof === 'ClipH') newRules.ClipH = { formula: 'H - 2.5', qty: 4 };
-      else if (prof === 'Interlock') newRules.Interlock = { formula: 'H - 2.5', qty: 2 };
-      else if (prof === 'BearingBottomW') newRules.BearingBottomW = { formula: '(W - 6.2) / 2', qty: 4 };
-      else if (prof === 'Handle') newRules.Handle = { formula: 'H - 1.4', qty: 2 };
-      else if (prof === 'TrackStrip') newRules.TrackStrip = { formula: 'W - 3.5', qty: 2, stockLen: 192.5, rate: 800 };
+      if (prof === 'ShutterW') newRules.ShutterW = { formula: 'W / 2', qty: 4, divisor: 2, base: 'W' };
+      else if (prof === 'ShutterH') newRules.ShutterH = { formula: 'H - 2.5', qty: 4, divisor: 0, base: 'H' };
+      else if (prof === 'ClipW') newRules.ClipW = { formula: 'W / 2', qty: 4, divisor: 2, base: 'W' };
+      else if (prof === 'ClipH') newRules.ClipH = { formula: 'H - 2.5', qty: 4, divisor: 0, base: 'H' };
+      else if (prof === 'Interlock') newRules.Interlock = { formula: 'H - 2.5', qty: 2, divisor: 0, base: 'H' };
+      else if (prof === 'BearingBottomW') newRules.BearingBottomW = { formula: '(W - 6.2) / 2', qty: 4, divisor: 2, base: 'W' };
+      else if (prof === 'Handle') newRules.Handle = { formula: 'H - 1.4', qty: 2, divisor: 0, base: 'H' };
+      else if (prof === 'TrackStrip') newRules.TrackStrip = { formula: 'W - 3.5', qty: 2, divisor: 0, base: 'W', stockLen: 192.5, rate: 800 };
     });
 
     STATE.customRules[name] = newRules;
@@ -2715,7 +2759,7 @@ function bindEvents(){
     }
   };
 
-  // RULES SAVE: SAVES BASE, OFFSET, DIVISOR, QTY SAFELY
+  // RULES SAVE: SAVES BASE, OFFSET, DIVISOR (0, 1, 2, 3...) SAFELY & CLEARS CACHE
   $('#rulesSave').onclick = () => {
     const active = STATE.currentRulesTab || STATE.mode;
     const currentRules = STATE.customRules[active] || {};
@@ -2741,15 +2785,29 @@ function bindEvents(){
       const base = p.base || (type.toLowerCase().includes('w') || type === 'TrackStrip' ? 'W' : 'H');
       let parsedOffset = (STATE.unitMode === 'mm') ? (parseFloat(p.offset) || 0) / 25.4 : parseSutOffset(p.offset);
       let stockLenInches = p.stockLen ? (STATE.unitMode === 'mm' ? (parseFloat(p.stockLen)||0)/25.4 : parseFloat(p.stockLen)||192.5) : undefined;
-      const divisorToUse = p.divisor ? safeNum(p.divisor) : 1;
+      
+      const divisorToUse = (p.divisor !== undefined && p.divisor !== null && String(p.divisor).trim() !== '')
+        ? safeNum(p.divisor)
+        : 0;
+        
       const formula = buildFormulaFromParts(base, parsedOffset, divisorToUse);
       currentRules[type] = {
-        formula, qty: safeNum(p.qty) || 2, stockLen: stockLenInches, rate: p.rate ? safeNum(p.rate) : undefined
+        formula,
+        base,
+        offset: parsedOffset,
+        divisor: divisorToUse,
+        qty: safeNum(p.qty) || 2,
+        stockLen: stockLenInches,
+        rate: p.rate ? safeNum(p.rate) : undefined
       };
     }
 
     STATE.customRules[active] = currentRules;
     LS.setRules(STATE.customRules);
+    
+    // Clear formula cache so new divisor immediately takes effect in Live Demo!
+    FORMULA_CACHE.clear();
+    
     $('#rulesModal').classList.remove('open');
     hydrateView();
     setStatus('Rules saved for ' + active);
@@ -2803,4 +2861,3 @@ window.onload = () => {
 </script>
 </body>
 </html>
-
