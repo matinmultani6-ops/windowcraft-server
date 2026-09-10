@@ -62,13 +62,13 @@ header.top{
 .zoom-badge { background: var(--primary); color: #ffffff; border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 0.72rem; min-width: 42px; text-align: center; }
 .zoom-reset-btn { background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 7px; font-size: 0.70rem; font-weight: 600; cursor: pointer; color: #475569; }
 
-.wrap{ max-width: 1200px; width: 100%; margin: 0 auto; padding: 8px 6px; display: grid; grid-template-columns: 1fr; gap: 10px; box-sizing: border-box; }
-@media (min-width: 850px) { .wrap { grid-template-columns: 460px 1fr; align-items: start; gap: 12px; } }
+/* FULL-WIDTH STACKED LAYOUT FOR PERFECT SCALING */
+.wrap{ max-width: 1200px; width: 100%; margin: 0 auto; padding: 8px 6px; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; }
 
-.left-col, .right-col { min-width: 0 !important; width: 100%; box-sizing: border-box; }
+.left-col, .right-col { width: 100%; box-sizing: border-box; min-width: 0 !important; }
 .card{ background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 8px; box-shadow:0 1px 3px rgba(0,0,0, .06); margin-bottom: 10px; position: relative; width: 100%; min-width: 0; box-sizing: border-box; }
 h2{margin:0 0 8px;font-size:0.98rem;font-weight:700;color:var(--primary);border-bottom: 1px solid var(--border);padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;}
-h3{margin:0 0 4px;font-size:0.85rem;font-weight:600;color:var(--text);border-bottom:1px dashed var(--border);padding-bottom:3px; display: flex; justify-content: space-between; align-items: center;}
+h3{margin:0 0 4px;font-size:0.85rem;font-weight:600;color:var(--text);border-bottom:1px dashed var(--border);padding-bottom:3px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;}
 .sub-table-title { font-size: 0.78rem; font-weight: 700; color: var(--primary); margin: 6px 0 3px 0; display: flex; align-items: center; gap: 4px; }
 .muted{color:var(--muted);font-size:0.72rem}
 
@@ -84,7 +84,25 @@ h3{margin:0 0 4px;font-size:0.85rem;font-weight:600;color:var(--text);border-bot
 .demo-item { display: flex; justify-content: space-between; background: #ffffff; padding: 3px 6px; border-radius: 4px; border: 1px solid #dbeafe; }
 .demo-item strong { color: #1e3a8a; }
 
-.row{display:grid;grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; width: 100%; box-sizing: border-box;}
+/* QUICK GRAND TOTAL CARD DIRECTLY UNDER DEMO BOX */
+.quick-quotation-card {
+  background: #ecfdf5; border: 1.5px solid #6ee7b7; border-radius: 8px; padding: 8px; margin-top: 8px;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.12);
+}
+.quick-quotation-header {
+  font-size: 0.82rem; font-weight: 800; color: #065f46; border-bottom: 1px dashed #a7f3d0; padding-bottom: 4px; margin-bottom: 6px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.quick-quotation-grid {
+  display: grid; grid-template-columns: 1.2fr 1fr; gap: 6px; align-items: center;
+}
+.quick-total-box {
+  background: #ffffff; border: 1px solid #10b981; border-radius: 6px; padding: 6px 8px; text-align: center;
+}
+.quick-total-lbl { font-size: 0.68rem; color: #047857; font-weight: 700; display: block; }
+.quick-total-val { font-size: 1.05rem; color: #065f46; font-weight: 900; }
+
+.row{display:grid;grid-template-columns: 1fr; gap: 6px; margin-bottom: 6px; width: 100%; box-sizing: border-box;}
 .lbl { display: block; margin-bottom: 1px; font-size: 0.75rem; font-weight: 700; color: var(--text); }
 .sub-lbl { display: block; font-size: 0.68rem; color: var(--muted); font-weight: 400; margin-top: -1px; margin-bottom: 3px; line-height: 1.25; }
 .section-guide { font-size: 0.69rem; color: var(--muted); margin-bottom: 6px; line-height: 1.3; font-weight: normal; }
@@ -95,7 +113,7 @@ textarea.input[rows="4"] { min-height: 140px; padding: 6px; font-size: 0.82rem; 
 
 .group[data-span="2"] { grid-column: span 2; }
 
-/* 60% INPUT & 40% INSTRUCTION EXACT RATIO */
+/* 60% INPUT & 40% INSTRUCTION RATIO */
 .input-guide-grid {
   display: grid;
   grid-template-columns: 6fr 4fr;
@@ -122,7 +140,7 @@ textarea.input[rows="4"] { min-height: 140px; padding: 6px; font-size: 0.82rem; 
 .toolbar { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
 .toolbar .btn-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
-.btn{ border:0;color:var(--action-btn-text);cursor:pointer;font-weight:600;padding:7px 8px; border-radius:5px; box-shadow:0 1px 2px rgba(0,0,0, .15); font-size:0.80rem; white-space:nowrap; width: 100%; text-align: center; transition: all 0.15s ease; background-color: var(--primary); display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.btn{ border:0;color:var(--action-btn-text);cursor:pointer;font-weight:600;padding:7px 8px; border-radius:5px; box-shadow:0 1px 2px rgba(0,0,0, .15); font-size:0.80rem; white-space:normal; width: 100%; text-align: center; transition: all 0.15s ease; background-color: var(--primary); display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
 .btn:active { transform: scale(0.97); }
 .b-action-2 { background-color: var(--secondary); } .b-danger { background-color: var(--danger); } .b-success { background-color: var(--success); }
 
@@ -132,7 +150,7 @@ textarea.input[rows="4"] { min-height: 140px; padding: 6px; font-size: 0.82rem; 
 .mode-dropdown .btn { padding: 5px 3px; font-size: 0.75rem; background-color: var(--secondary); }
 
 .toggle-group { display: inline-flex; align-items: center; gap: 3px; }
-.toggle-pill { background: var(--secondary); color: #fff; border: none; padding: 3px 8px; border-radius: 4px; font-size: 0.70rem; font-weight: 600; cursor: pointer; }
+.toggle-pill { background: var(--secondary); color: #fff; border: none; padding: 3px 8px; border-radius: 4px; font-size: 0.70rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
 .toggle-pill.active-orange { background: var(--orange); }
 .toggle-pill.active-green { background: var(--success); }
 .toggle-pill.active-blue { background: var(--primary); }
@@ -142,11 +160,12 @@ textarea.input[rows="4"] { min-height: 140px; padding: 6px; font-size: 0.82rem; 
   align-items: center; justify-content: center; padding: 0; line-height: 1;
 }
 
+/* FULL-WIDTH RESPONSIVE TABLES (NEVER TRUNCATES AT 140% ZOOM) */
 .table-wrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow-x: auto !important; overflow-y: hidden !important; margin-bottom: 8px; display: block; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
-table{ width: 100%; min-width: 440px; border-collapse: collapse; border-spacing: 0; border-radius: 4px; }
+table{ width: 100%; min-width: 320px; border-collapse: collapse; border-spacing: 0; border-radius: 4px; }
 
-th, td{ border:1px solid var(--border); padding:5px 6px; text-align:left; background:var(--bg); white-space:nowrap; font-size:0.72rem; }
-th{ background:var(--panel); font-weight:700; color:var(--text); text-align:left; }
+th, td{ border:1px solid var(--border); padding:5px 4px; text-align:left; background:var(--bg); font-size:0.72rem; word-break: break-word; }
+th{ background:var(--panel); font-weight:700; color:var(--text); text-align:left; white-space: normal; }
 td{ font-weight:500; color:#333; }
 td.text-right, th.text-right { text-align: right !important; }
 td.text-center, th.text-center { text-align: center !important; }
@@ -201,13 +220,13 @@ tr:nth-child(even) td{ background:#f9fbfd }
 </div>
 
 <main class="wrap" id="mainAppWrap">
-  <!-- LEFT COLUMN -->
+  <!-- SECTION 1: INPUTS, DEMO & QUICK FINAL BILL -->
   <div class="left-col">
     <section class="card">
       <h2>
         <span id="inputSectionTitle">1. 📐 प्रोजेक्ट नाप (Project Inputs)</span>
         <div style="display:inline-flex; gap:6px; align-items:center;">
-          <!-- YOUTUBE BUTTON NEXT TO SETTINGS -->
+          <!-- PERMANENT YOUTUBE VIDEO BUTTON -->
           <a id="youtubeBtn" href="https://www.youtube.com/@SmartRollingShutter" target="_blank" class="yt-btn" title="Watch YouTube Video">
             <svg class="yt-icon" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
             <span id="ytBtnText">YouTube</span>
@@ -216,8 +235,8 @@ tr:nth-child(even) td{ background:#f9fbfd }
         </div>
       </h2>
       
-      <!-- WINDOW STOCK LENGTH (PIPE COMPLETELY REMOVED) -->
-      <div class="row" style="grid-template-columns: 1fr;">
+      <!-- WINDOW STOCK LENGTH -->
+      <div class="row">
         <div class="group">
           <label class="lbl" id="lcLabel" for="lcInput">🏢 विंडो बार लंबाई (Window Stock Length)</label>
           <span class="sub-lbl" id="lcSubText">16 फीट बार = 192.5" (16 Ft Bar)</span>
@@ -225,7 +244,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
         </div>
       </div>
       
-      <!-- WINDOW SIZES (EXACT 60% INPUT & 40% INSTRUCTION) -->
+      <!-- WINDOW SIZES (60% INPUT : 40% INSTRUCTION) -->
       <div style="margin-bottom: 8px;">
         <label class="lbl" id="sizesLabel" for="sizesInput">🪟 विंडो साइज़ (चौड़ाई × ऊंचाई)</label>
         <span class="sub-lbl" id="sizesSubLbl">हर लाइन में 1 खिड़की का नाप (1 Size per line)</span>
@@ -267,20 +286,41 @@ tr:nth-child(even) td{ background:#f9fbfd }
         </div>
         <div class="demo-grid" id="demo48Grid"></div>
       </div>
+
+      <!-- 3. FINAL QUOTATION & GRAND TOTAL (PERMANENTLY LOCATED DIRECTLY UNDER LIVE DEMO) -->
+      <div class="quick-quotation-card" id="quickQuotationCard">
+        <div class="quick-quotation-header">
+          <span id="quickCardTitle">🏷️ 3. फाइनल कोटेशन व कुल जोड़ (Final Quotation & Grand Total)</span>
+        </div>
+        <div class="quick-quotation-grid" id="quickQuotationGrid">
+          <div class="quick-total-box" style="border-color:#10b981;">
+            <span class="quick-total-lbl" id="quickTotalLbl">कुल बिल राशि (GRAND TOTAL)</span>
+            <span class="quick-total-val" id="quickGrandTotalVal">₹ 0.00</span>
+          </div>
+          <div class="quick-total-box" style="border-color:#3b82f6;">
+            <span class="quick-total-lbl" id="quickAvgRateLbl">औसत भाव (Avg Rate/Sq.Ft)</span>
+            <span class="quick-total-val" id="quickAvgRateVal" style="color:#1d4ed8; font-size:0.95rem;">₹ 0.00 / Sq.Ft</span>
+          </div>
+        </div>
+      </div>
+
     </section>
   </div>
 
-  <!-- RIGHT COLUMN -->
+  <!-- SECTION 2: FULL-SCREEN REPORT & CUTTING PLANS -->
   <div class="right-col">
     <section class="card">
       <h2 id="reportSectionTitle">2. 📊 प्रोजेक्ट रिपोर्ट एवं कटिंग विवरण (Project Report)</h2>
       <div class="tables">
+        
+        <!-- 1. MEASUREMENTS & EXPENSES -->
         <div style="margin-bottom: 10px;">
-          <h3 id="sec1Title">1. प्रोजेक्ट माप, खर्च एवं कोटेशन सारांश (Project Summary & Quotation)</h3>
-          <div class="section-guide" id="sec1Guide">💡 माप, सामग्री मात्रा, अलग-अलग खर्च और कुल फाइनल बिल का विवरण</div>
+          <h3 id="sec1Title">1. प्रोजेक्ट माप एवं खर्च सारांश (Project Summary & Expenses)</h3>
+          <div class="section-guide" id="sec1Guide">💡 माप, सामग्री मात्रा और अलग-अलग खर्चों का विवरण</div>
           <div id="totalsWrap" style="display: flex; flex-direction: column; gap: 8px;">—</div>
         </div>
 
+        <!-- 2. PROFILE BARS & WEIGHT SUMMARY -->
         <div>
           <h3>
             <span id="sec2Title">2. प्रोफाइल बार और वजन सारांश (Profile Bars & Weight Summary)</span>
@@ -293,12 +333,14 @@ tr:nth-child(even) td{ background:#f9fbfd }
           <div id="barSummaryWrap" class="table-wrap muted">—</div>
         </div>
 
+        <!-- 3. SCRAP & USABLE OFFCUTS -->
         <div>
           <h3 id="sec3ScrapTitle">3. ♻️ स्क्रैप एवं उपयोगी टुकड़े विवरण (Scrap & Usable Offcuts Analysis)</h3>
           <div class="section-guide" id="sec3ScrapGuide">💡 24" से बड़े टुकड़े उपयोगी (Usable Offcuts) हैं और 24" से छोटे टुकड़े असली स्क्रैप (Pure Scrap) हैं।</div>
           <div id="scrapSummaryWrap" class="table-wrap muted">—</div>
         </div>
 
+        <!-- 4. WINDOW SIZES & GLASS -->
         <div>
           <h3>
             <span id="sec4Title">4. विंडो साइज और कांच नाप (Window Sizes & Glass)</span>
@@ -311,14 +353,16 @@ tr:nth-child(even) td{ background:#f9fbfd }
           <div id="windowSizeGlassDetails" class="table-wrap muted">Enter sizes and select mode.</div>
         </div>
 
+        <!-- 5. PROFILE CUT LENGTHS -->
         <div>
           <h3 id="sec5Title">5. प्रोफाइल कटिंग साइज (Profile Cut Lengths)</h3>
           <div class="section-guide" id="sec5Guide">💡 प्रत्येक विंडो के अनुसार ट्रैक, शटर, इंटरलोक व अन्य प्रोफाइल की कटिंग लंबाई</div>
           <div id="windowDetails" class="table-wrap muted">—</div>
         </div>
 
+        <!-- 6. CUTTING PLAN - FULL SCREEN WIDTH -->
         <div>
-          <h3 id="sec6Title">6. कटिंग प्लान - बार ऑप्टिमाइजेशन (Cutting Plan - Optimized)</h3>
+          <h3 id="sec6Title">6. कटिंग प्लान - बार ऑप्टिमाइजेशन (Cutting Plan - Full Width)</h3>
           <div class="section-guide" id="sec6Guide">💡 16 फीट बार से न्यूनतम वेस्टेज में कटिंग लेआउट (Min Waste / Min Bars स्विच करें)</div>
           <div id="cutPlan" class="table-wrap muted">—</div>
         </div>
@@ -349,7 +393,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
       <label class="lbl" id="pdfCustLbl" for="pdfCustomNameInput">कस्टमर या प्रोजेक्ट का नाम दर्ज करें:</label>
       <input id="pdfCustomNameInput" class="input" type="text" value="" placeholder="e.g. Ramesh_Window_Project" style="margin-top:4px; font-size:0.85rem; padding:6px;" />
     </div>
-    <div class="row" style="margin-top: 10px;">
+    <div class="row" style="margin-top: 10px; grid-template-columns: 1fr 1fr;">
       <button id="pdfConfirmBtn" class="btn b-success" type="button">📥 डाउनलोड PDF (Download)</button>
       <button id="pdfCancelBtn" class="btn b-danger" type="button">बंद करें (Cancel)</button>
     </div>
@@ -380,8 +424,8 @@ tr:nth-child(even) td{ background:#f9fbfd }
 
     <div class="wc-card">
       <h4 id="compInfoCardTitle">🏢 कंपनी विवरण (Company Header Information)</h4>
-      <div class="row">
-        <div class="group" data-span="2">
+      <div class="row" style="grid-template-columns: 1fr;">
+        <div class="group">
           <label class="lbl" id="compNameLbl" for="companyNameInput">कंपनी / बिज़नेस का नाम (Company Name)</label>
           <input id="companyNameInput" class="input" type="text" value="" placeholder="e.g. Royal Aluminium Fabricators" />
         </div>
@@ -390,7 +434,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
     
     <div class="wc-card">
       <h4 id="ratesCardTitle">💰 मुख्य माल भाव (Base Material Rates)</h4>
-      <div class="row">
+      <div class="row" style="grid-template-columns: 1fr 1fr;">
         <div class="group">
           <label class="lbl" id="matRateLbl" for="mrcInput">मेटल भाव (Mat. Rate ₹/kg)</label>
           <input id="mrcInput" class="input" type="number" value="520" />
@@ -400,8 +444,8 @@ tr:nth-child(even) td{ background:#f9fbfd }
           <input id="grInput" class="input" type="number" value="60" />
         </div>
       </div>
-      <div class="row" style="margin-top: 4px;">
-        <div class="group" data-span="2">
+      <div class="row" style="margin-top: 4px; grid-template-columns: 1fr;">
+        <div class="group">
           <label class="lbl" id="woolpileRateLbl" for="woolpileRateInput">वूलपाइल भाव (Woolpile Rate ₹/Ft)</label>
           <span class="sub-lbl">प्रति रनिंग फुट वूलपाइल का भाव (Per Running Foot)</span>
           <input id="woolpileRateInput" class="input" type="number" step="0.25" value="2" />
@@ -430,7 +474,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
       💡 <strong>निर्देश:</strong> दुकान/फैक्ट्री में बचे हुए पुराने टुकड़ों की लंबाई दर्ज करें।
     </div>
     <div id="dynamicStockBody"></div>
-    <div class="row" style="margin-top: 10px;">
+    <div class="row" style="margin-top: 10px; grid-template-columns: 1fr 1fr;">
       <button id="stockSave" class="btn b-success" type="button">💾 स्टॉक सुरक्षित करें (Save Stock)</button>
       <button id="stockClose" class="btn b-danger" type="button">बंद करें (Close)</button>
     </div>
@@ -454,7 +498,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
     
     <div id="rulesBody"></div>
     
-    <div class="row" style="margin-top: 10px;">
+    <div class="row" style="margin-top: 10px; grid-template-columns: 1fr 1fr;">
       <button id="rulesSave" class="btn b-success" type="button">💾 रूल्स सुरक्षित करें (Save Rules)</button>
       <button id="deleteCustomModeBtn" class="btn b-danger" type="button" style="display:none;">Delete Custom Window</button>
       <button id="rulesClose" class="btn b-danger" type="button">बंद करें (Close)</button>
@@ -467,8 +511,8 @@ tr:nth-child(even) td{ background:#f9fbfd }
   <div class="box">
     <h4 id="addCustomModalHeader">➕ नई विंडो / कस्टम मोड बनाएं (Add Custom Window)</h4>
     <div class="wc-card">
-      <div class="row">
-        <div class="group" data-span="2">
+      <div class="row" style="grid-template-columns: 1fr;">
+        <div class="group">
           <label class="lbl" for="customModeName">कस्टम विंडो कोड / नाम</label>
           <input id="customModeName" class="input" type="text" placeholder="e.g. C2, 3TRACK-HEAVY" />
         </div>
@@ -500,7 +544,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
         <label class="chk-item"><input type="checkbox" value="TrackStrip"> Track Strip (पट्टी)</label>
       </div>
     </div>
-    <div class="row" style="margin-top: 10px;">
+    <div class="row" style="margin-top: 10px; grid-template-columns: 1fr 1fr;">
       <button id="saveNewCustomMode" class="btn b-success" type="button">✔️ कस्टम विंडो बनाएं</button>
       <button id="cancelCustomMode" class="btn b-danger" type="button">रद्द करें (Cancel)</button>
     </div>
@@ -513,7 +557,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
     <h4 id="weightModalHeader">⚖️ प्रोफाइल बार वजन (Bar Weight - Kg per 16 Ft Bar)</h4>
     <div class="wc-tab-row" id="weightTabContainer"></div>
     <div id="wcBody"></div>
-    <div class="row" style="margin-top: 10px;">
+    <div class="row" style="margin-top: 10px; grid-template-columns: 1fr 1fr;">
       <button id="weightSave" class="btn b-success" type="button">💾 वजन सुरक्षित करें (Save Weights)</button>
       <button id="weightClose" class="btn b-danger" type="button">बंद करें (Close)</button>
     </div>
@@ -522,9 +566,9 @@ tr:nth-child(even) td{ background:#f9fbfd }
 
 <script>
 // ==========================================
-// YOUTUBE VIDEO LINK (Aap apna link yahan badal sakte hain)
+// PERMANENT YOUTUBE VIDEO LINK
 // ==========================================
-const YOUTUBE_VIDEO_URL = "https://www.youtube.com/@SmartRollingShutter";
+const PERMANENT_YOUTUBE_URL = "https://www.youtube.com/@SmartRollingShutter";
 
 // ==========================================
 // ADMOB CONFIGURATION & BRIDGE
@@ -866,6 +910,7 @@ function getWeight(mode, category, storedWeights = {}) {
   return safeNum(defObj[mapped] || 2.5);
 }
 
+// GLASS CUTTING RULE: DIRECT TRACK OUTER FOR CLIP-ONLY
 function getWindowPiecesAndGlass(W, H, mode, rules) {
   const pieces = {}; const originalLengths = {};
   const W_shutter = applySutRounding(W, 'non-track', true);
@@ -1596,7 +1641,7 @@ function render48DemoBox() {
   }
 }
 
-// 100% ROBUST MULTI-LANGUAGE ENGINE (HI, EN, HI_EN)
+// 100% RELIABLE MULTI-LANGUAGE SYSTEM
 function applyLanguageUI() {
   const l = STATE.lang || 'hi_en';
   if ($('#languageSelect')) $('#languageSelect').value = l;
@@ -1605,7 +1650,7 @@ function applyLanguageUI() {
     $('#zoomBarLabel').textContent = 'स्क्रीन साइज (Zoom):';
     $('#inputSectionTitle').textContent = '1. 📐 प्रोजेक्ट नाप';
     $('#settingsBtn').innerHTML = '⚙️ सेटिंग्स';
-    $('#ytBtnText').textContent = 'यूट्यूब';
+    $('#ytBtnText').textContent = 'YouTube';
     $('#lcLabel').textContent = '🏢 विंडो बार लंबाई (स्टॉक)';
     $('#lcSubText').textContent = '16 फीट बार = 192.5"';
     $('#sizesLabel').textContent = '🪟 विंडो साइज़ (चौड़ाई × ऊंचाई)';
@@ -1616,9 +1661,13 @@ function applyLanguageUI() {
     $('#pdfCutBtn').textContent = '📐 फैब्रिकेशन व कटिंग रिपोर्ट';
     $('#pdfBillBtn').textContent = '💰 कोटेशन व बिल सारांश';
     
+    $('#quickCardTitle').textContent = '🏷️ 3. फाइनल कोटेशन व कुल जोड़';
+    $('#quickTotalLbl').textContent = 'कुल बिल राशि (GRAND TOTAL)';
+    $('#quickAvgRateLbl').textContent = 'औसत भाव (Avg Rate)';
+
     $('#reportSectionTitle').textContent = '2. 📊 प्रोजेक्ट रिपोर्ट एवं कटिंग विवरण';
-    $('#sec1Title').textContent = '1. प्रोजेक्ट माप, खर्च एवं कोटेशन सारांश';
-    $('#sec1Guide').textContent = '💡 माप, सामग्री मात्रा, अलग-अलग खर्च और कुल फाइनल बिल का विवरण';
+    $('#sec1Title').textContent = '1. प्रोजेक्ट माप एवं खर्च सारांश';
+    $('#sec1Guide').textContent = '💡 माप, सामग्री मात्रा और अलग-अलग खर्चों का विवरण';
     $('#sec2Title').textContent = '2. प्रोफाइल बार और वजन सारांश';
     $('#sec2Guide').textContent = '💡 कुल नई बार वजन व खरीद लागत (Purchase Cost), इस्तेमाल वजन, बिलिंग वजन व बिलिंग लागत';
     $('#sec3ScrapTitle').textContent = '3. ♻️ स्क्रैप एवं उपयोगी टुकड़े विवरण';
@@ -1658,10 +1707,14 @@ function applyLanguageUI() {
     $('#clearAllBtn').textContent = '🗑️ Clear All';
     $('#pdfCutBtn').textContent = '📐 Fabrication & Cut Report';
     $('#pdfBillBtn').textContent = '💰 Quotation & Bill Summary';
+
+    $('#quickCardTitle').textContent = '🏷️ 3. Final Quotation & Grand Total';
+    $('#quickTotalLbl').textContent = 'GRAND TOTAL BILL';
+    $('#quickAvgRateLbl').textContent = 'Avg Rate per Sq.Ft';
     
     $('#reportSectionTitle').textContent = '2. 📊 Project Report & Cut Details';
-    $('#sec1Title').textContent = '1. Project Measurements, Expenses & Quotation';
-    $('#sec1Guide').textContent = '💡 Measurements, material breakdown, detailed expenses and grand total quotation';
+    $('#sec1Title').textContent = '1. Project Measurements & Expenses';
+    $('#sec1Guide').textContent = '💡 Measurements, material breakdown, and detailed project expenses';
     $('#sec2Title').textContent = '2. Profile Bars & Weight Summary';
     $('#sec2Guide').textContent = '💡 Full raw bar weight, purchase cost, actual used weight, billed weight and metal cost (Kg)';
     $('#sec3ScrapTitle').textContent = '3. ♻️ Scrap & Usable Offcuts Analysis';
@@ -1688,7 +1741,7 @@ function applyLanguageUI() {
     $('#modalWeightBtn').textContent = '⚖️ Profile Weights';
     $('#settingsClose').textContent = '✔️ Save & Close Settings';
   } else {
-    // BILINGUAL (HI + EN)
+    // BILINGUAL
     $('#zoomBarLabel').textContent = 'स्क्रीन फिट (Zoom):';
     $('#inputSectionTitle').textContent = '1. 📐 प्रोजेक्ट नाप (Project Inputs)';
     $('#settingsBtn').innerHTML = '⚙️ सेटिंग्स (Settings)';
@@ -1703,9 +1756,13 @@ function applyLanguageUI() {
     $('#pdfCutBtn').textContent = '📐 Fabrication & Cut Report';
     $('#pdfBillBtn').textContent = '💰 Quotation & Bill Summary';
 
+    $('#quickCardTitle').textContent = '🏷️ 3. फाइनल कोटेशन व कुल जोड़ (Final Quotation & Grand Total)';
+    $('#quickTotalLbl').textContent = 'कुल बिल राशि (GRAND TOTAL)';
+    $('#quickAvgRateLbl').textContent = 'औसत भाव (Avg Rate/Sq.Ft)';
+
     $('#reportSectionTitle').textContent = '2. 📊 प्रोजेक्ट रिपोर्ट एवं कटिंग विवरण (Project Report)';
-    $('#sec1Title').textContent = '1. प्रोजेक्ट माप, खर्च एवं कोटेशन सारांश (Project Summary & Quotation)';
-    $('#sec1Guide').textContent = '💡 माप, सामग्री मात्रा, अलग-अलग खर्च और कुल फाइनल बिल का विवरण';
+    $('#sec1Title').textContent = '1. प्रोजेक्ट माप एवं खर्च सारांश (Project Summary & Expenses)';
+    $('#sec1Guide').textContent = '💡 माप, सामग्री मात्रा और अलग-अलग खर्चों का विवरण';
     $('#sec2Title').textContent = '2. प्रोफाइल बार और वजन सारांश (Profile Bars & Weight Summary)';
     $('#sec2Guide').textContent = '💡 कुल नई बार वजन व खरीद लागत (Purchase Cost), इस्तेमाल वजन, बिलिंग वजन व बिलिंग लागत';
     $('#sec3ScrapTitle').textContent = '3. ♻️ स्क्रैप एवं उपयोगी टुकड़े विवरण (Scrap & Usable Offcuts Analysis)';
@@ -1714,7 +1771,7 @@ function applyLanguageUI() {
     $('#sec4Guide').textContent = '💡 हर खिड़की का स्क्वायर फीट एरिया और सटीक ग्लास कटिंग साइज';
     $('#sec5Title').textContent = '5. प्रोफाइल कटिंग साइज (Profile Cut Lengths)';
     $('#sec5Guide').textContent = '💡 प्रत्येक विंडो के अनुसार ट्रैक, शटर, इंटरलोक व अन्य प्रोफाइल की कटिंग लंबाई';
-    $('#sec6Title').textContent = '6. कटिंग प्लान - बार ऑप्टिमाइजेशन (Cutting Plan - Optimized)';
+    $('#sec6Title').textContent = '6. कटिंग प्लान - बार ऑप्टिमाइजेशन (Cutting Plan - Full Width)';
     $('#sec6Guide').textContent = '💡 16 फीट बार से न्यूनतम वेस्टेज में कटिंग लेआउट (Min Waste / Min Bars स्विच करें)';
 
     $('#settingsModalHeader').textContent = '⚙️ सेटिंग्स और रेट्स (Settings & Base Rates)';
@@ -2002,8 +2059,15 @@ function renderReportTables(data) {
   const t = data.totals;
   const l = STATE.lang;
 
+  // 1. UPDATE QUICK GRAND TOTAL BOX DIRECTLY UNDER 48x48 DEMO
+  const qTotalVal = $('#quickGrandTotalVal');
+  const qAvgRateVal = $('#quickAvgRateVal');
+  if (qTotalVal) qTotalVal.textContent = `₹ ${t.grandTotal}`;
+  if (qAvgRateVal) qAvgRateVal.textContent = `₹ ${t.avgRatePerSqFt} / Sq.Ft`;
+
   const totalsWrap = $('#totalsWrap'); totalsWrap.innerHTML = '';
 
+  // TABLE 1: MEASUREMENTS & QUANTITIES
   const t1Box = document.createElement('div');
   const t1Title = document.createElement('div');
   t1Title.className = 'sub-table-title';
@@ -2023,6 +2087,7 @@ function renderReportTables(data) {
   t1Box.appendChild(buildTable([l === 'hi' ? "माप / सामग्री" : (l === 'en' ? "Measurement / Item" : "माप / सामग्री (Item)"), l === 'hi' ? "मात्रा / नाप" : (l === 'en' ? "Quantity" : "मात्रा / नाप (Details)")], mRows));
   totalsWrap.appendChild(t1Box);
 
+  // TABLE 2: EXPENSES
   const t2Box = document.createElement('div');
   const t2Title = document.createElement('div');
   t2Title.className = 'sub-table-title';
@@ -2043,19 +2108,7 @@ function renderReportTables(data) {
   t2Box.appendChild(buildTable([l === 'hi' ? "खर्च विवरण" : "Description", l === 'hi' ? "रकम (₹)" : "Amount (Rs.)"], eRows));
   totalsWrap.appendChild(t2Box);
 
-  const t3Box = document.createElement('div');
-  const t3Title = document.createElement('div');
-  t3Title.className = 'sub-table-title';
-  t3Title.innerHTML = l === 'hi' ? '🏷️ 3. फाइनल कोटेशन व कुल जोड़' : (l === 'en' ? '🏷️ 3. Final Quotation & Grand Total' : '🏷️ 3. फाइनल कोटेशन व कुल जोड़ (Final Quotation)');
-  t3Box.appendChild(t3Title);
-
-  const qRows = [
-    [`<strong>${l === 'hi' ? 'कुल जोड़ (GRAND TOTAL)' : 'GRAND TOTAL BILL'}</strong>`, `<strong>Rs. ${t.grandTotal}</strong>`],
-    [`<strong>${l === 'hi' ? 'प्रति वर्ग फुट औसत भाव' : 'Average Rate per Sq.Ft'}</strong>`, `<strong>Rs. ${t.avgRatePerSqFt} / Sq.Ft</strong>`]
-  ];
-  t3Box.appendChild(buildTable([l === 'hi' ? "कोटेशन मद" : "Quotation Summary", l === 'hi' ? "फाइनल रकम" : "Final Amount"], qRows));
-  totalsWrap.appendChild(t3Box);
-
+  // 2. BARS SUMMARY TABLE
   const barWrap = $('#barSummaryWrap'); barWrap.innerHTML = '';
   const barRows = data.barSummary.rows.map(r => [...r]);
   barRows.push([
@@ -2073,6 +2126,7 @@ function renderReportTables(data) {
     : ["Profile / Bar", "Bars", "Full Bar Wt", "Purchase Cost (खरीद ₹)", "Used Wt (इस्तेमाल)", "Billed Wt (बिलिंग)", "Billed Cost (लागत ₹)"]);
   barWrap.appendChild(buildTable(barHeaders, barRows));
 
+  // 3. SCRAP SUMMARY TABLE
   const scrapWrap = $('#scrapSummaryWrap'); scrapWrap.innerHTML = '';
   const scrapRows = data.scrapSummary.rows.map(r => [...r]);
   scrapRows.push([
@@ -2084,6 +2138,7 @@ function renderReportTables(data) {
     : ["Profile / Bar", "Useful Offcuts (≥24\")", "Useful Wt (kg)", "Pure Scrap (<24\")", "Scrap Wt (kg)"]);
   scrapWrap.appendChild(buildTable(scrapHeaders, scrapRows));
 
+  // 4. WINDOW SIZES & GLASS
   const winWrap = $('#windowSizeGlassDetails'); winWrap.innerHTML = '';
   const winRows = data.sizes.map(g => [ `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq ]);
   const winHeaders = l === 'hi'
@@ -2092,6 +2147,7 @@ function renderReportTables(data) {
     : ["Win # (Mode)", "Window Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]);
   winWrap.appendChild(buildTable(winHeaders, winRows, 100));
 
+  // 5. PROFILE CUT LENGTHS
   const cutDetailWrap = $('#windowDetails'); cutDetailWrap.innerHTML = '';
   if (data.windowCutDetails && data.windowCutDetails.length) {
     const cdRows = data.windowCutDetails.map(cd => {
@@ -2106,6 +2162,7 @@ function renderReportTables(data) {
     cutDetailWrap.appendChild(buildTable(cdHeaders, cdRows, 100));
   }
 
+  // 6. CUTTING PLAN
   const cutWrap = $('#cutPlan'); cutWrap.innerHTML = '';
   Object.entries(data.cutPlans).forEach(([type, plan]) => {
     if (!plan.bins || !plan.bins.length) return;
@@ -2153,17 +2210,17 @@ function buildRulesUI(tabMode){
 
   const rateCard = document.createElement('div'); rateCard.className='wc-card';
   rateCard.innerHTML = `<h4>💰 1. हार्डवेयर, खर्च व रबर रेट्स (Hardware, Labour & Rubber)</h4>
-    <div class="row">
-      <div class="group"><label class="lbl">हार्डवेयर एवं अतिरिक्त खर्च (₹/Window)</label><input class="input wc-field" data-type="arw" type="number" value="${custom.arw ?? defaults.arw ?? 500}" /></div>
-      <div class="group"><label class="lbl">मजदूरी रेट (Labour Rate ₹/Sq.Ft)</label><input class="input wc-field" data-type="lr" type="number" value="${custom.lr ?? defaults.lr ?? 100}" /></div>
+    <div class="row" style="grid-template-columns: 1fr 1fr;">
+      <div class="group"><label class="lbl">हार्डवेयर खर्च (₹/Window)</label><input class="input wc-field" data-type="arw" type="number" value="${custom.arw ?? defaults.arw ?? 500}" /></div>
+      <div class="group"><label class="lbl">मजदूरी रेट (₹/Sq.Ft)</label><input class="input wc-field" data-type="lr" type="number" value="${custom.lr ?? defaults.lr ?? 100}" /></div>
     </div>
-    <div class="row">
-      <div class="group"><label class="lbl">रबर वजन (Rubber Wt Kg/Ft)</label><input class="input wc-field" data-type="rubberWtFt" type="number" step="0.001" value="${custom.rubberWtFt ?? defaults.rubberWtFt ?? 0.025}" /></div>
-      <div class="group"><label class="lbl">रबर भाव (Rubber Rate ₹/Kg)</label><input class="input wc-field" data-type="rubberRate" type="number" value="${custom.rubberRate ?? defaults.rubberRate ?? 160}" /></div>
+    <div class="row" style="grid-template-columns: 1fr 1fr;">
+      <div class="group"><label class="lbl">रबर वजन (Kg/Ft)</label><input class="input wc-field" data-type="rubberWtFt" type="number" step="0.001" value="${custom.rubberWtFt ?? defaults.rubberWtFt ?? 0.025}" /></div>
+      <div class="group"><label class="lbl">रबर भाव (₹/Kg)</label><input class="input wc-field" data-type="rubberRate" type="number" value="${custom.rubberRate ?? defaults.rubberRate ?? 160}" /></div>
     </div>
-    <div class="row">
-      <div class="group"><label class="lbl">कांच के पल्ले (Glass Quantity)</label><input class="input wc-field" data-type="glassQty" type="number" value="${custom.glassQty ?? defaults.glassQty ?? 2}" /></div>
-      ${showJali ? `<div class="group"><label class="lbl">जाली का भाव (Jali Rate ₹/Sq.Ft)</label><input class="input wc-field" data-type="jaliRate" type="number" value="${custom.jaliRate ?? defaults.jaliRate ?? 30}" /></div>` : ''}
+    <div class="row" style="grid-template-columns: 1fr 1fr;">
+      <div class="group"><label class="lbl">कांच के पल्ले (Glass Qty)</label><input class="input wc-field" data-type="glassQty" type="number" value="${custom.glassQty ?? defaults.glassQty ?? 2}" /></div>
+      ${showJali ? `<div class="group"><label class="lbl">जाली का भाव (₹/Sq.Ft)</label><input class="input wc-field" data-type="jaliRate" type="number" value="${custom.jaliRate ?? defaults.jaliRate ?? 30}" /></div>` : ''}
     </div>`;
   body.appendChild(rateCard);
 
@@ -2185,7 +2242,7 @@ function buildRulesUI(tabMode){
 
   const glassCard = document.createElement('div'); glassCard.className = 'wc-card';
   glassCard.innerHTML = `<h4>🪟 2. कांच कटिंग नियम${glassHeaderGuide}</h4>
-    <div class="row">
+    <div class="row" style="grid-template-columns: 1fr 1fr;">
       <div class="group"><label class="lbl">कांच चौड़ाई (Glass Width +/- Sut)</label><input class="input wc-field" data-type="glassW_offset" type="text" value="${glassWDisp}" placeholder="e.g. -4.1" /></div>
       <div class="group"><label class="lbl">कांच ऊंचाई (Glass Height +/- Sut)</label><input class="input wc-field" data-type="glassH_offset" type="text" value="${glassHDisp}" placeholder="e.g. -4.1" /></div>
     </div>`;
@@ -2234,9 +2291,9 @@ function buildRulesUI(tabMode){
           <div class="group"><label class="lbl">भाग (Divide By)</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="any" min="0" value="${chosenDivisor}" placeholder="0, 1, 2, 3..." /></div>
           <div class="group"><label class="lbl">कुल पट्टी (Qty)</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
         </div>
-        <div class="row" style="margin-top:4px;">
-          <div class="group"><label class="lbl">पट्टी लंबाई (Stock Length in)</label><input class="input wc-prof-part" data-type="TrackStrip" data-prop="stockLen" type="number" step="0.25" value="${stockDisp}" /></div>
-          <div class="group"><label class="lbl">पट्टी का भाव (Rate ₹/Bar)</label><input class="input wc-prof-part" data-type="TrackStrip" data-prop="rate" type="number" value="${cur.rate ?? 800}" /></div>
+        <div class="row" style="margin-top:4px; grid-template-columns: 1fr 1fr;">
+          <div class="group"><label class="lbl">पट्टी लंबाई (Stock Length)</label><input class="input wc-prof-part" data-type="TrackStrip" data-prop="stockLen" type="number" step="0.25" value="${stockDisp}" /></div>
+          <div class="group"><label class="lbl">पट्टी का भाव (₹/Bar)</label><input class="input wc-prof-part" data-type="TrackStrip" data-prop="rate" type="number" value="${cur.rate ?? 800}" /></div>
         </div>`;
     } else {
       card.innerHTML = `<h4>${headerTitle}</h4>
@@ -2271,8 +2328,8 @@ function buildWeightUI(tabMode){
     const card = document.createElement('div'); card.className = 'wc-card';
     const val = stored[tp] !== undefined ? stored[tp] : (defaults[tp] ?? '2.0');
     card.innerHTML = `<h4>⚖️ ${tp} प्रोफाइल वजन</h4>
-      <div class="row">
-        <div class="group" data-span="2">
+      <div class="row" style="grid-template-columns: 1fr;">
+        <div class="group">
           <label class="lbl">16' फुल बार वजन (Kg)</label>
           <input class="input wc-field" data-type="${tp}" type="number" step="0.001" value="${val}" placeholder="e.g. 2.150">
         </div>
@@ -2341,7 +2398,7 @@ function hydrateView() {
 }
 
 // ==========================================
-// 3. PDF GENERATION & SAVE (TABLE 2 PROPERLY INCLUDED IN QUOTATION)
+// 3. PDF GENERATION & SAVE (TABLE 2 PROPERLY INCLUDED)
 // ==========================================
 function saveOrDownloadPdf(doc, fileName) {
   try {
@@ -2383,7 +2440,6 @@ function saveOrDownloadPdf(doc, fileName) {
   }
 }
 
-// QUOTATION & BILL SUMMARY PDF (INCLUDES PROFILE BARS & WEIGHT SUMMARY)
 function generateBillPDF(fileName) {
   try {
     if (!STATE.serverData) hydrateView();
@@ -2491,7 +2547,7 @@ function generateBillPDF(fileName) {
     });
     currentY = doc.lastAutoTable.finalY + 10;
 
-    // 4. PROFILE BARS & WEIGHT SUMMARY (GUARANTEED TABLE 2 FROM HOME PAGE)
+    // 4. PROFILE BARS & WEIGHT SUMMARY (ALWAYS GUARANTEED IN QUOTATION PDF)
     const pdfBarRows = (STATE.serverData.barSummary?.rows || []).map(r => [r[0], r[1], r[2], r[3], r[4], r[5], r[6]]);
     pdfBarRows.push([
       "TOTAL SUMMARY",
@@ -2772,13 +2828,27 @@ function bindEvents(){
   $('#weightInfoBtn').onclick = () => { showInfoModal('weight'); };
   $('#infoModalCloseBtn').onclick = () => { $('#infoModal').classList.remove('open'); };
 
-  // LANGUAGE CHANGE LISTENER
+  // LANGUAGE SELECTOR
   $('#languageSelect').onchange = (e) => {
     STATE.lang = e.target.value;
     LS.setLang(STATE.lang);
     saveInputs();
     applyLanguageUI();
     hydrateView();
+  };
+
+  // PERMANENT YOUTUBE CLICK HANDLER
+  $('#youtubeBtn').onclick = (e) => {
+    e.preventDefault();
+    try {
+      if (window.AndroidBridge && window.AndroidBridge.openBrowser) {
+        window.AndroidBridge.openBrowser(PERMANENT_YOUTUBE_URL);
+      } else {
+        window.open(PERMANENT_YOUTUBE_URL, '_blank') || (window.location.href = PERMANENT_YOUTUBE_URL);
+      }
+    } catch(err) {
+      window.location.href = PERMANENT_YOUTUBE_URL;
+    }
   };
 
   const modeBtn = $('#modeBtn');
@@ -2816,7 +2886,6 @@ function bindEvents(){
 
   $('#modalStockBtn').onclick = () => { loadDynamicStockModal(); $('#stockModal').classList.add('open'); };
   
-  // SINGLE-CLICK RULES TAB
   $('#modalRulesBtn').onclick = () => {
     STATE.currentRulesTab = STATE.mode;
     updateModeDropdownsAndTabs();
@@ -2824,7 +2893,6 @@ function bindEvents(){
     $('#rulesModal').classList.add('open');
   };
 
-  // SINGLE-CLICK WEIGHT TAB
   $('#modalWeightBtn').onclick = () => {
     STATE.currentWeightTab = STATE.mode;
     updateModeDropdownsAndTabs();
@@ -2840,7 +2908,6 @@ function bindEvents(){
   $('#addCustomModeBtn').onclick = () => $('#addCustomModal').classList.add('open');
   $('#cancelCustomMode').onclick = () => $('#addCustomModal').classList.remove('open');
 
-  // CUSTOM WINDOW WITH CLIP (W & H) INTEGRATION
   $('#saveNewCustomMode').onclick = () => {
     const name = $('#customModeName').value.trim().toUpperCase().replace(/[^A-Z0-9_\-]/g, '');
     if (!name) { alert("Please enter Custom Window Name!"); return; }
@@ -2905,7 +2972,7 @@ function bindEvents(){
     }
   };
 
-  // RULES SAVE: SAVES BASE, OFFSET, DIVISOR (0, 1, 2, 3...) SAFELY & CLEARS CACHE
+  // RULES SAVE
   $('#rulesSave').onclick = () => {
     const active = STATE.currentRulesTab || STATE.mode;
     const currentRules = STATE.customRules[active] || {};
@@ -2993,9 +3060,8 @@ function bindEvents(){
 
 window.onload = () => {
   try {
-    // SET YOUTUBE BUTTON LINK
     const ytBtn = $('#youtubeBtn');
-    if (ytBtn) ytBtn.href = YOUTUBE_VIDEO_URL;
+    if (ytBtn) ytBtn.href = PERMANENT_YOUTUBE_URL;
 
     loadInputs();
     updateModeDropdownsAndTabs();
