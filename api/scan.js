@@ -68,13 +68,43 @@ Example Output:
 Do NOT write any explanation, markdown backticks, or intro. Output ONLY the lines of measurements.
 `;
 
-    // Multi-model fallback (Google ke sabhi naye models support karega)
-    const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-latest'];
+    // STEP 1: Google se pucho ki is API key ke liye kaunse models active hain
+    let targetModels = [];
+    try {
+      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      if (listRes.ok) {
+        const listData = await listRes.json();
+        if (Array.isArray(listData.models)) {
+          const contentModels = listData.models.filter(m => 
+            Array.isArray(m.supportedGenerationMethods) && 
+            m.supportedGenerationMethods.includes('generateContent')
+          );
+          const flashModels = contentModels.filter(m => m.name.toLowerCase().includes('flash'));
+          const otherModels = contentModels.filter(m => !m.name.toLowerCase().includes('flash'));
+          targetModels = [...flashModels, ...otherModels].map(m => m.name);
+        }
+      }
+    } catch (e) {
+      console.warn("Model discovery error:", e);
+    }
+
+    // Fallback list agar discovery na chale
+    if (targetModels.length === 0) {
+      targetModels = [
+        'models/gemini-2.0-flash',
+        'models/gemini-2.5-flash',
+        'models/gemini-1.5-flash',
+        'models/gemini-1.5-pro'
+      ];
+    }
+
     let lastError = null;
     let cleanLines = '';
 
-    for (const model of modelsToTry) {
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    // STEP 2: Jo model Google ne diya, seedha usi se scan karo
+    for (const modelPath of targetModels) {
+      const cleanPath = modelPath.startsWith('models/') ? modelPath : `models/${modelPath}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/${cleanPath}:generateContent?key=${apiKey}`;
 
       try {
         const response = await fetch(apiUrl, {
@@ -110,9 +140,9 @@ Do NOT write any explanation, markdown backticks, or intro. Output ONLY the line
             .map(line => line.trim())
             .filter(line => line.length > 0 && !line.startsWith('```'))
             .join('\n');
-          break; // Success! Loop break karke aage badho
+          break; // Success! Working model mil gaya
         } else {
-          lastError = data.error?.message || `Model ${model} failed`;
+          lastError = data.error?.message || `Model ${modelPath} failed`;
         }
       } catch (err) {
         lastError = err.message;
