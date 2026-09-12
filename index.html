@@ -62,9 +62,7 @@ header.top{
 .zoom-badge { background: var(--primary); color: #ffffff; border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 0.72rem; min-width: 42px; text-align: center; }
 .zoom-reset-btn { background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 7px; font-size: 0.70rem; font-weight: 600; cursor: pointer; color: #475569; }
 
-/* FULL-WIDTH STACKED LAYOUT FOR PERFECT SCALING */
 .wrap{ max-width: 1200px; width: 100%; margin: 0 auto; padding: 8px 6px; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; }
-
 .left-col, .right-col { width: 100%; box-sizing: border-box; min-width: 0 !important; }
 .card{ background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 8px; box-shadow:0 1px 3px rgba(0,0,0, .06); margin-bottom: 10px; position: relative; width: 100%; min-width: 0; box-sizing: border-box; }
 h2{margin:0 0 8px;font-size:0.98rem;font-weight:700;color:var(--primary);border-bottom: 1px solid var(--border);padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;}
@@ -84,7 +82,6 @@ h3{margin:0 0 4px;font-size:0.85rem;font-weight:600;color:var(--text);border-bot
 .demo-item { display: flex; justify-content: space-between; background: #ffffff; padding: 3px 6px; border-radius: 4px; border: 1px solid #dbeafe; }
 .demo-item strong { color: #1e3a8a; }
 
-/* QUICK GRAND TOTAL CARD DIRECTLY UNDER DEMO BOX */
 .quick-quotation-card {
   background: #ecfdf5; border: 1.5px solid #6ee7b7; border-radius: 8px; padding: 8px; margin-top: 8px;
   box-shadow: 0 2px 6px rgba(16, 185, 129, 0.12);
@@ -93,12 +90,8 @@ h3{margin:0 0 4px;font-size:0.85rem;font-weight:600;color:var(--text);border-bot
   font-size: 0.82rem; font-weight: 800; color: #065f46; border-bottom: 1px dashed #a7f3d0; padding-bottom: 4px; margin-bottom: 6px;
   display: flex; justify-content: space-between; align-items: center;
 }
-.quick-quotation-grid {
-  display: grid; grid-template-columns: 1.2fr 1fr; gap: 6px; align-items: center;
-}
-.quick-total-box {
-  background: #ffffff; border: 1px solid #10b981; border-radius: 6px; padding: 6px 8px; text-align: center;
-}
+.quick-quotation-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 6px; align-items: center; }
+.quick-total-box { background: #ffffff; border: 1px solid #10b981; border-radius: 6px; padding: 6px 8px; text-align: center; }
 .quick-total-lbl { font-size: 0.68rem; color: #047857; font-weight: 700; display: block; }
 .quick-total-val { font-size: 1.05rem; color: #065f46; font-weight: 900; }
 
@@ -128,6 +121,9 @@ textarea.input[rows="4"] { min-height: 140px; padding: 6px; font-size: 0.82rem; 
 
 /* BUTTONS */
 .gear-btn { background: var(--primary); border: none; font-size: 0.75rem; cursor: pointer; color: #ffffff; padding: 4px 8px; border-radius: 4px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; }
+.stock-direct-btn { background: #0284c7; border: none; font-size: 0.74rem; cursor: pointer; color: #ffffff; padding: 4px 8px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; }
+.camera-scan-btn { background: #8b5cf6; border: none; font-size: 0.75rem; cursor: pointer; color: #ffffff; padding: 4px 9px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+.camera-scan-btn:hover { background: #7c3aed; }
 .yt-btn {
   background: #ff0000; color: #ffffff !important; border: none; font-size: 0.75rem; cursor: pointer;
   padding: 4px 9px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center;
@@ -160,7 +156,6 @@ textarea.input[rows="4"] { min-height: 140px; padding: 6px; font-size: 0.82rem; 
   align-items: center; justify-content: center; padding: 0; line-height: 1;
 }
 
-/* FULL-WIDTH RESPONSIVE TABLES (NEVER TRUNCATES AT 140% ZOOM) */
 .table-wrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow-x: auto !important; overflow-y: hidden !important; margin-bottom: 8px; display: block; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
 table{ width: 100%; min-width: 320px; border-collapse: collapse; border-spacing: 0; border-radius: 4px; }
 
@@ -226,7 +221,6 @@ tr:nth-child(even) td{ background:#f9fbfd }
       <h2>
         <span id="inputSectionTitle">1. 📐 प्रोजेक्ट नाप (Project Inputs)</span>
         <div style="display:inline-flex; gap:6px; align-items:center;">
-          <!-- PERMANENT YOUTUBE VIDEO BUTTON -->
           <a id="youtubeBtn" href="https://www.youtube.com/@SmartRollingShutter" target="_blank" class="yt-btn" title="Watch YouTube Video">
             <svg class="yt-icon" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
             <span id="ytBtnText">YouTube</span>
@@ -235,19 +229,34 @@ tr:nth-child(even) td{ background:#f9fbfd }
         </div>
       </h2>
       
-      <!-- WINDOW STOCK LENGTH -->
-      <div class="row">
+      <!-- WINDOW STOCK LENGTH WITH AVAILABLE STOCK BUTTON RIGHT IN FRONT -->
+      <div class="row" style="margin-bottom:6px;">
         <div class="group">
-          <label class="lbl" id="lcLabel" for="lcInput">🏢 विंडो बार लंबाई (Window Stock Length)</label>
-          <span class="sub-lbl" id="lcSubText">16 फीट बार = 192.5" (16 Ft Bar)</span>
-          <input id="lcInput" class="input" type="number" step="0.25" value="192.5" />
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+            <label class="lbl" id="lcLabel" for="lcInput" style="margin-bottom:0;">🏢 विंडो बार लंबाई (Stock Length)</label>
+            <button id="directStockBtn" class="stock-direct-btn" type="button" title="Available Stock Pieces">📦 स्टॉक माल (Stock)</button>
+          </div>
+          <span class="sub-lbl" id="lcSubText">16 फीट बार = 192" (16 Ft Bar)</span>
+          <input id="lcInput" class="input" type="number" step="0.25" value="192" />
         </div>
       </div>
       
-      <!-- WINDOW SIZES (60% INPUT : 40% INSTRUCTION) -->
+      <!-- WINDOW SIZES (60% INPUT : 40% INSTRUCTION) + SCAN DRAWING BUTTON WITH INFO (i) NOTE -->
       <div style="margin-bottom: 8px;">
-        <label class="lbl" id="sizesLabel" for="sizesInput">🪟 विंडो साइज़ (चौड़ाई × ऊंचाई)</label>
-        <span class="sub-lbl" id="sizesSubLbl">हर लाइन में 1 खिड़की का नाप (1 Size per line)</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px; flex-wrap:wrap; gap:4px;">
+          <div>
+            <label class="lbl" id="sizesLabel" for="sizesInput" style="display:inline-block; margin-bottom:0;">🪟 विंडो साइज़ (W × H)</label>
+            <span class="sub-lbl" id="sizesSubLbl" style="display:inline-block; margin-left:4px; margin-bottom:0;">(हर लाइन में 1 नाप)</span>
+          </div>
+          <div style="display:inline-flex; align-items:center; gap:4px;">
+            <button id="scanDrawingBtn" class="camera-scan-btn" type="button" title="Scan Drawing / Sketch Photo">
+              📷 फोटो से नाप स्कैन करें
+            </button>
+            <button id="scanInfoBtn" class="info-icon-btn" type="button" title="Scan Guide & Note">ℹ️</button>
+            <input type="file" id="scanFileInput" accept="image/*" multiple style="display:none;" />
+          </div>
+        </div>
+
         <div class="input-guide-grid">
           <textarea id="sizesInput" class="input" rows="4" placeholder="48.5.5*48 (4)&#10;36*36 (2)&#10;43*50">48.5.5*48 (4)&#10;36*36 (2)&#10;43*50</textarea>
           <div class="guide-box" id="windowGuideBox">
@@ -287,10 +296,10 @@ tr:nth-child(even) td{ background:#f9fbfd }
         <div class="demo-grid" id="demo48Grid"></div>
       </div>
 
-      <!-- 3. FINAL QUOTATION & GRAND TOTAL (PERMANENTLY LOCATED DIRECTLY UNDER LIVE DEMO) -->
+      <!-- FINAL QUOTATION & GRAND TOTAL CARD -->
       <div class="quick-quotation-card" id="quickQuotationCard">
         <div class="quick-quotation-header">
-          <span id="quickCardTitle">🏷️ 3. फाइनल कोटेशन व कुल जोड़ (Final Quotation & Grand Total)</span>
+          <span id="quickCardTitle">🏷️ फाइनल कोटेशन व कुल बिल (Final Quotation & Grand Total)</span>
         </div>
         <div class="quick-quotation-grid" id="quickQuotationGrid">
           <div class="quick-total-box" style="border-color:#10b981;">
@@ -307,7 +316,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
     </section>
   </div>
 
-  <!-- SECTION 2: FULL-SCREEN REPORT & CUTTING PLANS -->
+  <!-- SECTION 2: FULL-WIDTH REPORT & CUTTING PLANS -->
   <div class="right-col">
     <section class="card">
       <h2 id="reportSectionTitle">2. 📊 प्रोजेक्ट रिपोर्ट एवं कटिंग विवरण (Project Report)</h2>
@@ -370,6 +379,26 @@ tr:nth-child(even) td{ background:#f9fbfd }
     </section>
   </div>
 </main>
+
+<!-- SCAN SLIDER INFO MODAL -->
+<div id="scanInfoModal" class="modal">
+  <div class="box" style="max-width: 460px;">
+    <h4 style="color:#7c3aed;">ℹ️ फोटो स्कैन गाइड (Scan Note)</h4>
+    <div style="font-size:0.78rem; line-height:1.55; color:#1e293b;">
+      <div style="background:#f5f3ff; border-left:3px solid #8b5cf6; padding:8px; border-radius:4px; margin-bottom:8px;">
+        <strong style="color:#6d28d9;">📌 आवश्यक सूचना (Hindi):</strong><br>
+        कृपया फोटो स्कैन करते समय <strong>केवल स्लाइडर (Sliding) विंडो</strong> का ही नाप स्कैन करें या दर्ज करें।
+      </div>
+      <div style="background:#f0fdf4; border-left:3px solid #10b981; padding:8px; border-radius:4px;">
+        <strong style="color:#047857;">📌 Note (English):</strong><br>
+        Please scan and enter measurements for <strong>Sliding Windows only</strong>.
+      </div>
+    </div>
+    <div style="margin-top: 12px; text-align: right;">
+      <button id="scanInfoCloseBtn" class="btn b-success" style="width:auto; padding:5px 16px;">समझ गया (OK)</button>
+    </div>
+  </div>
+</div>
 
 <!-- INFO MODAL -->
 <div id="infoModal" class="modal">
@@ -454,10 +483,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
     </div>
 
     <div class="row" style="grid-template-columns: 1fr 1fr; margin-top: 4px;">
-      <button id="modalStockBtn" class="btn b-action-2" type="button">📦 स्टॉक माल (Stock)</button>
       <button id="modalRulesBtn" class="btn b-action-2" type="button">📐 कटिंग रूल्स (Rules)</button>
-    </div>
-    <div class="row" style="grid-template-columns: 1fr; margin-top: 6px;">
       <button id="modalWeightBtn" class="btn b-action-2" type="button">⚖️ प्रोफाइल वजन (Weights)</button>
     </div>
     <div style="margin-top: 10px;">
@@ -565,14 +591,8 @@ tr:nth-child(even) td{ background:#f9fbfd }
 </div>
 
 <script>
-// ==========================================
-// PERMANENT YOUTUBE VIDEO LINK
-// ==========================================
 const PERMANENT_YOUTUBE_URL = "https://www.youtube.com/@SmartRollingShutter";
 
-// ==========================================
-// ADMOB CONFIGURATION & BRIDGE
-// ==========================================
 const ADMOB_CONFIG = {
   appId: "ca-app-pub-7546176089076400~4241275099",
   appOpen: "ca-app-pub-7546176089076400/4081598194",
@@ -767,7 +787,6 @@ function applySutRounding(valInInches, profileType, isWidth) {
   return Math.round(totalSut) / 8;
 }
 
-// DEFAULT RULES
 const DEFAULT_RULES_CONFIG = {
   D2: { 
     arw: 500, lr: 100, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
@@ -789,7 +808,7 @@ const DEFAULT_RULES_CONFIG = {
     ShutterW: { formula: '(W - 4) / 2', qty: 4, divisor: 2, base: 'W' }, 
     ShutterH: { formula: 'H - 2.5', qty: 4, divisor: 0, base: 'H' }, 
     Interlock: { formula: 'H - 2.5', qty: 2, divisor: 0, base: 'H' }, 
-    TrackStrip: { formula: 'W - 3.5', qty: 2, divisor: 0, base: 'W', stockLen: 192.5, rate: 800 } 
+    TrackStrip: { formula: 'W - 3.5', qty: 2, divisor: 0, base: 'W', stockLen: 192, rate: 800 } 
   },
   S3: { 
     arw: 1500, lr: 150, jaliRate: 30, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
@@ -797,7 +816,7 @@ const DEFAULT_RULES_CONFIG = {
     ShutterW: { formula: '(W - 4) / 2', qty: 6, divisor: 2, base: 'W' }, 
     ShutterH: { formula: 'H - 2.5', qty: 3, divisor: 0, base: 'H' }, 
     Interlock: { formula: 'H - 2.5', qty: 3, divisor: 0, base: 'H' }, 
-    TrackStrip: { formula: 'W - 3.5', qty: 3, divisor: 0, base: 'W', stockLen: 192.5, rate: 800 } 
+    TrackStrip: { formula: 'W - 3.5', qty: 3, divisor: 0, base: 'W', stockLen: 192, rate: 800 } 
   },
   N2: { 
     arw: 200, lr: 80, jaliRate: 0, rubberWtFt: 0.025, rubberRate: 160, glassQty: 2, 
@@ -910,7 +929,6 @@ function getWeight(mode, category, storedWeights = {}) {
   return safeNum(defObj[mapped] || 2.5);
 }
 
-// GLASS CUTTING RULE: DIRECT TRACK OUTER FOR CLIP-ONLY
 function getWindowPiecesAndGlass(W, H, mode, rules) {
   const pieces = {}; const originalLengths = {};
   const W_shutter = applySutRounding(W, 'non-track', true);
@@ -1173,7 +1191,7 @@ function optimizeMinBars(cuts, stockLen) {
 function runCalculationEngine(reqBody) {
   const {
     sizesRaw = '', defaultMode = 'D3',
-    stockLen = 192.5, unitMode = 'inch',
+    stockLen = 192, unitMode = 'inch',
     mrc = 520, gr = 60, woolpileRate = 2, sqftMode = '6step', weightMode = '4ft_step',
     customRules = {}, weights = {}, stockMap = {}, optStrategy = {}
   } = reqBody;
@@ -1641,7 +1659,6 @@ function render48DemoBox() {
   }
 }
 
-// 100% RELIABLE MULTI-LANGUAGE SYSTEM
 function applyLanguageUI() {
   const l = STATE.lang || 'hi_en';
   if ($('#languageSelect')) $('#languageSelect').value = l;
@@ -1650,18 +1667,20 @@ function applyLanguageUI() {
     $('#zoomBarLabel').textContent = 'स्क्रीन साइज (Zoom):';
     $('#inputSectionTitle').textContent = '1. 📐 प्रोजेक्ट नाप';
     $('#settingsBtn').innerHTML = '⚙️ सेटिंग्स';
+    $('#directStockBtn').textContent = '📦 स्टॉक माल';
+    $('#scanDrawingBtn').textContent = '📷 फोटो से नाप स्कैन करें';
     $('#ytBtnText').textContent = 'YouTube';
-    $('#lcLabel').textContent = '🏢 विंडो बार लंबाई (स्टॉक)';
-    $('#lcSubText').textContent = '16 फीट बार = 192.5"';
-    $('#sizesLabel').textContent = '🪟 विंडो साइज़ (चौड़ाई × ऊंचाई)';
-    $('#sizesSubLbl').textContent = 'हर लाइन में 1 खिड़की का नाप';
+    $('#lcLabel').textContent = '🏢 विंडो बार लंबाई (Stock)';
+    $('#lcSubText').textContent = '16 फीट बार = 192"';
+    $('#sizesLabel').textContent = '🪟 विंडो साइज़ (W × H)';
+    $('#sizesSubLbl').textContent = '(हर लाइन में 1 नाप)';
     $('#calculateBtn').textContent = '🧮 हिसाब लगाएं';
     $('#unitModeBtn').textContent = STATE.unitMode === 'mm' ? '📏 यूनिट बदलें (यूनिट: MM)' : '📏 यूनिट बदलें (इंच / सूत)';
     $('#clearAllBtn').textContent = '🗑️ साफ़ करें';
     $('#pdfCutBtn').textContent = '📐 फैब्रिकेशन व कटिंग रिपोर्ट';
     $('#pdfBillBtn').textContent = '💰 कोटेशन व बिल सारांश';
     
-    $('#quickCardTitle').textContent = '🏷️ 3. फाइनल कोटेशन व कुल जोड़';
+    $('#quickCardTitle').textContent = '🏷️ फाइनल कोटेशन व कुल बिल';
     $('#quickTotalLbl').textContent = 'कुल बिल राशि (GRAND TOTAL)';
     $('#quickAvgRateLbl').textContent = 'औसत भाव (Avg Rate)';
 
@@ -1689,7 +1708,6 @@ function applyLanguageUI() {
     $('#matRateLbl').textContent = 'मेटल भाव (₹/किलो):';
     $('#glassRateLbl').textContent = 'कांच भाव (₹/वर्ग फुट):';
     $('#woolpileRateLbl').textContent = 'वूलपाइल भाव (₹/रनिंग फुट):';
-    $('#modalStockBtn').textContent = '📦 स्टॉक माल';
     $('#modalRulesBtn').textContent = '📐 कटिंग रूल्स';
     $('#modalWeightBtn').textContent = '⚖️ प्रोफाइल वजन';
     $('#settingsClose').textContent = '✔️ सेटिंग्स सेव और बंद करें';
@@ -1697,18 +1715,20 @@ function applyLanguageUI() {
     $('#zoomBarLabel').textContent = 'Screen Fit (Zoom):';
     $('#inputSectionTitle').textContent = '1. 📐 Project Inputs';
     $('#settingsBtn').innerHTML = '⚙️ Settings';
+    $('#directStockBtn').textContent = '📦 Stock (Remnants)';
+    $('#scanDrawingBtn').textContent = '📷 Scan Drawing Photo';
     $('#ytBtnText').textContent = 'YouTube';
     $('#lcLabel').textContent = '🏢 Window Bar Stock Length';
-    $('#lcSubText').textContent = '16 Ft Bar = 192.5"';
-    $('#sizesLabel').textContent = '🪟 Window Sizes (Width × Height)';
-    $('#sizesSubLbl').textContent = '1 Size per line';
+    $('#lcSubText').textContent = '16 Ft Bar = 192"';
+    $('#sizesLabel').textContent = '🪟 Window Sizes (W × H)';
+    $('#sizesSubLbl').textContent = '(1 size per line)';
     $('#calculateBtn').textContent = '🧮 Calculate Project';
     $('#unitModeBtn').textContent = STATE.unitMode === 'mm' ? '📏 Change Unit (Unit: MM)' : '📏 Change Unit (Inches / Sut)';
     $('#clearAllBtn').textContent = '🗑️ Clear All';
     $('#pdfCutBtn').textContent = '📐 Fabrication & Cut Report';
     $('#pdfBillBtn').textContent = '💰 Quotation & Bill Summary';
 
-    $('#quickCardTitle').textContent = '🏷️ 3. Final Quotation & Grand Total';
+    $('#quickCardTitle').textContent = '🏷️ Final Quotation & Grand Total';
     $('#quickTotalLbl').textContent = 'GRAND TOTAL BILL';
     $('#quickAvgRateLbl').textContent = 'Avg Rate per Sq.Ft';
     
@@ -1736,27 +1756,27 @@ function applyLanguageUI() {
     $('#matRateLbl').textContent = 'Material Rate (₹/kg):';
     $('#glassRateLbl').textContent = 'Glass Rate (₹/sq.ft):';
     $('#woolpileRateLbl').textContent = 'Woolpile Rate (₹/R.Ft):';
-    $('#modalStockBtn').textContent = '📦 Stock Remnants';
     $('#modalRulesBtn').textContent = '📐 Cutting Rules';
     $('#modalWeightBtn').textContent = '⚖️ Profile Weights';
     $('#settingsClose').textContent = '✔️ Save & Close Settings';
   } else {
-    // BILINGUAL
     $('#zoomBarLabel').textContent = 'स्क्रीन फिट (Zoom):';
     $('#inputSectionTitle').textContent = '1. 📐 प्रोजेक्ट नाप (Project Inputs)';
     $('#settingsBtn').innerHTML = '⚙️ सेटिंग्स (Settings)';
+    $('#directStockBtn').textContent = '📦 स्टॉक माल (Stock)';
+    $('#scanDrawingBtn').textContent = '📷 फोटो से नाप स्कैन करें (Scan)';
     $('#ytBtnText').textContent = 'YouTube';
-    $('#lcLabel').textContent = '🏢 विंडो बार लंबाई (Window Stock Length)';
-    $('#lcSubText').textContent = '16 फीट बार = 192.5" (16 Ft Bar)';
-    $('#sizesLabel').textContent = '🪟 विंडो साइज़ (चौड़ाई × ऊंचाई)';
-    $('#sizesSubLbl').textContent = 'हर लाइन में 1 खिड़की का नाप (1 Size per line)';
+    $('#lcLabel').textContent = '🏢 विंडो बार लंबाई (Stock Length)';
+    $('#lcSubText').textContent = '16 फीट बार = 192" (16 Ft Bar)';
+    $('#sizesLabel').textContent = '🪟 विंडो साइज़ (W × H)';
+    $('#sizesSubLbl').textContent = '(हर लाइन में 1 नाप)';
     $('#calculateBtn').textContent = '🧮 हिसाब लगाएं (Calculate Project)';
     $('#unitModeBtn').textContent = STATE.unitMode === 'mm' ? '📏 यूनिट बदलें (Unit: MM)' : '📏 यूनिट बदलें (Unit: Inches / Sut)';
     $('#clearAllBtn').textContent = '🗑️ साफ़ करें (Clear All)';
     $('#pdfCutBtn').textContent = '📐 Fabrication & Cut Report';
     $('#pdfBillBtn').textContent = '💰 Quotation & Bill Summary';
 
-    $('#quickCardTitle').textContent = '🏷️ 3. फाइनल कोटेशन व कुल जोड़ (Final Quotation & Grand Total)';
+    $('#quickCardTitle').textContent = '🏷️ फाइनल कोटेशन व कुल बिल (Final Quotation & Grand Total)';
     $('#quickTotalLbl').textContent = 'कुल बिल राशि (GRAND TOTAL)';
     $('#quickAvgRateLbl').textContent = 'औसत भाव (Avg Rate/Sq.Ft)';
 
@@ -1784,7 +1804,6 @@ function applyLanguageUI() {
     $('#matRateLbl').textContent = 'मेटल भाव (Mat. Rate ₹/kg)';
     $('#glassRateLbl').textContent = 'कांच भाव (Glass Rate ₹/sq.ft)';
     $('#woolpileRateLbl').textContent = 'वूलपाइल भाव (Woolpile Rate ₹/Ft)';
-    $('#modalStockBtn').textContent = '📦 स्टॉक माल (Stock)';
     $('#modalRulesBtn').textContent = '📐 कटिंग रूल्स (Rules)';
     $('#modalWeightBtn').textContent = '⚖️ प्रोफाइल वजन (Weights)';
     $('#settingsClose').textContent = '✔️ सेटिंग्स सेव और बंद करें (Close)';
@@ -1824,7 +1843,7 @@ function showInfoModal(type) {
     title.textContent = l === 'en' ? 'ℹ️ Profile Billed Weight Modes Guide' : 'ℹ️ बार बिलिंग वजन मोड्स की जानकारी';
     body.innerHTML = `
       <div style="margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid #e2e8f0;">
-        <strong style="color:#1d4ed8;">1. 4 Ft Slab:</strong> 0-49" = 49", 49-96" = 96", 96-145" = 145", >145" = 192.5".<br>
+        <strong style="color:#1d4ed8;">1. 4 Ft Slab:</strong> 0-49" = 49", 49-96" = 96", 96-145" = 145", >145" = 192".<br>
         <strong style="color:#1d4ed8;">2. Inch-to-Weight:</strong> Exact cut length weight billed.<br>
         <strong style="color:#1d4ed8;">3. Full Bar:</strong> Full 16 Ft bar weight billed.
       </div>
@@ -1852,7 +1871,7 @@ function updateUnitUI(){
 function convertUnitModeToggle() {
   const isCurrentlyInch = STATE.unitMode === 'inch';
   STATE.unitMode = isCurrentlyInch ? 'mm' : 'inch';
-  let curLc = parseFloat($('#lcInput').value) || (isCurrentlyInch ? 192.5 : 4889.5);
+  let curLc = parseFloat($('#lcInput').value) || (isCurrentlyInch ? 192 : 4876.8);
 
   if (STATE.unitMode === 'mm') {
     $('#lcInput').value = safeFix(curLc * 25.4, 1);
@@ -2011,6 +2030,7 @@ function loadInputs(){
     if (data.unitMode) STATE.unitMode = data.unitMode;
     if (data.sizes !== undefined) $('#sizesInput').value = data.sizes;
     if (data.lc !== undefined) $('#lcInput').value = data.lc;
+    else $('#lcInput').value = '192';
     if (data.mrc !== undefined) $('#mrcInput').value = data.mrc;
     if (data.woolpileRate !== undefined) $('#woolpileRateInput').value = data.woolpileRate;
     if (data.gr !== undefined) $('#grInput').value = data.gr;
@@ -2059,7 +2079,6 @@ function renderReportTables(data) {
   const t = data.totals;
   const l = STATE.lang;
 
-  // 1. UPDATE QUICK GRAND TOTAL BOX DIRECTLY UNDER 48x48 DEMO
   const qTotalVal = $('#quickGrandTotalVal');
   const qAvgRateVal = $('#quickAvgRateVal');
   if (qTotalVal) qTotalVal.textContent = `₹ ${t.grandTotal}`;
@@ -2196,7 +2215,6 @@ function renderReportTables(data) {
   });
 }
 
-// 100% FREELY EDITABLE DIVISOR & BASE
 function buildRulesUI(tabMode){
   STATE.currentRulesTab = tabMode;
   $$('#rulesTabContainer .tab').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === tabMode));
@@ -2277,7 +2295,7 @@ function buildRulesUI(tabMode){
     else if (key === 'TrackStrip') headerTitle = `📏 ${secNum - 1}. ट्रैक पट्टी नियम (Track Strip - W Rules)`;
 
     if (isTrackStrip) {
-      const stockDisp = isMM ? safeFix((cur.stockLen ?? 192.5) * 25.4, 1) : (cur.stockLen ?? 192.5);
+      const stockDisp = isMM ? safeFix((cur.stockLen ?? 192) * 25.4, 1) : (cur.stockLen ?? 192);
       card.innerHTML = `<h4>${headerTitle}</h4>
         <div class="grid-4">
           <div class="group">
@@ -2366,7 +2384,7 @@ function saveStockModal(){
 function hydrateView() {
   saveInputs(); updateHeaderCompany(); updateUnitUI(); applyLanguageUI(); updateWeightButtonLabel(); render48DemoBox();
 
-  let lcVal = parseFloat($('#lcInput').value) || 192.5;
+  let lcVal = parseFloat($('#lcInput').value) || 192;
   if (STATE.unitMode === 'mm') { lcVal = lcVal / 25.4; }
 
   const reqBody = {
@@ -2398,7 +2416,107 @@ function hydrateView() {
 }
 
 // ==========================================
-// 3. PDF GENERATION & SAVE (TABLE 2 PROPERLY INCLUDED)
+// 3. AI DRAWING / DIARY SCANNER LOGIC (WITH AUTO-COMPRESSION)
+// ==========================================
+
+// Heavy camera photos (10MB) ko 300KB banata hai taaki Vercel 4.5MB limit block na kare
+function compressImageForScan(file, maxDimension = 1600, quality = 0.8) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function processDrawingFiles(files) {
+  if (!files || files.length === 0) return;
+
+  const btn = $('#scanDrawingBtn');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "⏳ फोटो कंप्रेस हो रही है...";
+  setStatus("Compressing & Scanning...");
+
+  let allExtractedLines = [];
+  let lastErrorMsg = "";
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    btn.textContent = `⏳ स्कैनिंग Page ${i + 1}/${files.length}...`;
+
+    try {
+      // 1. Photo ko safe size (300KB) mein convert karein
+      const compressedBase64 = await compressImageForScan(file);
+
+      // 2. Direct Vercel Serverless Function par bhejein
+      const response = await fetch('https://windowcraft-server.vercel.app/api/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64: compressedBase64,
+          mimeType: 'image/jpeg'
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success && data.result) {
+        allExtractedLines.push(data.result);
+      } else {
+        lastErrorMsg = data.error || `Server Status ${response.status}`;
+        console.warn(`Scan error on page ${i + 1}:`, lastErrorMsg);
+      }
+    } catch (err) {
+      lastErrorMsg = err.message;
+      console.error(`Error scanning file ${i + 1}:`, err);
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = originalText;
+
+  if (allExtractedLines.length > 0) {
+    const combinedLines = allExtractedLines.join('\n').trim();
+    const currentVal = $('#sizesInput').value.trim();
+    
+    // Window sizes textarea mein autofill karein
+    $('#sizesInput').value = currentVal ? `${currentVal}\n${combinedLines}` : combinedLines;
+    
+    saveInputs();
+    hydrateView();
+    alert(`✅ सफल! डायरी के सभी नाप स्कैन होकर भर गए हैं।`);
+    setStatus("Scanned & Calculated!");
+  } else {
+    alert(`❌ स्कैनिंग में समस्या आई: ${lastErrorMsg || 'कृपया Vercel पर GEMINI_API_KEY सेट और Redeploy चेक करें।'}`);
+    setStatus("Scan failed");
+  }
+}
+
+// ==========================================
+// 4. PDF GENERATION & SAVE
 // ==========================================
 function saveOrDownloadPdf(doc, fileName) {
   try {
@@ -2547,7 +2665,7 @@ function generateBillPDF(fileName) {
     });
     currentY = doc.lastAutoTable.finalY + 10;
 
-    // 4. PROFILE BARS & WEIGHT SUMMARY (ALWAYS GUARANTEED IN QUOTATION PDF)
+    // 4. PROFILE BARS & WEIGHT SUMMARY
     const pdfBarRows = (STATE.serverData.barSummary?.rows || []).map(r => [r[0], r[1], r[2], r[3], r[4], r[5], r[6]]);
     pdfBarRows.push([
       "TOTAL SUMMARY",
@@ -2807,7 +2925,7 @@ function generateFabricationPDF(fileName) {
 }
 
 // ==========================================
-// 4. EVENT BINDINGS & INIT
+// 5. EVENT BINDINGS & INIT
 // ==========================================
 function bindEvents(){
   $('#calculateBtn').onclick = () => {
@@ -2827,6 +2945,26 @@ function bindEvents(){
   $('#sqftInfoBtn').onclick = () => { showInfoModal('sqft'); };
   $('#weightInfoBtn').onclick = () => { showInfoModal('weight'); };
   $('#infoModalCloseBtn').onclick = () => { $('#infoModal').classList.remove('open'); };
+
+  // SCAN INFO NOTE POPUP
+  $('#scanInfoBtn').onclick = () => { $('#scanInfoModal').classList.add('open'); };
+  $('#scanInfoCloseBtn').onclick = () => { $('#scanInfoModal').classList.remove('open'); };
+
+  // CAMERA / SCAN DRAWING TRIGGER
+  $('#scanDrawingBtn').onclick = () => {
+    $('#scanFileInput').click();
+  };
+  $('#scanFileInput').onchange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processDrawingFiles(e.target.files);
+    }
+  };
+
+  // DIRECT STOCK BUTTON NEXT TO STOCK LENGTH
+  $('#directStockBtn').onclick = () => {
+    loadDynamicStockModal();
+    $('#stockModal').classList.add('open');
+  };
 
   // LANGUAGE SELECTOR
   $('#languageSelect').onchange = (e) => {
@@ -2884,8 +3022,6 @@ function bindEvents(){
   $('#settingsBtn').onclick = () => $('#settingsModal').classList.add('open');
   $('#settingsClose').onclick = () => { $('#settingsModal').classList.remove('open'); hydrateView(); };
 
-  $('#modalStockBtn').onclick = () => { loadDynamicStockModal(); $('#stockModal').classList.add('open'); };
-  
   $('#modalRulesBtn').onclick = () => {
     STATE.currentRulesTab = STATE.mode;
     updateModeDropdownsAndTabs();
@@ -2943,7 +3079,7 @@ function bindEvents(){
       else if (prof === 'Interlock') newRules.Interlock = { formula: 'H - 2.5', qty: 2, divisor: 0, base: 'H' };
       else if (prof === 'BearingBottomW') newRules.BearingBottomW = { formula: '(W - 6.2) / 2', qty: 4, divisor: 2, base: 'W' };
       else if (prof === 'Handle') newRules.Handle = { formula: 'H - 1.4', qty: 2, divisor: 0, base: 'H' };
-      else if (prof === 'TrackStrip') newRules.TrackStrip = { formula: 'W - 3.5', qty: 2, divisor: 0, base: 'W', stockLen: 192.5, rate: 800 };
+      else if (prof === 'TrackStrip') newRules.TrackStrip = { formula: 'W - 3.5', qty: 2, divisor: 0, base: 'W', stockLen: 192, rate: 800 };
     });
 
     STATE.customRules[name] = newRules;
@@ -2997,7 +3133,7 @@ function bindEvents(){
       const p = profs[type];
       const base = p.base || (type.toLowerCase().includes('w') || type === 'TrackStrip' ? 'W' : 'H');
       let parsedOffset = (STATE.unitMode === 'mm') ? (parseFloat(p.offset) || 0) / 25.4 : parseSutOffset(p.offset);
-      let stockLenInches = p.stockLen ? (STATE.unitMode === 'mm' ? (parseFloat(p.stockLen)||0)/25.4 : parseFloat(p.stockLen)||192.5) : undefined;
+      let stockLenInches = p.stockLen ? (STATE.unitMode === 'mm' ? (parseFloat(p.stockLen)||0)/25.4 : parseFloat(p.stockLen)||192) : undefined;
       
       const divisorToUse = (p.divisor !== undefined && p.divisor !== null && String(p.divisor).trim() !== '')
         ? safeNum(p.divisor)
