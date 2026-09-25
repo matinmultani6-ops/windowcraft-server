@@ -47,6 +47,24 @@ header.top{
 .pill, .status{display:inline-block;padding:2px 7px;border-radius:999px;background:var(--secondary);color:#fff;font-weight:600;font-size:.70rem;margin-left:4px;}
 .status { background: #28a745; }
 
+/* 🆕 APP UPDATE TOP BANNER & BADGES */
+.new-update-banner {
+  background: linear-gradient(90deg, #b45309, #dc2626); color: #ffffff; font-weight: 700;
+  font-size: 0.72rem; padding: 3px 8px; text-align: center; display: none; align-items: center;
+  justify-content: center; gap: 6px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.new-update-banner.visible { display: flex; }
+.feature-update-badge {
+  background: #ef4444; color: #ffffff; font-size: 0.62rem; font-weight: 800; padding: 1px 6px;
+  border-radius: 999px; margin-left: 4px; display: inline-flex; align-items: center; gap: 2px;
+  animation: pulseGlow 1.8s infinite; vertical-align: middle;
+}
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
 .zoom-control-bar {
   position: fixed; top: var(--header-height); left: 0; right: 0; height: var(--zoom-bar-height);
   background: #f1f5f9; border-bottom: 1px solid #cbd5e1; z-index: 99;
@@ -150,6 +168,7 @@ textarea.input[rows="4"] { min-height: 140px; padding: 6px; font-size: 0.82rem; 
 .toggle-pill.active-orange { background: var(--orange); }
 .toggle-pill.active-green { background: var(--success); }
 .toggle-pill.active-blue { background: var(--primary); }
+.toggle-pill.active-purple { background: #7c3aed; }
 .info-icon-btn {
   background: #ffffff; border: 1px solid #cbd5e1; border-radius: 50%; width: 20px; height: 20px;
   font-size: 0.68rem; font-weight: 800; cursor: pointer; color: var(--primary); display: inline-flex;
@@ -201,10 +220,12 @@ tr:nth-child(even) td{ background:#f9fbfd }
     <span id="companyHeaderDisplay" style="margin-left:5px; font-weight:bold;">WindowCraft Pro</span>
     <span id="modePill" class="pill">Mode: D3</span>
     <span id="statusPill" class="status">Status: Ready</span>
+    <!-- UPDATE APP BADGE IN HEADER (VISIBLE ONLY FOR OLD/UNACKNOWLEDGED USERS) -->
+    <span id="headerUpdateBtn" class="feature-update-badge" style="cursor:pointer; display:none;">✨ UPDATE APP (अपडेट उपलब्ध)</span>
   </div>
 </header>
 
-<!-- SCREEN ZOOM BAR -->
+<!-- SCREEN ZOOM BAR & UPDATE ALERT -->
 <div class="zoom-control-bar">
   <span>🔍 <span id="zoomBarLabel">स्क्रीन फिट (Zoom):</span></span>
   <button id="zoomOutBtn" class="zoom-btn" type="button" title="Zoom Out">➖</button>
@@ -212,6 +233,12 @@ tr:nth-child(even) td{ background:#f9fbfd }
   <span id="zoomBadge" class="zoom-badge">100%</span>
   <button id="zoomInBtn" class="zoom-btn" type="button" title="Zoom In">➕</button>
   <button id="zoomResetBtn" class="zoom-reset-btn" type="button" title="Reset Zoom">Reset</button>
+</div>
+
+<!-- TOP UPDATE BANNER (SHOWN IF USER HAS AN OLDER VERSION ACKNOWLEDGED) -->
+<div id="topUpdateBanner" class="new-update-banner">
+  <span>🚀 नया अपडेट v1.0.5 उपलब्ध है! 200MP फोटो स्कैन व टफ़न कांच मोड्स जोड़े गए हैं।</span>
+  <span style="text-decoration:underline; font-weight:900;">यहाँ देखें (View Update)</span>
 </div>
 
 <main class="wrap" id="mainAppWrap">
@@ -241,7 +268,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
         </div>
       </div>
       
-      <!-- WINDOW SIZES (60% INPUT : 40% INSTRUCTION) + SCAN DRAWING BUTTON WITH INFO (i) NOTE -->
+      <!-- WINDOW SIZES (60% INPUT : 40% INSTRUCTION) + SCAN DRAWING BUTTON WITH UPDATE BADGE -->
       <div style="margin-bottom: 8px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px; flex-wrap:wrap; gap:4px;">
           <div>
@@ -251,6 +278,8 @@ tr:nth-child(even) td{ background:#f9fbfd }
           <div style="display:inline-flex; align-items:center; gap:4px;">
             <button id="scanDrawingBtn" class="camera-scan-btn" type="button" title="Scan Drawing / Sketch Photo">
               📷 फोटो से नाप स्कैन करें
+              <!-- NEW FEATURE BADGE -->
+              <span id="scanUpdateBadge" class="feature-update-badge" style="display:none;">NEW ✨</span>
             </button>
             <button id="scanInfoBtn" class="info-icon-btn" type="button" title="Scan Guide & Note">ℹ️</button>
             <input type="file" id="scanFileInput" accept="image/*" multiple style="display:none;" />
@@ -278,7 +307,8 @@ tr:nth-child(even) td{ background:#f9fbfd }
             <button id="modeBtn" class="btn" type="button">D3 Mode (मोड बदलें / Switch Mode)</button>
             <div id="modeDropdown" class="mode-dropdown"></div>
           </div>
-          <button id="clearAllBtn" class="btn b-danger" type="button">🗑️ साफ़ करें (Clear All)</button>
+          <!-- 🗑️ 2-STEP SAFE CLEAR ALL BUTTON -->
+          <button id="clearAllBtn" class="btn b-danger" type="button" data-confirming="false">🗑️ साफ़ करें (Clear All)</button>
         </div>
         
         <div class="btn-row-2" style="margin-top: 4px;">
@@ -349,13 +379,15 @@ tr:nth-child(even) td{ background:#f9fbfd }
           <div id="scrapSummaryWrap" class="table-wrap muted">—</div>
         </div>
 
-        <!-- 4. WINDOW SIZES & GLASS -->
+        <!-- 4. WINDOW SIZES & GLASS (WITH 3 GLASS MODES: 6", 1" TUFFEN, 2" TUFFEN) -->
         <div>
           <h3>
             <span id="sec4Title">4. विंडो साइज और कांच नाप (Window Sizes & Glass)</span>
             <div class="toggle-group">
+              <!-- 🪟 3-MODE GLASS BILLING TOGGLE -->
+              <button id="glassModeBtn" class="toggle-pill active-purple" title="कांच गणना मोड बदलें (नॉर्मल 6 / 1 टफ़न / 2 टफ़न)">कांच: 6" Step</button>
               <button id="sqftModeBtn" class="toggle-pill">Sq.Ft: 6" Step</button>
-              <button id="sqftInfoBtn" class="info-icon-btn" title="Sq.Ft मोड की जानकारी">ℹ️</button>
+              <button id="sqftInfoBtn" class="info-icon-btn" title="Sq.Ft और कांच मोड की जानकारी">ℹ️</button>
             </div>
           </h3>
           <div class="section-guide" id="sec4Guide">💡 हर खिड़की का स्क्वायर फीट एरिया और सटीक ग्लास कटिंग साइज</div>
@@ -380,6 +412,29 @@ tr:nth-child(even) td{ background:#f9fbfd }
   </div>
 </main>
 
+<!-- 🆕 WHAT'S NEW / UPDATE NOTICE MODAL -->
+<div id="updateNoticeModal" class="modal">
+  <div class="box" style="max-width: 480px;">
+    <h4 style="color:#d97706;">🚀 नया ऐप अपडेट उपलब्ध है! (WindowCraft v1.0.5)</h4>
+    <div style="font-size:0.77rem; line-height:1.55; color:#1e293b;">
+      <div style="background:#fef3c7; border-left:3px solid #f59e0b; padding:8px; border-radius:4px; margin-bottom:8px;">
+        <strong style="color:#92400e;">✨ इस नए अपडेट में जोड़े गए खास फ़ीचर्स:</strong><br>
+        1. <strong>📷 200MP अल्ट्रा-एचडी स्कैनर:</strong> डायरी या स्केच की फोटो से सीधे 1 सेकंड में सारे नाप स्कैन करें!<br>
+        2. <strong>🪟 कांच के 3 नए बिलिंग मोड:</strong> नॉर्मल 6" स्टेप, 1" टफ़न मोड (+1" W&H) और 2" टफ़न मोड (+2" W&H)।<br>
+        3. <strong>📏 ट्रैक पट्टी में आधा सूत (.5):</strong> ट्रैक पट्टी कटिंग में भी अब आधा सूत (.5 / ½) सपोर्ट चालू है।<br>
+        4. <strong>🗑️ 2-स्टेप सेफ क्लियर बटन:</strong> गलती से डेटा डिलीट होने से बचाने के लिए 2-क्लिक कन्फर्मेशन।
+      </div>
+      <div style="color:#475569; font-size:0.72rem;">
+        💡 <em>(नोट: यदि आपने प्ले स्टोर से पहले ही अपडेट कर लिया है, तो 'अपडेट देख लिया' पर क्लिक करें। यह सूचना अपने आप छिप जाएगी।)</em>
+      </div>
+    </div>
+    <div style="margin-top: 12px; display:flex; justify-content:space-between; gap:6px; flex-wrap:wrap;">
+      <a id="playStoreUpdateLink" href="https://play.google.com/store/apps/details?id=com.windowcraft.pro" target="_blank" class="btn b-success" style="flex:1; text-decoration:none; padding:6px 10px;">📲 Play Store से अपडेट करें</a>
+      <button id="dismissUpdateNoticeBtn" class="btn b-action-2" style="flex:1; padding:6px 10px;">✔️ समझ गया / अपडेट देख लिया</button>
+    </div>
+  </div>
+</div>
+
 <!-- SCAN SLIDER INFO MODAL -->
 <div id="scanInfoModal" class="modal">
   <div class="box" style="max-width: 460px;">
@@ -387,7 +442,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
     <div style="font-size:0.78rem; line-height:1.55; color:#1e293b;">
       <div style="background:#f5f3ff; border-left:3px solid #8b5cf6; padding:8px; border-radius:4px; margin-bottom:8px;">
         <strong style="color:#6d28d9;">📌 आवश्यक सूचना (Hindi):</strong><br>
-        कृपया फोटो स्कैन करते समय <strong>केवल स्लाइडर (Sliding) विंडो</strong> का ही नाप स्कैन करें या दर्ज करें।
+        कृपया फोटो स्कैन करते समय <strong>केवल स्लाइडर (Sliding) विंडो</strong> का ही नाप स्कैन करें या दर्ज करें। (8MP से 200MP तक की कोई भी साफ़ फोटो मान्य है)।
       </div>
       <div style="background:#f0fdf4; border-left:3px solid #10b981; padding:8px; border-radius:4px;">
         <strong style="color:#047857;">📌 Note (English):</strong><br>
@@ -434,7 +489,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
   <div class="box">
     <h4 id="settingsModalHeader">⚙️ सेटिंग्स और रेट्स (Settings & Base Rates)</h4>
     <div class="modal-guide-banner" id="settingsModalBanner">
-      💡 <strong>निर्देश:</strong> कंपनी का नाम, भाषा, मटेरियल रेट्स, वूलपाइल भाव, रूल्स व प्रोफाइल वजन सेट करें।
+      💡 <strong>निर्देश:</strong> कंपनी का नाम, भाषा, मटेरियल रेट्स, वूलपाइल भाव, कांच गणना मोड, रूल्स व प्रोफाइल वजन सेट करें।
     </div>
     
     <div class="wc-card">
@@ -461,6 +516,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
       </div>
     </div>
     
+    <!-- 💰 BASE MATERIAL RATES & 3 GLASS MODES -->
     <div class="wc-card">
       <h4 id="ratesCardTitle">💰 मुख्य माल भाव (Base Material Rates)</h4>
       <div class="row" style="grid-template-columns: 1fr 1fr;">
@@ -471,6 +527,18 @@ tr:nth-child(even) td{ background:#f9fbfd }
         <div class="group">
           <label class="lbl" id="glassRateLbl" for="grInput">कांच भाव (Glass Rate ₹/sq.ft)</label>
           <input id="grInput" class="input" type="number" value="60" />
+        </div>
+      </div>
+      <!-- 🪟 3-MODE GLASS SETTING IN DROPDOWN -->
+      <div class="row" style="margin-top: 4px; grid-template-columns: 1fr;">
+        <div class="group">
+          <label class="lbl" id="glassModeLbl">कांच बिलिंग मोड (Glass Area Calculation Mode):</label>
+          <select id="glassModeSelect" class="input" style="font-weight:700; color:#4338ca;">
+            <option value="normal_6step">1. सामान्य 6" स्टेप मोड (Normal 6" Step)</option>
+            <option value="toughened_1inch">2. 1" टफ़न मोड (+1" Width & Height टफ़न ग्लास)</option>
+            <option value="toughened_2inch">3. 2" टफ़न मोड (+2" Width & Height टफ़न ग्लास)</option>
+          </select>
+          <span class="sub-lbl">टफ़न मोड में कांच साइज में 1" या 2" जोड़कर बिलिंग स्क्वायर फीट बनता है।</span>
         </div>
       </div>
       <div class="row" style="margin-top: 4px; grid-template-columns: 1fr;">
@@ -514,7 +582,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
       <h4 id="rulesModalHeader" style="border-bottom:none; margin-bottom:0; font-size:0.92rem;">📐 विंडो रूल्स और कटिंग फ़ॉर्मूला (Window Rules & Formulas)</h4>
     </div>
     <div class="modal-guide-banner" id="rulesModalBanner">
-      💡 <strong>निर्देश:</strong> भाग (Divide By) में 0, 1, 2, 3... अपनी पसंद से लिखें। (0 या 1 = पूरा पीस, 2 = 2 टुकड़ों में divide).
+      💡 <strong>निर्देश:</strong> भाग (Divide By) में 0, 1, 2, 3... अपनी पसंद से लिखें। (0 या 1 = पूरा पीस, 2 = 2 टुकड़ों में divide). आधा सूत के लिए <span class="guide-pill">3.5.5</span> लिखें।
     </div>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap: 6px; flex-wrap: wrap;">
@@ -592,6 +660,7 @@ tr:nth-child(even) td{ background:#f9fbfd }
 
 <script>
 const PERMANENT_YOUTUBE_URL = "https://www.youtube.com/@SmartRollingShutter";
+const APP_VERSION = "1.0.5"; // 🆕 वर्तमान संस्करण कोड
 
 const ADMOB_CONFIG = {
   appId: "ca-app-pub-7546176089076400~4241275099",
@@ -709,12 +778,32 @@ function parseSutToken(str, unitMode='inch') {
   return isNaN(val) ? 0 : val;
 }
 
+// 📏 आधा सूत (.5 / ½) सपोर्टेड सूत ऑफ़सेट पार्सर (TrackStrip व अन्य के लिए)
 function parseSutOffset(val) {
   if (val === undefined || val === null || val === '') return 0;
   if (typeof val === 'number') return val;
   const s = String(val).trim();
   const isNeg = s.charCodeAt(0) === 45;
   const clean = isNeg ? s.slice(1) : s;
+
+  // 1. Double dot आधा सूत e.g. "3.5.5" -> 3" 5½ सूत
+  const doubleDotMatch = clean.match(/^(\d+)\.(\d)\.5$/);
+  if (doubleDotMatch) {
+    const inch = parseInt(doubleDotMatch[1], 10);
+    const sut = parseInt(doubleDotMatch[2], 10) + 0.5;
+    const res = inch + (sut / 8);
+    return isNeg ? -res : res;
+  }
+
+  // 2. आधा सिंबल e.g. "3.5½"
+  const halfSymbolMatch = clean.match(/^(\d+)\.(\d)½$/);
+  if (halfSymbolMatch) {
+    const inch = parseInt(halfSymbolMatch[1], 10);
+    const sut = parseInt(halfSymbolMatch[2], 10) + 0.5;
+    const res = inch + (sut / 8);
+    return isNeg ? -res : res;
+  }
+
   const parts = clean.split('.');
   if (parts.length === 2) {
     const inch = parseInt(parts[0], 10) || 0;
@@ -1188,12 +1277,41 @@ function optimizeMinBars(cuts, stockLen) {
   return bins;
 }
 
+// 🪟 3-MODE GLASS SQUARE FEET ENGINE (Normal 6", 1" Tuffen, 2" Tuffen)
+function roundGlassStep(val){ const base = Math.floor(val/6)*6; return (val % 6 === 0)? base : base + 6; }
+
+function glassSqFt(w, h, mode='normal_6step'){
+  if (mode === 'toughened_1inch') {
+    // 1" Tuffen Mode: Glass width + 1" aur height + 1"
+    const effectiveW = w + 1;
+    const effectiveH = h + 1;
+    return num((effectiveW * effectiveH) / 144, 3);
+  }
+  if (mode === 'toughened_2inch') {
+    // 2" Tuffen Mode: Glass width + 2" aur height + 2"
+    const effectiveW = w + 2;
+    const effectiveH = h + 2;
+    return num((effectiveW * effectiveH) / 144, 3);
+  }
+  // Normal 6" Step Mode
+  return (roundGlassStep(w) * roundGlassStep(h)) / 144;
+}
+
+function roundWindowStep6(val){ const base = Math.floor(val/6)*6; return (val <= base + 0.875)? base : base + 6; }
+function roundWindowStep3(val){ const base = Math.floor(val/3)*3; return (val <= base + 0.875)? base : base + 3; }
+function windowSqFtSingle(w, h, mode='6step'){
+  if (mode === 'inch') return (w * h) / 144;
+  if (mode === '3step') return (roundWindowStep3(w) * roundWindowStep3(h)) / 144;
+  return (roundWindowStep6(w) * roundWindowStep6(h)) / 144;
+}
+function glassRunningFeet(w, h, qty=2){ return ((w + h) * 2 / 12) * qty; }
+
 function runCalculationEngine(reqBody) {
   const {
     sizesRaw = '', defaultMode = 'D3',
     stockLen = 192, unitMode = 'inch',
-    mrc = 520, gr = 60, woolpileRate = 2, sqftMode = '6step', weightMode = '4ft_step',
-    customRules = {}, weights = {}, stockMap = {}, optStrategy = {}
+    mrc = 520, gr = 60, woolpileRate = 2, sqftMode = '6step', glassMode = 'normal_6step',
+    weightMode = '4ft_step', customRules = {}, weights = {}, stockMap = {}, optStrategy = {}
   } = reqBody;
 
   let windowCounter = 1;
@@ -1282,7 +1400,8 @@ function runCalculationEngine(reqBody) {
 
     const { pieces: pc, glass: g, originalLengths } = getWindowPiecesAndGlass(W, H, winMode, rules);
 
-    const singleGlassSq = glassSqFt(g.w, g.h) * g.qty;
+    // 🪟 GLASS SQ.FT CALCULATED WITH SELECTED GLASS MODE (6", 1" TUFFEN, 2" TUFFEN)
+    const singleGlassSq = glassSqFt(g.w, g.h, glassMode) * g.qty;
     const winSq = windowSqFtSingle(W, H, sqftMode);
 
     const isMinLabour = winSq < 12.5;
@@ -1541,21 +1660,11 @@ function runCalculationEngine(reqBody) {
       arwRate: activeRules.arw ?? 500,
       jaliRate: activeRules.jaliRate ?? 30,
       rubberRate: activeRules.rubberRate ?? 160,
-      hasMinLabourApplied
+      hasMinLabourApplied,
+      glassMode: glassMode
     }
   };
 }
-
-function roundWindowStep6(val){ const base = Math.floor(val/6)*6; return (val <= base + 0.875)? base : base + 6; }
-function roundWindowStep3(val){ const base = Math.floor(val/3)*3; return (val <= base + 0.875)? base : base + 3; }
-function windowSqFtSingle(w, h, mode='6step'){
-  if (mode === 'inch') return (w * h) / 144;
-  if (mode === '3step') return (roundWindowStep3(w) * roundWindowStep3(h)) / 144;
-  return (roundWindowStep6(w) * roundWindowStep6(h)) / 144;
-}
-function roundGlassStep(val){ const base = Math.floor(val/6)*6; return (val % 6 === 0)? base : base + 6; }
-function glassSqFt(w,h){ return (roundGlassStep(w) * roundGlassStep(h)) / 144; }
-function glassRunningFeet(w, h, qty=2){ return ((w + h) * 2 / 12) * qty; }
 
 // ==========================================
 // 2. APP STATE, I18N, ZOOM & UI LOGIC
@@ -1599,11 +1708,16 @@ const LS = {
   getLang(){ return localStorage.getItem('fs_app_lang') || 'hi_en'; },
   setLang(v){ localStorage.setItem('fs_app_lang', v); },
   getZoom(){ return parseInt(localStorage.getItem('fs_ui_zoom')||'100', 10); },
-  setZoom(v){ localStorage.setItem('fs_ui_zoom', v); }
+  setZoom(v){ localStorage.setItem('fs_ui_zoom', v); },
+  getGlassMode(){ return localStorage.getItem('fs_glass_mode') || 'normal_6step'; },
+  setGlassMode(v){ localStorage.setItem('fs_glass_mode', v); },
+  getAckVersion(){ return localStorage.getItem('wc_acknowledged_version') || ''; },
+  setAckVersion(v){ localStorage.setItem('wc_acknowledged_version', v); }
 };
 
 const STATE = {
-  companyName: 'WindowCraft Pro', unitMode: 'inch', mode: 'D3', sqftMode: '6step', weightMode: '4ft_step',
+  companyName: 'WindowCraft Pro', unitMode: 'inch', mode: 'D3', sqftMode: '6step',
+  glassMode: LS.getGlassMode(), weightMode: '4ft_step',
   customRules: LS.getRules(), stockMap: LS.getStock(), customModes: LS.getCustomModes(),
   currentRulesTab: 'D3', currentWeightTab: 'D3', optStrategy: {}, serverData: null, pdfCount: 0,
   pendingPdfType: null, lang: LS.getLang(), zoom: LS.getZoom()
@@ -1613,6 +1727,32 @@ function setStatus(msg){
   const l = STATE.lang;
   const prefix = l === 'hi' ? 'स्थिति: ' : (l === 'en' ? 'Status: ' : 'Status / स्थिति: ');
   $('#statusPill').textContent = prefix + msg;
+}
+
+// 🆕 UPDATE BADGE & BANNER MANAGER (SHOWS ONLY UNTIL ACKNOWLEDGED)
+function checkAndUpdateVersionNotice() {
+  const acknowledged = LS.getAckVersion();
+  const isOldUser = acknowledged !== APP_VERSION;
+
+  const topBanner = $('#topUpdateBanner');
+  const headerBtn = $('#headerUpdateBtn');
+  const scanBadge = $('#scanUpdateBadge');
+
+  if (isOldUser) {
+    if (topBanner) topBanner.classList.add('visible');
+    if (headerBtn) headerBtn.style.display = 'inline-flex';
+    if (scanBadge) scanBadge.style.display = 'inline-flex';
+  } else {
+    if (topBanner) topBanner.classList.remove('visible');
+    if (headerBtn) headerBtn.style.display = 'none';
+    if (scanBadge) scanBadge.style.display = 'none';
+  }
+}
+
+function dismissUpdateNotice() {
+  LS.setAckVersion(APP_VERSION);
+  checkAndUpdateVersionNotice();
+  $('#updateNoticeModal').classList.remove('open');
 }
 
 function applyScreenZoom(scale) {
@@ -1659,6 +1799,25 @@ function render48DemoBox() {
   }
 }
 
+function updateGlassModeButtonLabel() {
+  const btn = $('#glassModeBtn');
+  const select = $('#glassModeSelect');
+  if (select) select.value = STATE.glassMode;
+  if (!btn) return;
+
+  const l = STATE.lang;
+  if (STATE.glassMode === 'toughened_1inch') {
+    btn.textContent = l === 'hi' ? 'कांच: 1" टफ़न (+1")' : 'Glass: 1" Tuffen (+1")';
+    btn.className = 'toggle-pill active-blue';
+  } else if (STATE.glassMode === 'toughened_2inch') {
+    btn.textContent = l === 'hi' ? 'कांच: 2" टफ़न (+2")' : 'Glass: 2" Tuffen (+2")';
+    btn.className = 'toggle-pill active-orange';
+  } else {
+    btn.textContent = l === 'hi' ? 'कांच: 6" Step' : 'Glass: 6" Step';
+    btn.className = 'toggle-pill active-purple';
+  }
+}
+
 function applyLanguageUI() {
   const l = STATE.lang || 'hi_en';
   if ($('#languageSelect')) $('#languageSelect').value = l;
@@ -1668,7 +1827,7 @@ function applyLanguageUI() {
     $('#inputSectionTitle').textContent = '1. 📐 प्रोजेक्ट नाप';
     $('#settingsBtn').innerHTML = '⚙️ सेटिंग्स';
     $('#directStockBtn').textContent = '📦 स्टॉक माल';
-    $('#scanDrawingBtn').textContent = '📷 फोटो से नाप स्कैन करें';
+    $('#scanDrawingBtn').innerHTML = '📷 फोटो से नाप स्कैन करें <span id="scanUpdateBadge" class="feature-update-badge" style="display:none;">NEW ✨</span>';
     $('#ytBtnText').textContent = 'YouTube';
     $('#lcLabel').textContent = '🏢 विंडो बार लंबाई (Stock)';
     $('#lcSubText').textContent = '16 फीट बार = 192"';
@@ -1676,7 +1835,7 @@ function applyLanguageUI() {
     $('#sizesSubLbl').textContent = '(हर लाइन में 1 नाप)';
     $('#calculateBtn').textContent = '🧮 हिसाब लगाएं';
     $('#unitModeBtn').textContent = STATE.unitMode === 'mm' ? '📏 यूनिट बदलें (यूनिट: MM)' : '📏 यूनिट बदलें (इंच / सूत)';
-    $('#clearAllBtn').textContent = '🗑️ साफ़ करें';
+    $('#clearAllBtn').textContent = $('#clearAllBtn').dataset.confirming === 'true' ? '⚠️ सच में डिलीट करें? (दोबारा दबाएं)' : '🗑️ साफ़ करें';
     $('#pdfCutBtn').textContent = '📐 फैब्रिकेशन व कटिंग रिपोर्ट';
     $('#pdfBillBtn').textContent = '💰 कोटेशन व बिल सारांश';
     
@@ -1699,7 +1858,7 @@ function applyLanguageUI() {
     $('#sec6Guide').textContent = '💡 16 फीट बार से न्यूनतम वेस्टेज में कटिंग लेआउट (Min Waste / Min Bars स्विच करें)';
 
     $('#settingsModalHeader').textContent = '⚙️ सेटिंग्स और रेट्स';
-    $('#settingsModalBanner').innerHTML = '💡 <strong>निर्देश:</strong> कंपनी का नाम, भाषा, मटेरियल रेट्स, वूलपाइल भाव, रूल्स व प्रोफाइल वजन सेट करें।';
+    $('#settingsModalBanner').innerHTML = '💡 <strong>निर्देश:</strong> कंपनी का नाम, भाषा, मटेरियल रेट्स, वूलपाइल भाव, कांच बिलिंग मोड, रूल्स व प्रोफाइल वजन सेट करें।';
     $('#langCardTitle').textContent = '🌐 भाषा सेटिंग';
     $('#langSelectLbl').textContent = 'ऐप की भाषा चुनें:';
     $('#compInfoCardTitle').textContent = '🏢 कंपनी विवरण';
@@ -1707,6 +1866,7 @@ function applyLanguageUI() {
     $('#ratesCardTitle').textContent = '💰 मुख्य माल भाव';
     $('#matRateLbl').textContent = 'मेटल भाव (₹/किलो):';
     $('#glassRateLbl').textContent = 'कांच भाव (₹/वर्ग फुट):';
+    $('#glassModeLbl').textContent = 'कांच बिलिंग मोड (Glass Calculation Mode):';
     $('#woolpileRateLbl').textContent = 'वूलपाइल भाव (₹/रनिंग फुट):';
     $('#modalRulesBtn').textContent = '📐 कटिंग रूल्स';
     $('#modalWeightBtn').textContent = '⚖️ प्रोफाइल वजन';
@@ -1716,7 +1876,7 @@ function applyLanguageUI() {
     $('#inputSectionTitle').textContent = '1. 📐 Project Inputs';
     $('#settingsBtn').innerHTML = '⚙️ Settings';
     $('#directStockBtn').textContent = '📦 Stock (Remnants)';
-    $('#scanDrawingBtn').textContent = '📷 Scan Drawing Photo';
+    $('#scanDrawingBtn').innerHTML = '📷 Scan Drawing Photo <span id="scanUpdateBadge" class="feature-update-badge" style="display:none;">NEW ✨</span>';
     $('#ytBtnText').textContent = 'YouTube';
     $('#lcLabel').textContent = '🏢 Window Bar Stock Length';
     $('#lcSubText').textContent = '16 Ft Bar = 192"';
@@ -1724,7 +1884,7 @@ function applyLanguageUI() {
     $('#sizesSubLbl').textContent = '(1 size per line)';
     $('#calculateBtn').textContent = '🧮 Calculate Project';
     $('#unitModeBtn').textContent = STATE.unitMode === 'mm' ? '📏 Change Unit (Unit: MM)' : '📏 Change Unit (Inches / Sut)';
-    $('#clearAllBtn').textContent = '🗑️ Clear All';
+    $('#clearAllBtn').textContent = $('#clearAllBtn').dataset.confirming === 'true' ? '⚠️ Confirm Delete? (Click Again)' : '🗑️ Clear All';
     $('#pdfCutBtn').textContent = '📐 Fabrication & Cut Report';
     $('#pdfBillBtn').textContent = '💰 Quotation & Bill Summary';
 
@@ -1747,7 +1907,7 @@ function applyLanguageUI() {
     $('#sec6Guide').textContent = '💡 Optimized 16 Ft bar cutting layout (Toggle Min Waste / Min Bars)';
 
     $('#settingsModalHeader').textContent = '⚙️ Settings & Base Rates';
-    $('#settingsModalBanner').innerHTML = '💡 <strong>Guide:</strong> Configure company name, language mode, material rates, woolpile rate, and weights.';
+    $('#settingsModalBanner').innerHTML = '💡 <strong>Guide:</strong> Configure company name, language mode, material rates, glass mode, woolpile rate, and weights.';
     $('#langCardTitle').textContent = '🌐 Language Selection';
     $('#langSelectLbl').textContent = 'Select App Language:';
     $('#compInfoCardTitle').textContent = '🏢 Company Information';
@@ -1755,6 +1915,7 @@ function applyLanguageUI() {
     $('#ratesCardTitle').textContent = '💰 Base Material Rates';
     $('#matRateLbl').textContent = 'Material Rate (₹/kg):';
     $('#glassRateLbl').textContent = 'Glass Rate (₹/sq.ft):';
+    $('#glassModeLbl').textContent = 'Glass Area Mode:';
     $('#woolpileRateLbl').textContent = 'Woolpile Rate (₹/R.Ft):';
     $('#modalRulesBtn').textContent = '📐 Cutting Rules';
     $('#modalWeightBtn').textContent = '⚖️ Profile Weights';
@@ -1764,7 +1925,7 @@ function applyLanguageUI() {
     $('#inputSectionTitle').textContent = '1. 📐 प्रोजेक्ट नाप (Project Inputs)';
     $('#settingsBtn').innerHTML = '⚙️ सेटिंग्स (Settings)';
     $('#directStockBtn').textContent = '📦 स्टॉक माल (Stock)';
-    $('#scanDrawingBtn').textContent = '📷 फोटो से नाप स्कैन करें (Scan)';
+    $('#scanDrawingBtn').innerHTML = '📷 फोटो से नाप स्कैन करें <span id="scanUpdateBadge" class="feature-update-badge" style="display:none;">NEW ✨</span>';
     $('#ytBtnText').textContent = 'YouTube';
     $('#lcLabel').textContent = '🏢 विंडो बार लंबाई (Stock Length)';
     $('#lcSubText').textContent = '16 फीट बार = 192" (16 Ft Bar)';
@@ -1772,7 +1933,7 @@ function applyLanguageUI() {
     $('#sizesSubLbl').textContent = '(हर लाइन में 1 नाप)';
     $('#calculateBtn').textContent = '🧮 हिसाब लगाएं (Calculate Project)';
     $('#unitModeBtn').textContent = STATE.unitMode === 'mm' ? '📏 यूनिट बदलें (Unit: MM)' : '📏 यूनिट बदलें (Unit: Inches / Sut)';
-    $('#clearAllBtn').textContent = '🗑️ साफ़ करें (Clear All)';
+    $('#clearAllBtn').textContent = $('#clearAllBtn').dataset.confirming === 'true' ? '⚠️ सच में डिलीट करें? (दोबारा दबाएं)' : '🗑️ साफ़ करें (Clear All)';
     $('#pdfCutBtn').textContent = '📐 Fabrication & Cut Report';
     $('#pdfBillBtn').textContent = '💰 Quotation & Bill Summary';
 
@@ -1795,7 +1956,7 @@ function applyLanguageUI() {
     $('#sec6Guide').textContent = '💡 16 फीट बार से न्यूनतम वेस्टेज में कटिंग लेआउट (Min Waste / Min Bars स्विच करें)';
 
     $('#settingsModalHeader').textContent = '⚙️ सेटिंग्स और रेट्स (Settings & Base Rates)';
-    $('#settingsModalBanner').innerHTML = '💡 <strong>निर्देश:</strong> कंपनी का नाम, भाषा, मटेरियल रेट्स, वूलपाइल भाव, रूल्स व प्रोफाइल वजन सेट करें।';
+    $('#settingsModalBanner').innerHTML = '💡 <strong>निर्देश:</strong> कंपनी का नाम, भाषा, मटेरियल रेट्स, वूलपाइल भाव, कांच मोड, रूल्स व प्रोफाइल वजन सेट करें।';
     $('#langCardTitle').textContent = '🌐 भाषा / Language Mode';
     $('#langSelectLbl').textContent = 'ऐप की भाषा चुनें (Select App Language):';
     $('#compInfoCardTitle').textContent = '🏢 कंपनी विवरण (Company Header Information)';
@@ -1803,11 +1964,13 @@ function applyLanguageUI() {
     $('#ratesCardTitle').textContent = '💰 मुख्य माल भाव (Base Material Rates)';
     $('#matRateLbl').textContent = 'मेटल भाव (Mat. Rate ₹/kg)';
     $('#glassRateLbl').textContent = 'कांच भाव (Glass Rate ₹/sq.ft)';
+    $('#glassModeLbl').textContent = 'कांच बिलिंग मोड (Glass Area Mode):';
     $('#woolpileRateLbl').textContent = 'वूलपाइल भाव (Woolpile Rate ₹/Ft)';
     $('#modalRulesBtn').textContent = '📐 कटिंग रूल्स (Rules)';
     $('#modalWeightBtn').textContent = '⚖️ प्रोफाइल वजन (Weights)';
     $('#settingsClose').textContent = '✔️ सेटिंग्स सेव और बंद करें (Close)';
   }
+  updateGlassModeButtonLabel();
 }
 
 function updateWeightButtonLabel() {
@@ -1831,12 +1994,18 @@ function showInfoModal(type) {
   const l = STATE.lang;
 
   if (type === 'sqft') {
-    title.textContent = l === 'en' ? 'ℹ️ Window Sq.Ft Modes Guide' : 'ℹ️ विंडो स्क्वायर फीट (Sq.Ft) मोड्स की जानकारी';
+    title.textContent = l === 'en' ? 'ℹ️ Window & Glass Modes Guide' : 'ℹ️ विंडो व कांच मोड्स की जानकारी';
     body.innerHTML = `
       <div style="margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid #e2e8f0;">
-        <strong style="color:#1d4ed8;">1. 6" Step Mode:</strong> Rounds W & H to 6-inch steps with 7-sut tolerance.<br>
-        <strong style="color:#1d4ed8;">2. 3" Step Mode:</strong> Rounds W & H to 3-inch steps with 7-sut tolerance.<br>
+        <strong style="color:#1d4ed8;">1. 6" Step Mode (विंडो):</strong> Rounds W & H to 6-inch steps with 7-sut tolerance.<br>
+        <strong style="color:#1d4ed8;">2. 3" Step Mode (विंडो):</strong> Rounds W & H to 3-inch steps with 7-sut tolerance.<br>
         <strong style="color:#1d4ed8;">3. Inch Mode:</strong> Exact (W × H ÷ 144) without step rounding.
+      </div>
+      <div>
+        <strong style="color:#7c3aed;">🪟 कांच मोड्स (Glass Modes):</strong><br>
+        • <strong>सामान्य 6" स्टेप:</strong> कांच के नाप को 6" के राउंड में गिनता है।<br>
+        • <strong>1" टफ़न मोड:</strong> कांच चौड़ाई व ऊंचाई में 1-1 इंच जोड़कर स्क्वायर फीट बनाता है (W+1 × H+1 ÷ 144).<br>
+        • <strong>2" टफ़न मोड:</strong> कांच चौड़ाई व ऊंचाई में 2-2 इंच जोड़कर स्क्वायर फीट बनाता है (W+2 × H+2 ÷ 144).
       </div>
     `;
   } else if (type === 'weight') {
@@ -1948,15 +2117,21 @@ function updateModeDropdownsAndTabs(){
   }
 }
 
+// 📏 आधा सूत (.5) फ़ॉर्मेटिंग सपोर्ट
 function fmtSutOffset(n) {
   if (n == null || isNaN(n)) return '0';
   const isNeg = n < 0;
   const absVal = Math.abs(n);
   const whole = Math.floor(absVal);
   const dec = absVal - whole;
-  const sut = Math.round(dec * 8);
-  if (sut === 0) return isNeg ? `-${whole}` : String(whole);
-  const sutStr = `${whole}.${sut}`;
+  const sut16 = Math.round(dec * 16);
+  if (sut16 === 0) return isNeg ? `-${whole}` : String(whole);
+  let sutStr = '';
+  if (sut16 % 2 === 0) {
+    sutStr = `${whole}.${sut16 / 2}`;
+  } else {
+    sutStr = `${whole}.${Math.floor(sut16 / 2)}.5`;
+  }
   return isNeg ? `-${sutStr}` : sutStr;
 }
 
@@ -2016,6 +2191,7 @@ function saveInputs(){
       mrc: $('#mrcInput').value,
       woolpileRate: $('#woolpileRateInput').value,
       gr: $('#grInput').value, mode: STATE.mode, sqftMode: STATE.sqftMode,
+      glassMode: STATE.glassMode,
       weightMode: STATE.weightMode, optStrategy: STATE.optStrategy, lang: STATE.lang,
       zoom: STATE.zoom
     };
@@ -2036,6 +2212,7 @@ function loadInputs(){
     if (data.gr !== undefined) $('#grInput').value = data.gr;
     if (data.mode) { STATE.mode = data.mode; STATE.currentRulesTab = data.mode; STATE.currentWeightTab = data.mode; }
     if (data.sqftMode) { STATE.sqftMode = data.sqftMode; updateSqftButtonLabel(); }
+    if (data.glassMode) { STATE.glassMode = data.glassMode; LS.setGlassMode(data.glassMode); updateGlassModeButtonLabel(); }
     if (data.weightMode) { STATE.weightMode = data.weightMode; updateWeightButtonLabel(); }
     if (data.optStrategy) STATE.optStrategy = data.optStrategy;
     if (data.lang) { STATE.lang = data.lang; applyLanguageUI(); }
@@ -2093,6 +2270,10 @@ function renderReportTables(data) {
   t1Title.innerHTML = l === 'hi' ? '📐 1. प्रोजेक्ट माप व सामग्री सारांश' : (l === 'en' ? '📐 1. Project Measurements & Quantities' : '📐 1. प्रोजेक्ट माप व सामग्री सारांश (Measurements & Quantities)');
   t1Box.appendChild(t1Title);
 
+  let glassModeTag = '';
+  if (STATE.glassMode === 'toughened_1inch') glassModeTag = ' (1" टफ़न)';
+  else if (STATE.glassMode === 'toughened_2inch') glassModeTag = ' (2" टफ़न)';
+
   const mRows = [
     [l === 'hi' ? "कुल विंडो संख्या" : (l === 'en' ? "Total Windows Count" : "कुल विंडो संख्या (Total Windows)"), `${t.windowsCount} Nos`],
     [l === 'hi' ? "कुल विंडो क्षेत्रफल" : (l === 'en' ? "Total Window Area" : "कुल विंडो क्षेत्रफल (Total Area)"), `${t.totalWindowSqFt} Sq.Ft (${STATE.sqftMode})`],
@@ -2100,7 +2281,7 @@ function renderReportTables(data) {
     [l === 'hi' ? "कुल नई बार वजन" : (l === 'en' ? "Total Full Bar Weight" : "कुल नई बार वजन (Full Bar Weight)"), `${t.totalFullBarWeightKg} kg`],
     [l === 'hi' ? "वास्तविक इस्तेमाल वजन" : (l === 'en' ? "Actual Used Weight" : "वास्तविक इस्तेमाल वजन (Used Weight)"), `${t.totalUsedWeightKg} kg`],
     [l === 'hi' ? "बिलिंग मेटल वजन" : (l === 'en' ? "Billed Metal Weight" : "बिलिंग मेटल वजन (Billed Metal Wt)"), `${t.totalWeightKg} kg`],
-    [l === 'hi' ? "कुल कांच क्षेत्रफल" : (l === 'en' ? "Total Glass Area" : "कुल कांच क्षेत्रफल (Total Glass Area)"), `${t.totalGlassSqFt} Sq.Ft`],
+    [l === 'hi' ? "कुल कांच क्षेत्रफल" : (l === 'en' ? "Total Glass Area" : "कुल कांच क्षेत्रफल (Total Glass Area)"), `${t.totalGlassSqFt} Sq.Ft${glassModeTag}`],
     [l === 'hi' ? "कुल वूलपाइल लंबाई" : (l === 'en' ? "Total Woolpile Length" : "कुल वूलपाइल लंबाई (Total Woolpile)"), `${t.totalWoolpileFt} R.Ft`]
   ];
   t1Box.appendChild(buildTable([l === 'hi' ? "माप / सामग्री" : (l === 'en' ? "Measurement / Item" : "माप / सामग्री (Item)"), l === 'hi' ? "मात्रा / नाप" : (l === 'en' ? "Quantity" : "मात्रा / नाप (Details)")], mRows));
@@ -2116,7 +2297,7 @@ function renderReportTables(data) {
   const labourTag = t.hasMinLabourApplied ? (l === 'hi' ? ' [Min 12.5 नियम लागू]' : ' [Min 12.5 Sq.Ft Applied]') : '';
   const eRows = [
     [`${l === 'hi' ? 'बिलिंग मेटल खर्च' : 'Billed Metal Cost'} (${t.totalWeightKg} kg @ Rs. ${t.matsRate}/kg)`, `Rs. ${t.weightCost}`],
-    [`${l === 'hi' ? 'कांच खर्च' : 'Glass Cost'} (@ Rs. ${t.glassRate}/sq.ft)`, `Rs. ${t.glassCost}`],
+    [`${l === 'hi' ? 'कांच खर्च' : 'Glass Cost'} (@ Rs. ${t.glassRate}/sq.ft)${glassModeTag}`, `Rs. ${t.glassCost}`],
     [`${l === 'hi' ? 'हार्डवेयर एवं अतिरिक्त खर्च' : 'Hardware & Addl. Cost'} (@ Rs. ${t.hwPerWindow}/win)`, `Rs. ${t.totalHardwareCost}`],
     [`${l === 'hi' ? 'वूलपाइल खर्च' : 'Woolpile Cost'} (${t.totalWoolpileFt} Ft @ Rs. ${t.woolpileRate}/Ft)`, `Rs. ${t.totalWoolpileCost}`],
     [`${l === 'hi' ? 'रबर कुल खर्च' : 'Rubber Cost'} (@ Rs. ${t.rubberRate}/kg)`, `Rs. ${t.totalRubberCost}`],
@@ -2161,9 +2342,9 @@ function renderReportTables(data) {
   const winWrap = $('#windowSizeGlassDetails'); winWrap.innerHTML = '';
   const winRows = data.sizes.map(g => [ `W${g.window} (${g.mode})`, g.sizeFmt, g.winSqFt, `${g.widthFmt} x ${g.heightFmt}`, String(g.qty), g.totalGlassSq ]);
   const winHeaders = l === 'hi'
-    ? ["विंडो # (Mode)", "विंडो साइज", "वर्ग फुट", "कांच साइज", "संख्या", "कुल कांच वर्ग फुट"]
-    : (l === 'en' ? ["Win # (Mode)", "Window Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]
-    : ["Win # (Mode)", "Window Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]);
+    ? ["विंडो # (Mode)", "विंडो साइज", "वर्ग फुट", "कांच साइज", "संख्या", `कांच वर्ग फुट${glassModeTag}`]
+    : (l === 'en' ? ["Win # (Mode)", "Window Size", "Sq.Ft", "Glass Size", "Qty", `Total Glass Sq.Ft${glassModeTag}`]
+    : ["Win # (Mode)", "Window Size", "Sq.Ft", "Glass Size", "Qty", `Total Glass Sq.Ft${glassModeTag}`]);
   winWrap.appendChild(buildTable(winHeaders, winRows, 100));
 
   // 5. PROFILE CUT LENGTHS
@@ -2292,7 +2473,7 @@ function buildRulesUI(tabMode){
     else if (key === 'ClipH') headerTitle = `📎 ${secNum - 1}. क्लिप ऊंचाई नियम (Clip Height - H Rules)`;
     else if (key === 'Handle') headerTitle = `📐 ${secNum - 1}. हैंडल ऊंचाई नियम (Handle Height - H Rules)`;
     else if (key === 'Interlock') headerTitle = `🔒 ${secNum - 1}. इंटरलोक नियम (Interlock - H Rules)`;
-    else if (key === 'TrackStrip') headerTitle = `📏 ${secNum - 1}. ट्रैक पट्टी नियम (Track Strip - W Rules)`;
+    else if (key === 'TrackStrip') headerTitle = `📏 ${secNum - 1}. ट्रैक पट्टी नियम (Track Strip - W Rules) [आधा सूत मान्य]`;
 
     if (isTrackStrip) {
       const stockDisp = isMM ? safeFix((cur.stockLen ?? 192) * 25.4, 1) : (cur.stockLen ?? 192);
@@ -2305,7 +2486,7 @@ function buildRulesUI(tabMode){
               <option value="H" ${chosenBase === 'H' ? 'selected' : ''}>ऊंचाई (H)</option>
             </select>
           </div>
-          <div class="group"><label class="lbl">माइनस सूत (Offset)</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" /></div>
+          <div class="group"><label class="lbl">माइनस सूत (Offset: e.g. -3.5.5)</label><input class="input wc-prof-part" data-type="${key}" data-prop="offset" type="text" value="${offDisp}" placeholder="-3.5.5" /></div>
           <div class="group"><label class="lbl">भाग (Divide By)</label><input class="input wc-prof-part" data-type="${key}" data-prop="divisor" type="number" step="any" min="0" value="${chosenDivisor}" placeholder="0, 1, 2, 3..." /></div>
           <div class="group"><label class="lbl">कुल पट्टी (Qty)</label><input class="input wc-prof-part" data-type="${key}" data-prop="qty" type="number" value="${cur.qty || 2}" /></div>
         </div>
@@ -2382,7 +2563,7 @@ function saveStockModal(){
 }
 
 function hydrateView() {
-  saveInputs(); updateHeaderCompany(); updateUnitUI(); applyLanguageUI(); updateWeightButtonLabel(); render48DemoBox();
+  saveInputs(); updateHeaderCompany(); updateUnitUI(); applyLanguageUI(); updateWeightButtonLabel(); updateGlassModeButtonLabel(); render48DemoBox();
 
   let lcVal = parseFloat($('#lcInput').value) || 192;
   if (STATE.unitMode === 'mm') { lcVal = lcVal / 25.4; }
@@ -2396,6 +2577,7 @@ function hydrateView() {
     woolpileRate: parseFloat($('#woolpileRateInput').value) || 2,
     gr: parseFloat($('#grInput').value) || 60,
     sqftMode: STATE.sqftMode,
+    glassMode: STATE.glassMode,
     weightMode: STATE.weightMode,
     customRules: STATE.customRules,
     weights: LS.getWeights(),
@@ -2416,47 +2598,79 @@ function hydrateView() {
 }
 
 // ==========================================
-// 3. AI DRAWING / DIARY SCANNER LOGIC (WITH AUTO-COMPRESSION)
+// 3. AI DRAWING SCANNER (200 MEGAPIXEL SAFE COMPRESSION)
 // ==========================================
+async function compressImageForScan(file, maxDimension = 1800, quality = 0.8) {
+  try {
+    let sourceWidth, sourceHeight, drawSource;
+    let cleanupNeeded = null;
 
-// Heavy camera photos (10MB) ko 300KB banata hai taaki Vercel 4.5MB limit block na kare
-function compressImageForScan(file, maxDimension = 1600, quality = 0.8) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-        if (width > maxDimension || height > maxDimension) {
-          if (width > height) {
-            height = Math.round((height * maxDimension) / width);
-            width = maxDimension;
-          } else {
-            width = Math.round((width * maxDimension) / height);
-            height = maxDimension;
-          }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', quality));
-      };
-      img.onerror = reject;
-      img.src = e.target.result;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+    // ⚡ 8MP से 200MP तक की बड़ी फोटो के लिए Zero-Crash createImageBitmap
+    if (window.createImageBitmap) {
+      try {
+        const bitmap = await createImageBitmap(file);
+        sourceWidth = bitmap.width;
+        sourceHeight = bitmap.height;
+        drawSource = bitmap;
+        cleanupNeeded = () => bitmap.close();
+      } catch (e) {
+        drawSource = null;
+      }
+    }
+
+    if (!drawSource) {
+      const url = URL.createObjectURL(file);
+      cleanupNeeded = () => URL.revokeObjectURL(url);
+      const img = await new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error("फोटो लोड नहीं हो सकी। कृपया JPG या PNG फ़ोटो चुनें।"));
+        image.src = url;
+      });
+      sourceWidth = img.naturalWidth || img.width;
+      sourceHeight = img.naturalHeight || img.height;
+      drawSource = img;
+    }
+
+    let targetWidth = sourceWidth;
+    let targetHeight = sourceHeight;
+
+    if (sourceWidth > maxDimension || sourceHeight > maxDimension) {
+      if (sourceWidth > sourceHeight) {
+        targetHeight = Math.round((sourceHeight * maxDimension) / sourceWidth);
+        targetWidth = maxDimension;
+      } else {
+        targetWidth = Math.round((sourceWidth * maxDimension) / sourceHeight);
+        targetHeight = maxDimension;
+      }
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+    const ctx = canvas.getContext('2d', { alpha: false });
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(drawSource, 0, 0, targetWidth, targetHeight);
+
+    if (cleanupNeeded) cleanupNeeded();
+
+    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+    const pureBase64 = dataUrl.split(',')[1] || dataUrl;
+    return pureBase64;
+
+  } catch (err) {
+    console.error("Compression Error:", err);
+    throw new Error(err.message || "फोटो प्रोसेस करने में समस्या आई।");
+  }
 }
 
 async function processDrawingFiles(files) {
   if (!files || files.length === 0) return;
 
   const btn = $('#scanDrawingBtn');
-  const originalText = btn.textContent;
+  const originalText = btn.innerHTML;
   btn.disabled = true;
   btn.textContent = "⏳ फोटो कंप्रेस हो रही है...";
   setStatus("Compressing & Scanning...");
@@ -2469,20 +2683,22 @@ async function processDrawingFiles(files) {
     btn.textContent = `⏳ स्कैनिंग Page ${i + 1}/${files.length}...`;
 
     try {
-      // 1. Photo ko safe size (300KB) mein convert karein
       const compressedBase64 = await compressImageForScan(file);
 
-      // 2. Direct Vercel Serverless Function par bhejein
       const response = await fetch('https://windowcraft-server.vercel.app/api/scan', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           imageBase64: compressedBase64,
           mimeType: 'image/jpeg'
         })
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({ error: `Server Status (${response.status})` }));
+      
       if (response.ok && data.success && data.result) {
         allExtractedLines.push(data.result);
       } else {
@@ -2490,19 +2706,17 @@ async function processDrawingFiles(files) {
         console.warn(`Scan error on page ${i + 1}:`, lastErrorMsg);
       }
     } catch (err) {
-      lastErrorMsg = err.message;
+      lastErrorMsg = err.message || "Network error";
       console.error(`Error scanning file ${i + 1}:`, err);
     }
   }
 
   btn.disabled = false;
-  btn.textContent = originalText;
+  btn.innerHTML = originalText;
 
   if (allExtractedLines.length > 0) {
     const combinedLines = allExtractedLines.join('\n').trim();
     const currentVal = $('#sizesInput').value.trim();
-    
-    // Window sizes textarea mein autofill karein
     $('#sizesInput').value = currentVal ? `${currentVal}\n${combinedLines}` : combinedLines;
     
     saveInputs();
@@ -2510,7 +2724,7 @@ async function processDrawingFiles(files) {
     alert(`✅ सफल! डायरी के सभी नाप स्कैन होकर भर गए हैं।`);
     setStatus("Scanned & Calculated!");
   } else {
-    alert(`❌ स्कैनिंग में समस्या आई: ${lastErrorMsg || 'कृपया Vercel पर GEMINI_API_KEY सेट और Redeploy चेक करें।'}`);
+    alert(`❌ स्कैनिंग में समस्या आई: ${lastErrorMsg}\n\n(टिप: Vercel पर GEMINI_API_KEY सेट और Redeploy चेक करें)`);
     setStatus("Scan failed");
   }
 }
@@ -2567,6 +2781,10 @@ function generateBillPDF(fileName) {
     const pageHeight = doc.internal.pageSize.getHeight();
     const dateStr = new Date().toLocaleDateString('en-GB');
 
+    let glassModeText = 'Normal 6" Step';
+    if (STATE.glassMode === 'toughened_1inch') glassModeText = '1" Tuffen (+1" W&H)';
+    else if (STATE.glassMode === 'toughened_2inch') glassModeText = '2" Tuffen (+2" W&H)';
+
     function drawPdfHeader(doc, pageNum) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
@@ -2578,7 +2796,7 @@ function generateBillPDF(fileName) {
       doc.setDrawColor(0, 0, 0);
       doc.line(35, 45, 560, 45);
       doc.setFontSize(8.5);
-      doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()}) | Area: ${STATE.sqftMode.toUpperCase()}`, 35, 55);
+      doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()}) | Glass Mode: ${glassModeText}`, 35, 55);
       doc.text(`Date: ${dateStr}  |  Page ${pageNum}`, 560, 55, { align: 'right' });
     }
 
@@ -2600,7 +2818,7 @@ function generateBillPDF(fileName) {
       ["Total Full Raw Bar Weight", `${t.totalFullBarWeightKg} kg`],
       ["Actual Used Weight", `${t.totalUsedWeightKg} kg`],
       ["Billed Metal Weight", `${t.totalWeightKg} kg`],
-      ["Total Glass Area", `${t.totalGlassSqFt} Sq.Ft`],
+      ["Total Glass Area", `${t.totalGlassSqFt} Sq.Ft (${glassModeText})`],
       ["Total Woolpile Length", `${t.totalWoolpileFt} Running Ft`]
     ];
 
@@ -2621,7 +2839,7 @@ function generateBillPDF(fileName) {
     const labourDesc = t.hasMinLabourApplied ? `Labour Total (@ Rs. ${t.labourRate}/sq.ft)* [Min 12.5]` : `Labour Total (@ Rs. ${t.labourRate}/sq.ft)`;
     const eRows = [
       [`Billed Metal Cost (${t.totalWeightKg} kg @ Rs. ${t.matsRate}/kg)`, `Rs. ${t.weightCost}`],
-      [`Glass Cost (@ Rs. ${t.glassRate}/sq.ft)`, `Rs. ${t.glassCost}`],
+      [`Glass Cost (@ Rs. ${t.glassRate}/sq.ft) [${glassModeText}]`, `Rs. ${t.glassCost}`],
       [`Hardware & Addl. Cost (@ Rs. ${t.hwPerWindow}/win)`, `Rs. ${t.totalHardwareCost}`],
       [`Woolpile Cost (${t.totalWoolpileFt} Ft @ Rs. ${t.woolpileRate}/Ft)`, `Rs. ${t.totalWoolpileCost}`],
       [`Rubber Gasket Cost (@ Rs. ${t.rubberRate}/kg)`, `Rs. ${t.totalRubberCost}`],
@@ -2806,6 +3024,10 @@ function generateFabricationPDF(fileName) {
     const pageHeight = doc.internal.pageSize.getHeight();
     const dateStr = new Date().toLocaleDateString('en-GB');
 
+    let glassModeText = 'Normal 6" Step';
+    if (STATE.glassMode === 'toughened_1inch') glassModeText = '1" Tuffen (+1" W&H)';
+    else if (STATE.glassMode === 'toughened_2inch') glassModeText = '2" Tuffen (+2" W&H)';
+
     function drawPdfHeader(doc, pageNum) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
@@ -2817,7 +3039,7 @@ function generateFabricationPDF(fileName) {
       doc.setDrawColor(0, 0, 0);
       doc.line(35, 45, 560, 45);
       doc.setFontSize(8.5);
-      doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()}) | Area: ${STATE.sqftMode.toUpperCase()}`, 35, 55);
+      doc.text(`Project Mode: ${STATE.mode} (${STATE.unitMode.toUpperCase()}) | Glass: ${glassModeText}`, 35, 55);
       doc.text(`Date: ${dateStr}  |  Page ${pageNum}`, 560, 55, { align: 'right' });
     }
 
@@ -2840,7 +3062,7 @@ function generateFabricationPDF(fileName) {
       startY: currentY,
       head: [
         [{ content: '1. Window Sizes & Glass', colSpan: 6, styles: { halign: 'left', fontStyle: 'bold', fillColor: [215, 215, 215] } }],
-        ["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", "Total Glass Sq.Ft"]
+        ["Win # (Mode)", "Size", "Sq.Ft", "Glass Size", "Qty", `Total Glass Sq.Ft`]
       ],
       body: wsRows,
       columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' }, 2: { halign: 'right' }, 3: { halign: 'left' }, 4: { halign: 'center' }, 5: { halign: 'right' } }
@@ -2934,7 +3156,42 @@ function bindEvents(){
     });
   };
 
-  $('#clearAllBtn').onclick = () => { $('#sizesInput').value = ''; hydrateView(); };
+  // 🗑️ 2-STEP SAFE CLEAR ALL WITH 4-SECOND TIMEOUT
+  let clearAllTimer = null;
+  $('#clearAllBtn').onclick = () => {
+    const btn = $('#clearAllBtn');
+    const isConfirming = btn.dataset.confirming === 'true';
+
+    if (isConfirming) {
+      // Step 2: Confirmed! Clear data
+      clearTimeout(clearAllTimer);
+      btn.dataset.confirming = 'false';
+      btn.style.backgroundColor = 'var(--danger)';
+      btn.style.boxShadow = '';
+      applyLanguageUI();
+
+      $('#sizesInput').value = '';
+      saveInputs();
+      hydrateView();
+      setStatus('All data cleared');
+    } else {
+      // Step 1: Prompt user to click again
+      btn.dataset.confirming = 'true';
+      btn.textContent = STATE.lang === 'hi' 
+        ? '⚠️ सच में डिलीट करें? (दोबारा दबाएं)' 
+        : (STATE.lang === 'en' ? '⚠️ Confirm Delete? (Click Again)' : '⚠️ सच में डिलीट करें? (दोबारा दबाएं)');
+      btn.style.backgroundColor = '#991b1b';
+      btn.style.boxShadow = '0 0 8px rgba(220, 38, 38, 0.8)';
+
+      clearAllTimer = setTimeout(() => {
+        btn.dataset.confirming = 'false';
+        btn.style.backgroundColor = 'var(--danger)';
+        btn.style.boxShadow = '';
+        applyLanguageUI();
+      }, 4000);
+    }
+  };
+
   $('#unitModeBtn').onclick = () => { convertUnitModeToggle(); };
 
   $('#zoomSlider').oninput = (e) => { applyScreenZoom(parseInt(e.target.value, 10)); };
@@ -2950,10 +3207,18 @@ function bindEvents(){
   $('#scanInfoBtn').onclick = () => { $('#scanInfoModal').classList.add('open'); };
   $('#scanInfoCloseBtn').onclick = () => { $('#scanInfoModal').classList.remove('open'); };
 
-  // CAMERA / SCAN DRAWING TRIGGER
+  // 🆕 UPDATE MODAL EVENTS
+  $('#topUpdateBanner').onclick = () => { $('#updateNoticeModal').classList.add('open'); };
+  $('#headerUpdateBtn').onclick = () => { $('#updateNoticeModal').classList.add('open'); };
+  $('#dismissUpdateNoticeBtn').onclick = () => { dismissUpdateNotice(); };
+
+  // 📷 CAMERA / SCAN DRAWING TRIGGER
   $('#scanDrawingBtn').onclick = () => {
-    $('#scanFileInput').click();
+    const fileInput = $('#scanFileInput');
+    fileInput.value = '';
+    fileInput.click();
   };
+
   $('#scanFileInput').onchange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       processDrawingFiles(e.target.files);
@@ -3005,6 +3270,25 @@ function bindEvents(){
     }
   });
   
+  // 🪟 3-MODE GLASS TOGGLE CLICK (Normal 6" -> 1" Tuffen -> 2" Tuffen)
+  $('#glassModeBtn').onclick = () => {
+    if (STATE.glassMode === 'normal_6step') STATE.glassMode = 'toughened_1inch';
+    else if (STATE.glassMode === 'toughened_1inch') STATE.glassMode = 'toughened_2inch';
+    else STATE.glassMode = 'normal_6step';
+    LS.setGlassMode(STATE.glassMode);
+    updateGlassModeButtonLabel();
+    saveInputs();
+    hydrateView();
+  };
+
+  $('#glassModeSelect').onchange = (e) => {
+    STATE.glassMode = e.target.value;
+    LS.setGlassMode(STATE.glassMode);
+    updateGlassModeButtonLabel();
+    saveInputs();
+    hydrateView();
+  };
+
   $('#sqftModeBtn').onclick = () => {
     if (STATE.sqftMode === '6step') STATE.sqftMode = '3step';
     else if (STATE.sqftMode === '3step') STATE.sqftMode = 'inch';
@@ -3108,7 +3392,7 @@ function bindEvents(){
     }
   };
 
-  // RULES SAVE
+  // RULES SAVE (WITH HALF-SUT .5 / ½ SUPPORT FOR TRACKSTRIP & OFFSETS)
   $('#rulesSave').onclick = () => {
     const active = STATE.currentRulesTab || STATE.mode;
     const currentRules = STATE.customRules[active] || {};
@@ -3204,6 +3488,7 @@ window.onload = () => {
     bindEvents();
     applyLanguageUI();
     hydrateView();
+    checkAndUpdateVersionNotice();
     AdMobBridge.showAppOpen();
     AdMobBridge.showBanner();
   } catch (err) {
