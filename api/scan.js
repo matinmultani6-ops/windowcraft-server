@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // CORS Headers
-  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
@@ -9,8 +9,7 @@ export default async function handler(req, res) {
   );
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
@@ -19,11 +18,13 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY Vercel par set nahi hai.' });
+    return res.status(500).json({ error: 'GEMINI_API_KEY Vercel Environment Variables में नहीं मिली।' });
   }
 
   try {
-    const { imageBase64, mimeType = 'image/jpeg' } = req.body;
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const { imageBase64, mimeType = 'image/jpeg' } = body || {};
+
     if (!imageBase64) {
       return res.status(400).json({ error: 'No image provided' });
     }
@@ -37,20 +38,16 @@ Analyze this image which contains handwritten window drawings/sketches, diary no
 TASK:
 Extract EVERY single window measurement from the image without skipping any.
 
-RULES FOR DRAWINGS / SKETCHES:
+RULES:
 1. Each drawn rectangle/box represents a window.
-2. The number inside the circle (e.g. ①, ②, 1, 2) is the window number/ID.
-3. The number at the top or bottom edge of the box is the WIDTH (W).
-4. The number at the left or right edge of the box is the HEIGHT (H).
-5. If any number is crossed out or scribbled over, take the corrected/overwritten number.
-6. If a fraction like '1/2' or '½' is present after a number (e.g. '69.7 ½'), represent half-sut as '.5'. For example:
+2. The number at the top or bottom edge of the box is the WIDTH (W).
+3. The number at the left or right edge of the box is the HEIGHT (H).
+4. If a fraction like '1/2' or '½' is present after a number (e.g. '69.7 ½'), represent half-sut as '.5'. For example:
    - '69.7 ½' -> '69.7.5'
    - '36.5 ½' -> '36.5.5'
    - '81.6' -> '81.6'
    - '81' -> '81'
-   - '46.3' -> '46.3'
-7. If quantity is specified like '(4)' or '4 piece', include '(4)'. If not specified, default to 1 piece (no brackets needed).
-8. If plain text list or table is present without boxes, extract Width and Height in the same way.
+5. If quantity is specified like '(4)', include '(4)'. If not, default to 1 (no brackets).
 
 OUTPUT FORMAT:
 Return ONLY the window sizes, ONE WINDOW PER LINE, in this exact format:
@@ -60,51 +57,67 @@ WIDTH*HEIGHT
 
 Example Output:
 46.3*78.1
-70.2*78.2
+70.2*78.2 (2)
 69.7.5*78.5
-57.4.5*45.1.5
-81*94
 
-Do NOT write any explanation, markdown backticks, or intro. Output ONLY the lines of measurements.
+Do NOT write markdown, code blocks, or explanations. Only return lines of sizes.
 `;
 
-    // STEP 1: Google se pucho ki is API key ke liye kaunse models active hain
-    let targetModels = [];
+    // ⚡ STEP 1: Fast Dynamic Discovery (1.5s timeout ke saath)
+    // Google ke server se puchho ki is samay sabse naya model kaunsa active hai
+    let activeCandidateModels = [];
     try {
-      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1800); // 1.8 sec max
+
+      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
       if (listRes.ok) {
         const listData = await listRes.json();
         if (Array.isArray(listData.models)) {
-          const contentModels = listData.models.filter(m => 
-            Array.isArray(m.supportedGenerationMethods) && 
-            m.supportedGenerationMethods.includes('generateContent')
-          );
-          const flashModels = contentModels.filter(m => m.name.toLowerCase().includes('flash'));
-          const otherModels = contentModels.filter(m => !m.name.toLowerCase().includes('flash'));
-          targetModels = [...flashModels, ...otherModels].map(m => m.name);
+          // Jo models generateContent support karte hain
+          const validModels = listData.models
+            .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+            .map(m => m.name.replace(/^models\//, ''));
+
+          // Sabse naye aur fastest models ko top priority dein (Gemini 2.5 > 2.0 > 1.5)
+          const sortedModels = validModels.sort((a, b) => {
+            const getScore = (name) => {
+              if (name.includes('flash')) return 100;
+              if (name.includes('pro')) return 50;
+              return 10;
+            };
+            return getScore(b) - getScore(a);
+          });
+
+          if (sortedModels.length > 0) {
+            activeCandidateModels = sortedModels.slice(0, 3); // Top 3 models
+          }
         }
       }
     } catch (e) {
-      console.warn("Model discovery error:", e);
+      // Timeout ya network glitch par standard modern fallbacks use karein
     }
 
-    // Fallback list agar discovery na chale
-    if (targetModels.length === 0) {
-      targetModels = [
-        'models/gemini-2.0-flash',
-        'models/gemini-2.5-flash',
-        'models/gemini-1.5-flash',
-        'models/gemini-1.5-pro'
+    // Default High-Priority Modern Models (agar discovery miss ho)
+    if (activeCandidateModels.length === 0) {
+      activeCandidateModels = [
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
+        'gemini-2.5-flash',
+        'gemini-1.5-pro'
       ];
     }
 
-    let lastError = null;
     let cleanLines = '';
+    let lastError = '';
 
-    // STEP 2: Jo model Google ne diya, seedha usi se scan karo
-    for (const modelPath of targetModels) {
-      const cleanPath = modelPath.startsWith('models/') ? modelPath : `models/${modelPath}`;
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/${cleanPath}:generateContent?key=${apiKey}`;
+    // ⚡ STEP 2: Top Active Model par call karein
+    for (const model of activeCandidateModels) {
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
       try {
         const response = await fetch(apiUrl, {
@@ -116,8 +129,8 @@ Do NOT write any explanation, markdown backticks, or intro. Output ONLY the line
                 parts: [
                   { text: promptText },
                   {
-                    inline_data: {
-                      mime_type: mimeType,
+                    inlineData: {
+                      mimeType: mimeType,
                       data: cleanBase64
                     }
                   }
@@ -140,9 +153,9 @@ Do NOT write any explanation, markdown backticks, or intro. Output ONLY the line
             .map(line => line.trim())
             .filter(line => line.length > 0 && !line.startsWith('```'))
             .join('\n');
-          break; // Success! Working model mil gaya
+          break; // Mil gaya result! Agle loop ki zarurat nahi
         } else {
-          lastError = data.error?.message || `Model ${modelPath} failed`;
+          lastError = data.error?.message || `Model ${model} responded with ${response.status}`;
         }
       } catch (err) {
         lastError = err.message;
@@ -152,8 +165,9 @@ Do NOT write any explanation, markdown backticks, or intro. Output ONLY the line
     if (cleanLines) {
       return res.status(200).json({ success: true, result: cleanLines });
     } else {
-      return res.status(500).json({ error: lastError || 'Gemini API call failed' });
+      return res.status(400).json({ error: lastError || 'फोटो में कोई विंडो नाप नहीं मिल सका।' });
     }
+
   } catch (error) {
     console.error('Scan Error:', error);
     return res.status(500).json({ error: error.message || 'Internal Server Error' });
