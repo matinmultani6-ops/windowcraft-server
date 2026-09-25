@@ -63,60 +63,18 @@ Example Output:
 Do NOT write markdown, code blocks, or explanations. Only return lines of sizes.
 `;
 
-    // ⚡ STEP 1: Fast Dynamic Discovery (1.5s timeout ke saath)
-    // Google ke server se puchho ki is samay sabse naya model kaunsa active hai
-    let activeCandidateModels = [];
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1800); // 1.8 sec max
-
-      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`, {
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-
-      if (listRes.ok) {
-        const listData = await listRes.json();
-        if (Array.isArray(listData.models)) {
-          // Jo models generateContent support karte hain
-          const validModels = listData.models
-            .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
-            .map(m => m.name.replace(/^models\//, ''));
-
-          // Sabse naye aur fastest models ko top priority dein (Gemini 2.5 > 2.0 > 1.5)
-          const sortedModels = validModels.sort((a, b) => {
-            const getScore = (name) => {
-              if (name.includes('flash')) return 100;
-              if (name.includes('pro')) return 50;
-              return 10;
-            };
-            return getScore(b) - getScore(a);
-          });
-
-          if (sortedModels.length > 0) {
-            activeCandidateModels = sortedModels.slice(0, 3); // Top 3 models
-          }
-        }
-      }
-    } catch (e) {
-      // Timeout ya network glitch par standard modern fallbacks use karein
-    }
-
-    // Default High-Priority Modern Models (agar discovery miss ho)
-    if (activeCandidateModels.length === 0) {
-      activeCandidateModels = [
-        'gemini-2.0-flash',
-        'gemini-1.5-flash',
-        'gemini-2.5-flash',
-        'gemini-1.5-pro'
-      ];
-    }
+    // ⚡ 3 बैकअप मॉडल्स: अगर एक बिजी हो तो तुरंत दूसरे से काम निकालो
+    const modelsToTry = [
+      'gemini-1.5-flash-8b', // सबसे कम लोड और सुपरफास्ट OCR
+      'gemini-1.5-flash',
+      'gemini-2.0-flash',
+      'gemini-2.5-flash'
+    ];
 
     let cleanLines = '';
     let lastError = '';
 
-    // ⚡ STEP 2: Top Active Model par call karein
-    for (const model of activeCandidateModels) {
+    for (const model of modelsToTry) {
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
       try {
@@ -153,9 +111,11 @@ Do NOT write markdown, code blocks, or explanations. Only return lines of sizes.
             .map(line => line.trim())
             .filter(line => line.length > 0 && !line.startsWith('```'))
             .join('\n');
-          break; // Mil gaya result! Agle loop ki zarurat nahi
+          break; // सफलता! काम हो गया, लूप रोकें
         } else {
-          lastError = data.error?.message || `Model ${model} responded with ${response.status}`;
+          lastError = data.error?.message || `Model ${model} status ${response.status}`;
+          // अगर मॉडल बिजी है (High demand) तो अगले मॉडल पर ऑटोमैटिक जाएँ
+          console.warn(`Model ${model} busy/failed, trying next...`);
         }
       } catch (err) {
         lastError = err.message;
