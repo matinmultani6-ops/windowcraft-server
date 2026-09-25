@@ -57,18 +57,21 @@ WIDTH*HEIGHT
 
 Example Output:
 46.3*78.1
-70.2*78.2 (2)
+70.2*78.2
 69.7.5*78.5
+69.6*78.5.5
+36.5.5*78.5
 
 Do NOT write markdown, code blocks, or explanations. Only return lines of sizes.
 `;
 
-    // ⚡ 3 बैकअप मॉडल्स: अगर एक बिजी हो तो तुरंत दूसरे से काम निकालो
+    // ⚡ Google ke naye models (Gemini 3.8 Flash ko sabse pehle rakha hai)
     const modelsToTry = [
-      'gemini-1.5-flash-8b', // सबसे कम लोड और सुपरफास्ट OCR
+      'gemini-3.8-flash',
+      'gemini-3.6-flash',
+      'gemini-3.5-flash',
       'gemini-1.5-flash',
-      'gemini-2.0-flash',
-      'gemini-2.5-flash'
+      'gemini-1.5-flash-8b'
     ];
 
     let cleanLines = '';
@@ -114,8 +117,7 @@ Do NOT write markdown, code blocks, or explanations. Only return lines of sizes.
           break; // सफलता! काम हो गया, लूप रोकें
         } else {
           lastError = data.error?.message || `Model ${model} status ${response.status}`;
-          // अगर मॉडल बिजी है (High demand) तो अगले मॉडल पर ऑटोमैटिक जाएँ
-          console.warn(`Model ${model} busy/failed, trying next...`);
+          console.warn(`Model ${model} failed, trying next model...`);
         }
       } catch (err) {
         lastError = err.message;
